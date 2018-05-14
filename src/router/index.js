@@ -19,62 +19,76 @@ import Layout from '../views/layout/Layout'
   }
  **/
 export const constantRouterMap = [
-  { path: '/login', component: () => import('@/views/login/index'), hidden: true },
-  { path: '/404', component: () => import('@/views/404'), hidden: true },
-
+  {path: '/login', component: () => import('@/views/login/index'), hidden: true},
+  {path: '/404', component: () => import('@/views/404'), hidden: true},
   {
-    path: '/',
+    path: '',
     component: Layout,
     redirect: '/dashboard',
-    name: 'Dashboard',
-    hidden: true,
     children: [{
       path: 'dashboard',
-      component: () => import('@/views/dashboard/index')
+      name: 'dashboard',
+      component: () => import('@/views/dashboard/index'),
+      meta: {title: '首页', icon: 'home'}
     }]
   },
-
   {
-    path: '/example',
+    path: '/pms',
     component: Layout,
-    redirect: '/example/table',
-    name: 'Example',
-    meta: { title: 'Example', icon: 'example' },
-    children: [
-      {
-        path: 'table',
-        name: 'Table',
-        component: () => import('@/views/table/index'),
-        meta: { title: 'Table', icon: 'table' }
+    redirect: '/pms/product',
+    name: 'pms',
+    meta: {title: '商品', icon: 'product'},
+    children: [{
+      path: 'product',
+      name: 'product',
+      component: () => import('@/views/pms/product/index'),
+      meta: {title: '商品列表', icon: 'product-list'}
       },
       {
-        path: 'tree',
-        name: 'Tree',
-        component: () => import('@/views/tree/index'),
-        meta: { title: 'Tree', icon: 'tree' }
-      }
-    ]
-  },
-
-  {
-    path: '/form',
-    component: Layout,
-    children: [
+        path: 'addProduct',
+        name: 'addProduct',
+        component: () => import('@/views/pms/addProduct/index'),
+        meta: {title: '添加商品', icon: 'product-add'}
+      },
       {
-        path: 'index',
-        name: 'Form',
-        component: () => import('@/views/form/index'),
-        meta: { title: 'Form', icon: 'form' }
+        path: 'productRecycle',
+        name: 'productRecycle',
+        component: () => import('@/views/pms/product/index'),
+        meta: {title: '商品回收站', icon: 'product-recycle'}
+      },
+      {
+        path: 'productComment',
+        name: 'productComment',
+        component: () => import('@/views/pms/product/index'),
+        meta: {title: '商品评价', icon: 'product-comment'}
+      },
+      {
+        path: 'productCate',
+        name: 'productCate',
+        component: () => import('@/views/pms/product/index'),
+        meta: {title: '商品分类', icon: 'product-cate'}
+      },
+      {
+        path: 'productAttr',
+        name: 'productAttr',
+        component: () => import('@/views/pms/product/index'),
+        meta: {title: '商品类型', icon: 'product-attr'}
+      },
+      {
+        path: 'brand',
+        name: 'brand',
+        component: () => import('@/views/pms/brand/index'),
+        meta: {title: '品牌管理', icon: 'product-brand'}
       }
     ]
   },
 
-  { path: '*', redirect: '/404', hidden: true }
+  {path: '*', redirect: '/404', hidden: true}
 ]
 
 export default new Router({
   // mode: 'history', //后端支持可开
-  scrollBehavior: () => ({ y: 0 }),
+  scrollBehavior: () => ({y: 0}),
   routes: constantRouterMap
 })
 
