@@ -47,7 +47,7 @@ export const constantRouterMap = [
       {
         path: 'addProduct',
         name: 'addProduct',
-        component: () => import('@/views/pms/addProduct/index'),
+        component: () => import('@/views/pms/product/add'),
         meta: {title: '添加商品', icon: 'product-add'}
       },
       {
@@ -79,6 +79,20 @@ export const constantRouterMap = [
         name: 'brand',
         component: () => import('@/views/pms/brand/index'),
         meta: {title: '品牌管理', icon: 'product-brand'}
+      },
+      {
+        path: 'addBrand',
+        name: 'addBrand',
+        component: () => import('@/views/pms/brand/add'),
+        meta: {title: '添加品牌'},
+        hidden:true
+      },
+      {
+        path: 'updateBrand',
+        name: 'updateBrand',
+        component: () => import('@/views/pms/brand/update'),
+        meta: {title: '编辑品牌'},
+        hidden:true
       }
     ]
   },
