@@ -2,8 +2,8 @@
   <div class="app-container">
     <div class="filter-container container-frame">
       <div>
-        <i class="el-icon-search"></i>
-        筛选搜索
+        <i class="el-icon-search" style="margin-top: 10px"></i>
+        <span style="margin-top: 10px">筛选搜索</span>
         <el-button
           style="float: right"
           @click="searchBrandList()"
@@ -23,8 +23,9 @@
       </div>
     </div>
     <div class="operate-container container-frame">
-      <i class="el-icon-tickets"></i>
-      操作栏
+
+      <i class="el-icon-tickets" style="margin-top: 5px"></i>
+      <span style="margin-top: 5px">数据列表</span>
       <el-button
         @click="addBrand()"
         size="mini">
@@ -77,13 +78,13 @@
             <el-button
               size="mini"
               type="text"
-              @click="handleProductList(scope.$index, scope.row)">100
+              @click="getProductList(scope.$index, scope.row)">100
             </el-button>
             <span>评价：</span>
             <el-button
               size="mini"
               type="text"
-              @click="handleProductCommentList(scope.$index, scope.row)">1000
+              @click="getProductCommentList(scope.$index, scope.row)">1000
             </el-button>
           </template>
         </el-table-column>
@@ -91,7 +92,7 @@
           <template slot-scope="scope">
             <el-button
               size="mini"
-              @click="handleEdit(scope.$index, scope.row)">编辑
+              @click="handleUpdate(scope.$index, scope.row)">编辑
             </el-button>
             <el-button
               size="mini"
@@ -181,7 +182,7 @@
       handleSelectionChange(val) {
         this.multipleSelection = val;
       },
-      handleEdit(index, row) {
+      handleUpdate(index, row) {
         this.$router.push({path: '/pms/updateBrand',query:{id:row.id}})
       },
       handleDelete(index, row) {
@@ -193,26 +194,28 @@
           deleteBrand(row.id).then(response=>{
             this.$message({
               message: '删除成功',
-              type: 'success'
+              type: 'success',
+              duration:1000
             });
             this.getList();
           });
         });
       },
-      handleProductList(index, row) {
+      getProductList(index, row) {
         console.log(index, row);
       },
-      handleProductCommentList(index, row) {
+      getProductCommentList(index, row) {
         console.log(index, row);
       },
       handleFactoryStatusChange(index, row) {
-        var data = new FormData();
+        var data = new URLSearchParams();
         data.append("ids",row.id);
         data.append("factoryStatus",row.factoryStatus);
         updateFactoryStatus(data).then(response => {
           this.$message({
             message: '修改成功',
-            type: 'success'
+            type: 'success',
+            duration:1000
           });
         }).catch(error => {
           if (row.factoryStatus === 0) {
@@ -229,7 +232,8 @@
         updateShowStatus(data).then(response => {
           this.$message({
             message: '修改成功',
-            type: 'success'
+            type: 'success',
+            duration:1000
           });
         }).catch(error => {
           if (row.showStatus === 0) {
@@ -267,7 +271,8 @@
         }else{
           this.$message({
             message: '请选择批量操作类型',
-            type: 'warning'
+            type: 'warning',
+            duration:1000
           });
           return;
         }
@@ -282,7 +287,8 @@
           this.getList();
           this.$message({
             message: '修改成功',
-            type: 'success'
+            type: 'success',
+            duration:1000
           });
         });
       },

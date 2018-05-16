@@ -24,11 +24,11 @@ export const constantRouterMap = [
   {
     path: '',
     component: Layout,
-    redirect: '/dashboard',
+    redirect: '/home',
     children: [{
-      path: 'dashboard',
-      name: 'dashboard',
-      component: () => import('@/views/dashboard/index'),
+      path: 'home',
+      name: 'home',
+      component: () => import('@/views/home/index'),
       meta: {title: '首页', icon: 'home'}
     }]
   },

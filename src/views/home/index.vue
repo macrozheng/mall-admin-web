@@ -9,7 +9,7 @@
 import { mapGetters } from 'vuex'
 
 export default {
-  name: 'dashboard',
+  name: 'home',
   computed: {
     ...mapGetters([
       'name',

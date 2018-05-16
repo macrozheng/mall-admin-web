@@ -2,10 +2,10 @@
   <brand-detail :is-edit='false'></brand-detail>
 </template>
 <script>
-  import brandDetail from './components/brandDetail'
+  import BrandDetail from './components/BrandDetail'
   export default {
     name: 'addBrand',
-    components: { brandDetail }
+    components: { BrandDetail }
   }
 </script>
 <style>

@@ -46,7 +46,7 @@
   import {createBrand, getBrand, updateBrand} from '@/api/brand'
 
   export default {
-    name: 'brandDetail',
+    name: 'BrandDetail',
     props: {
       isEdit: {
         type: Boolean,
@@ -100,7 +100,8 @@
                   this.$refs[formName].resetFields();
                   this.$message({
                     message: '修改成功',
-                    type: 'success'
+                    type: 'success',
+                    duration:1000
                   });
                 });
               } else {
@@ -108,7 +109,8 @@
                   this.$refs[formName].resetFields();
                   this.$message({
                     message: '提交成功',
-                    type: 'success'
+                    type: 'success',
+                    duration:1000
                   });
                 });
               }
@@ -117,7 +119,8 @@
           } else {
             this.$message({
               message: '验证失败',
-              type: 'error'
+              type: 'error',
+              duration:1000
             });
             return false;
           }
