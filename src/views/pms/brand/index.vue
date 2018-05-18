@@ -257,11 +257,14 @@
         this.getList();
       },
       handleBatchOperate() {
+        console.log(this.multipleSelection);
         if(this.multipleSelection<1){
           this.$message({
             message: '请选择一条记录',
-            type: 'warning'
+            type: 'warning',
+            duration:1000
           });
+          return;
         }
         let showStatus = 0;
         if(this.operateType==='showBrand'){

@@ -3,7 +3,7 @@ export function fetchList(params) {
   return request({
     url:'/brand/list',
     method:'get',
-    params
+    params:params
   })
 }
 export function createBrand(data) {

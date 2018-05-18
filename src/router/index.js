@@ -71,8 +71,15 @@ export const constantRouterMap = [
       {
         path: 'productAttr',
         name: 'productAttr',
-        component: () => import('@/views/pms/product/index'),
+        component: () => import('@/views/pms/productAttr/index'),
         meta: {title: '商品类型', icon: 'product-attr'}
+      },
+      {
+        path: 'addProductAttr',
+        name: 'addProductAttr',
+        component: () => import('@/views/pms/productAttr/index'),
+        meta: {title: '添加商品属性'},
+        hidden:true
       },
       {
         path: 'brand',
