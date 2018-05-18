@@ -4,21 +4,21 @@
       <el-form-item label="品牌名称：" prop="name">
         <el-input v-model="brand.name"></el-input>
       </el-form-item>
-      <el-form-item label="品牌首字母：">
+      <el-form-item label="品牌首字母：" property="">
         <el-input v-model="brand.firstLetter"></el-input>
       </el-form-item>
       <el-form-item label="品牌LOGO：" prop="logo">
-        <el-input v-model="brand.logo"></el-input>
+        <single-upload v-model="brand.logo"></single-upload>
       </el-form-item>
       <el-form-item label="品牌专区大图：">
-        <el-input v-model="brand.bigPic"></el-input>
+        <single-upload v-model="brand.bigPic"></single-upload>
       </el-form-item>
       <el-form-item label="品牌故事：">
         <el-input
           placeholder="请输入内容"
           type="textarea"
           v-model="brand.brandStory"
-          autosize="true"></el-input>
+          :autosize="true"></el-input>
       </el-form-item>
       <el-form-item label="排序：" prop="sort">
         <el-input v-model.number="brand.sort"></el-input>
@@ -37,16 +37,18 @@
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="onSubmit('brandFrom')">提交</el-button>
-        <el-button v-if="!isEdit" @click="resetForm('brandFrom')">重置</el-button>
+        <!--<el-button v-if="!isEdit" @click="resetForm('brandFrom')">重置</el-button>-->
       </el-form-item>
     </el-form>
   </div>
 </template>
 <script>
   import {createBrand, getBrand, updateBrand} from '@/api/brand'
+  import SingleUpload from '@/components/Upload/singleUpload'
 
   export default {
     name: 'BrandDetail',
+    components:{SingleUpload},
     props: {
       isEdit: {
         type: Boolean,
@@ -75,7 +77,7 @@
           ],
           sort: [
             {type: 'number', message: '排序必须为数字'}
-          ]
+          ],
         }
       }
     },
@@ -103,6 +105,7 @@
                     type: 'success',
                     duration:1000
                   });
+                  this.$router.push({path: '/pms/brand'});
                 });
               } else {
                 createBrand(this.brand).then(response => {
