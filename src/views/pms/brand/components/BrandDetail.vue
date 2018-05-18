@@ -37,7 +37,7 @@
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="onSubmit('brandFrom')">提交</el-button>
-        <!--<el-button v-if="!isEdit" @click="resetForm('brandFrom')">重置</el-button>-->
+        <el-button v-if="!isEdit" @click="resetForm('brandFrom')">重置</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -45,7 +45,16 @@
 <script>
   import {createBrand, getBrand, updateBrand} from '@/api/brand'
   import SingleUpload from '@/components/Upload/singleUpload'
-
+  const defaultBrand={
+    bigPic: '',
+    brandStory: '',
+    factoryStatus: 0,
+    firstLetter: '',
+    logo: '',
+    name: '',
+    showStatus: 0,
+    sort: 0
+  };
   export default {
     name: 'BrandDetail',
     components:{SingleUpload},
@@ -57,16 +66,7 @@
     },
     data() {
       return {
-        brand: {
-          bigPic: '',
-          brandStory: '',
-          factoryStatus: 0,
-          firstLetter: '',
-          logo: '',
-          name: '',
-          showStatus: 0,
-          sort: 0
-        },
+        brand:null,
         rules: {
           name: [
             {required: true, message: '请输入品牌名称', trigger: 'blur'},
@@ -86,6 +86,8 @@
         getBrand(this.$route.query.id).then(response => {
           this.brand = response.data;
         });
+      }else{
+        this.brand = Object.assign({},defaultBrand);
       }
     },
     methods: {
@@ -110,6 +112,7 @@
               } else {
                 createBrand(this.brand).then(response => {
                   this.$refs[formName].resetFields();
+                  this.brand = Object.assign({},defaultBrand);
                   this.$message({
                     message: '提交成功',
                     type: 'success',
@@ -131,6 +134,7 @@
       },
       resetForm(formName) {
         this.$refs[formName].resetFields();
+        this.brand = Object.assign({},defaultBrand);
       }
     }
   }
