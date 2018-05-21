@@ -127,7 +127,7 @@
         });
       },
       addProductAttr() {
-        console.log("addProductAttr");
+        this.$router.push({path:'/pms/addProductAttr',query:{cid:this.$route.query.cid,type:this.$route.query.type}});
       },
       handleSelectionChange(val) {
         this.multipleSelection = val;
@@ -165,7 +165,7 @@
         this.getList();
       },
       handleUpdate(index, row) {
-        console.log("handleUpdate");
+        this.$router.push({path:'/pms/updateProductAttr',query:{id:row.id}});
       },
       handleDeleteProductAttr(ids) {
         this.$confirm('是否要删除该属性', '提示', {

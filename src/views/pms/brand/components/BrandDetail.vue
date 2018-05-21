@@ -140,14 +140,6 @@
   }
 </script>
 <style>
-  .form-container {
-    position: absolute;
-    left: 0;
-    right: 0;
-    width: 520px;
-    padding: 35px 35px 15px 35px;
-    margin: 20px auto;
-  }
 </style>
 
 

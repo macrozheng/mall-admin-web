@@ -14,3 +14,25 @@ export function deleteProductAttr(data) {
     data:data
   })
 }
+
+export function createProductAttr(data) {
+  return request({
+    url:'/productAttribute/create',
+    method:'post',
+    data:data
+  })
+}
+
+export function updateProductAttr(id,data) {
+  return request({
+    url:'/productAttribute/update/'+id,
+    method:'post',
+    data:data
+  })
+}
+export function getProductAttr(id) {
+  return request({
+    url:'/productAttribute/'+id,
+    method:'get'
+  })
+}
