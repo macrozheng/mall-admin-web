@@ -5,6 +5,7 @@
       <i class="el-icon-tickets" style="margin-top: 5px"></i>
       <span style="margin-top: 5px">数据列表</span>
       <el-button
+        class="btn-add"
         @click="addProductAttr()"
         size="mini">
         添加
@@ -212,28 +213,7 @@
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
-  .operate-container {
-    margin-top: 20px;
-  }
 
-  .operate-container .el-button {
-    float: right;
-  }
-
-  .table-container {
-    margin-top: 20px;
-  }
-
-  .batch-operate-container {
-    display: inline-block;
-    margin-top: 20px;
-  }
-
-  .pagination-container {
-    display: inline-block;
-    float: right;
-    margin-top: 20px;
-  }
 </style>
 
 

@@ -27,6 +27,7 @@
       <i class="el-icon-tickets" style="margin-top: 5px"></i>
       <span style="margin-top: 5px">数据列表</span>
       <el-button
+        class="btn-add"
         @click="addBrand()"
         size="mini">
         添加
@@ -138,7 +139,8 @@
   </div>
 </template>
 <script>
-  import {fetchList, updateShowStatus,updateFactoryStatus,deleteBrand} from '@/api/brand'
+  import {fetchList, updateShowStatus, updateFactoryStatus, deleteBrand} from '@/api/brand'
+
   export default {
     name: 'brandList',
     data() {
@@ -183,7 +185,7 @@
         this.multipleSelection = val;
       },
       handleUpdate(index, row) {
-        this.$router.push({path: '/pms/updateBrand',query:{id:row.id}})
+        this.$router.push({path: '/pms/updateBrand', query: {id: row.id}})
       },
       handleDelete(index, row) {
         this.$confirm('是否要删除该品牌', '提示', {
@@ -191,11 +193,11 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          deleteBrand(row.id).then(response=>{
+          deleteBrand(row.id).then(response => {
             this.$message({
               message: '删除成功',
               type: 'success',
-              duration:1000
+              duration: 1000
             });
             this.getList();
           });
@@ -209,13 +211,13 @@
       },
       handleFactoryStatusChange(index, row) {
         var data = new URLSearchParams();
-        data.append("ids",row.id);
-        data.append("factoryStatus",row.factoryStatus);
+        data.append("ids", row.id);
+        data.append("factoryStatus", row.factoryStatus);
         updateFactoryStatus(data).then(response => {
           this.$message({
             message: '修改成功',
             type: 'success',
-            duration:1000
+            duration: 1000
           });
         }).catch(error => {
           if (row.factoryStatus === 0) {
@@ -226,14 +228,15 @@
         });
       },
       handleShowStatusChange(index, row) {
-        let data = new URLSearchParams();;
-        data.append("ids",row.id);
-        data.append("showStatus",row.showStatus);
+        let data = new URLSearchParams();
+        ;
+        data.append("ids", row.id);
+        data.append("showStatus", row.showStatus);
         updateShowStatus(data).then(response => {
           this.$message({
             message: '修改成功',
             type: 'success',
-            duration:1000
+            duration: 1000
           });
         }).catch(error => {
           if (row.showStatus === 0) {
@@ -258,40 +261,40 @@
       },
       handleBatchOperate() {
         console.log(this.multipleSelection);
-        if(this.multipleSelection<1){
+        if (this.multipleSelection < 1) {
           this.$message({
             message: '请选择一条记录',
             type: 'warning',
-            duration:1000
+            duration: 1000
           });
           return;
         }
         let showStatus = 0;
-        if(this.operateType==='showBrand'){
+        if (this.operateType === 'showBrand') {
           showStatus = 1;
-        }else if(this.operateType==='hideBrand'){
+        } else if (this.operateType === 'hideBrand') {
           showStatus = 0;
-        }else{
+        } else {
           this.$message({
             message: '请选择批量操作类型',
             type: 'warning',
-            duration:1000
+            duration: 1000
           });
           return;
         }
         let ids = [];
-        for(let i=0;i<this.multipleSelection.length;i++){
+        for (let i = 0; i < this.multipleSelection.length; i++) {
           ids.push(this.multipleSelection[i].id);
         }
         let data = new URLSearchParams();
-        data.append("ids",ids);
-        data.append("showStatus",showStatus);
+        data.append("ids", ids);
+        data.append("showStatus", showStatus);
         updateShowStatus(data).then(response => {
           this.getList();
           this.$message({
             message: '修改成功',
             type: 'success',
-            duration:1000
+            duration: 1000
           });
         });
       },
@@ -302,32 +305,7 @@
   }
 </script>
 <style rel="stylesheet/scss" lang="scss" scoped>
-  .filter-container {
 
-  }
-
-  .operate-container {
-    margin-top: 20px;
-  }
-
-  .operate-container .el-button {
-    float: right;
-  }
-
-  .table-container {
-    margin-top: 20px;
-  }
-
-  .batch-operate-container {
-    display: inline-block;
-    margin-top: 20px;
-  }
-
-  .pagination-container {
-    display: inline-block;
-    float: right;
-    margin-top: 20px;
-  }
 
 </style>
 
