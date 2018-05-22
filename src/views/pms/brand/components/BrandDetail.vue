@@ -4,7 +4,7 @@
       <el-form-item label="品牌名称：" prop="name">
         <el-input v-model="brand.name"></el-input>
       </el-form-item>
-      <el-form-item label="品牌首字母：" property="">
+      <el-form-item label="品牌首字母：">
         <el-input v-model="brand.firstLetter"></el-input>
       </el-form-item>
       <el-form-item label="品牌LOGO：" prop="logo">
@@ -66,7 +66,7 @@
     },
     data() {
       return {
-        brand:null,
+        brand:Object.assign({}, defaultBrand),
         rules: {
           name: [
             {required: true, message: '请输入品牌名称', trigger: 'blur'},
@@ -107,7 +107,7 @@
                     type: 'success',
                     duration:1000
                   });
-                  this.$router.push({path: '/pms/brand'});
+                  this.$router.back();
                 });
               } else {
                 createBrand(this.brand).then(response => {

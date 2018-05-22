@@ -93,7 +93,7 @@
     },
     data() {
       return {
-        productAttr: null,
+        productAttr: Object.assign({}, defaultProductAttr),
         rules: {
           name: [
             {required: true, message: '请输入属性名称', trigger: 'blur'},

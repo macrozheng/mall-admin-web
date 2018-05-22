@@ -57,6 +57,7 @@
           <template slot-scope="scope">
             <el-button
               size="mini"
+              :disabled="scope.row.level | disableNextLevel"
               @click="handleShowNextLevel(scope.$index, scope.row)">查看下级
             </el-button>
             <el-button
@@ -96,7 +97,7 @@
 </template>
 
 <script>
-  import {fetchList} from '@/api/productCate'
+  import {fetchList,deleteProductCate} from '@/api/productCate'
 
   export default {
     name: "productCateList",
@@ -113,11 +114,25 @@
       }
     },
     created() {
+      this.resetParentId();
       this.getList();
     },
+    watch: {
+      $route(route) {
+        this.resetParentId();
+        this.getList();
+      }
+    },
     methods: {
+      resetParentId(){
+        if (this.$route.query.parentId != null) {
+          this.parentId = this.$route.query.parentId;
+        } else {
+          this.parentId = 0;
+        }
+      },
       handleAddProductCate() {
-        console.log('handleAddProductCate');
+        this.$router.push('/pms/addProductCate');
       },
       getList() {
         this.listLoading = true;
@@ -137,22 +152,35 @@
         this.getList();
       },
       handleNavStatusChange(index, row) {
-        console.log('handleAddProductCate');
+        console.log('handleNavStatusChange');
       },
       handleShowStatusChange(index, row) {
-        console.log('handleAddProductCate');
+        console.log('handleShowStatusChange');
       },
       handleShowNextLevel(index, row) {
-        console.log('handleAddProductCate');
+        this.$router.push({path: '/pms/productCate', query: {parentId: row.id}})
       },
       handleTransferProduct(index, row) {
         console.log('handleAddProductCate');
       },
       handleUpdate(index, row) {
-        console.log('handleAddProductCate');
+        this.$router.push({path:'/pms/updateProductCate',query:{id:row.id}});
       },
       handleDelete(index, row) {
-        console.log('handleAddProductCate');
+        this.$confirm('是否要删除该品牌', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          deleteProductCate(row.id).then(response => {
+            this.$message({
+              message: '删除成功',
+              type: 'success',
+              duration: 1000
+            });
+            this.getList();
+          });
+        });
       }
     },
     filters: {
@@ -161,6 +189,13 @@
           return '一级';
         } else if (value === 1) {
           return '二级';
+        }
+      },
+      disableNextLevel(value) {
+        if (value === 0) {
+          return false;
+        } else {
+          return true;
         }
       }
     }
