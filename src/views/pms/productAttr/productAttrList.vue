@@ -19,7 +19,7 @@
                 v-loading="listLoading"
                 border>
         <el-table-column type="selection" width="60" align="center"></el-table-column>
-        <el-table-column label="编号" width="80" align="center">
+        <el-table-column label="编号" width="100" align="center">
           <template slot-scope="scope">{{scope.row.id}}</template>
         </el-table-column>
         <el-table-column label="属性名称" width="140" align="center">
@@ -37,7 +37,7 @@
         <el-table-column label="可选值列表" align="center">
           <template slot-scope="scope">{{scope.row.inputList}}</template>
         </el-table-column>
-        <el-table-column label="排序" width="120" align="center">
+        <el-table-column label="排序" width="100" align="center">
           <template slot-scope="scope">{{scope.row.sort}}</template>
         </el-table-column>
         <el-table-column label="操作" width="200" align="center">

@@ -41,7 +41,7 @@
                 v-loading="listLoading"
                 border>
         <el-table-column type="selection" width="60" align="center"></el-table-column>
-        <el-table-column label="编号" width="80" align="center">
+        <el-table-column label="编号" width="100" align="center">
           <template slot-scope="scope">{{scope.row.id}}</template>
         </el-table-column>
         <el-table-column label="品牌名称" align="center">
@@ -50,7 +50,7 @@
         <el-table-column label="品牌首字母" width="100" align="center">
           <template slot-scope="scope">{{scope.row.firstLetter}}</template>
         </el-table-column>
-        <el-table-column label="排序" width="80" align="center">
+        <el-table-column label="排序" width="100" align="center">
           <template slot-scope="scope">{{scope.row.sort}}</template>
         </el-table-column>
         <el-table-column label="品牌制造商" width="100" align="center">
@@ -89,7 +89,7 @@
             </el-button>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="220" align="center">
+        <el-table-column label="操作" width="200" align="center">
           <template slot-scope="scope">
             <el-button
               size="mini"
