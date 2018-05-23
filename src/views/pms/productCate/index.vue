@@ -97,7 +97,7 @@
 </template>
 
 <script>
-  import {fetchList,deleteProductCate} from '@/api/productCate'
+  import {fetchList,deleteProductCate,updateShowStatus,updateNavStatus} from '@/api/productCate'
 
   export default {
     name: "productCateList",
@@ -152,10 +152,32 @@
         this.getList();
       },
       handleNavStatusChange(index, row) {
-        console.log('handleNavStatusChange');
+        let data = new URLSearchParams();
+        let ids=[];
+        ids.push(row.id)
+        data.append('ids',ids);
+        data.append('navStatus',row.navStatus);
+        updateNavStatus(data).then(response=>{
+          this.$message({
+            message: '修改成功',
+            type: 'success',
+            duration: 1000
+          });
+        });
       },
       handleShowStatusChange(index, row) {
-        console.log('handleShowStatusChange');
+        let data = new URLSearchParams();
+        let ids=[];
+        ids.push(row.id)
+        data.append('ids',ids);
+        data.append('showStatus',row.showStatus);
+        updateShowStatus(data).then(response=>{
+          this.$message({
+            message: '修改成功',
+            type: 'success',
+            duration: 1000
+          });
+        });
       },
       handleShowNextLevel(index, row) {
         this.$router.push({path: '/pms/productCate', query: {parentId: row.id}})

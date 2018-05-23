@@ -37,7 +37,7 @@
         <el-radio-group v-model="productAttr.selectType">
           <el-radio :label="0">唯一</el-radio>
           <el-radio :label="1">单选</el-radio>
-          <el-radio :label="1">复选</el-radio>
+          <el-radio :label="2">复选</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item label="属性值的录入方式:">

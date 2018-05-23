@@ -39,6 +39,21 @@
       <el-form-item label="分类图标：">
         <single-upload v-model="productCate.icon"></single-upload>
       </el-form-item>
+      <el-form-item v-for="(filterProductAttr, index) in filterProductAttrList"
+                    :label="index | filterLabelFilter"
+                    :key="filterProductAttr.key"
+      >
+        <el-cascader
+          clearable
+          v-model="filterProductAttr.value"
+          :options="filterAttrs"
+          @active-item-change="handleItemChange">
+        </el-cascader>
+        <el-button style="margin-left: 20px" @click.prevent="removeFilterAttr(filterProductAttr)">删除</el-button>
+      </el-form-item>
+      <el-form-item>
+        <el-button size="small" type="primary" @click="handleAddFilterAttr()">新增</el-button>
+      </el-form-item>
       <el-form-item label="关键词：">
         <el-input v-model="productCate.keywords"></el-input>
       </el-form-item>
@@ -55,6 +70,8 @@
 
 <script>
   import {fetchList, createProductCate, updateProductCate, getProductCate} from '@/api/productCate';
+  import {fetchList as fetchProductAttrCateList} from '@/api/productAttrCate';
+  import {fetchList as fetchProductAttrList,getProductAttrInfo} from '@/api/productAttr';
   import SingleUpload from '@/components/Upload/singleUpload';
 
   const defaultProductCate = {
@@ -66,7 +83,8 @@
     parentId: 0,
     productUnit: '',
     showStatus: 0,
-    sort: 0
+    sort: 0,
+    productAttributeIdList: []
   };
   export default {
     name: "ProductCateDetail",
@@ -86,7 +104,11 @@
             {required: true, message: '请输入品牌名称', trigger: 'blur'},
             {min: 2, max: 140, message: '长度在 2 到 140 个字符', trigger: 'blur'}
           ]
-        }
+        },
+        filterAttrs: [],
+        filterProductAttrList: [{
+          value: []
+        }]
       }
     },
     created() {
@@ -98,6 +120,7 @@
         this.productCate = Object.assign({}, defaultProductCate);
       }
       this.getSelectProductCateList();
+      this.getProductAttrCateList();
     },
     methods: {
       getSelectProductCateList() {
@@ -105,6 +128,26 @@
           this.selectProductCateList = response.data.list;
           this.selectProductCateList.unshift({id: 0, name: '无上级分类'});
         });
+      },
+      getProductAttrCateList() {
+        fetchProductAttrCateList({pageSize: 100, pageNum: 1}).then(response => {
+          let productAttrCateList = response.data.list;
+          for (let i = 0; i < productAttrCateList.length; i++) {
+            let productAttrCate = productAttrCateList[i];
+            this.filterAttrs.push({label: productAttrCate.name, value: productAttrCate.id, children: []});
+          }
+        });
+      },
+      getProductAttributeIdList() {
+        //获取选中的筛选商品属性
+        let productAttributeIdList = [];
+        for (let i = 0; i < this.filterProductAttrList.length; i++) {
+          let item = this.filterProductAttrList[i];
+          if (item.value !== null && item.value.length === 2) {
+            productAttributeIdList.push(item.value[1]);
+          }
+        }
+        return productAttributeIdList;
       },
       onSubmit(formName) {
         this.$refs[formName].validate((valid) => {
@@ -116,7 +159,6 @@
             }).then(() => {
               if (this.isEdit) {
                 updateProductCate(this.$route.query.id, this.productCate).then(response => {
-                  this.$refs[formName].resetFields();
                   this.$message({
                     message: '修改成功',
                     type: 'success',
@@ -125,9 +167,10 @@
                   this.$router.back();
                 });
               } else {
+                this.productCate.productAttributeIdList = this.getProductAttributeIdList();
                 createProductCate(this.productCate).then(response => {
                   this.$refs[formName].resetFields();
-                  this.brand = Object.assign({}, defaultProductCate);
+                  this.resetForm(formName);
                   this.$message({
                     message: '提交成功',
                     type: 'success',
@@ -151,6 +194,61 @@
         this.$refs[formName].resetFields();
         this.productCate = Object.assign({}, defaultProductCate);
         this.getSelectProductCateList();
+        this.filterProductAttrList= [{
+          value: []
+        }];
+      },
+      handleItemChange(val) {
+        let cateId = Number(val);
+        fetchProductAttrList(cateId, {pageSize: 100, pageNum: 1, type: 1}).then(response => {
+          let data = response.data.list;
+          let children = [];
+          for (let i = 0; i < data.length; i++) {
+            children.push({label: data[i].name, value: data[i].id});
+          }
+          for (let i = 0; i < this.filterAttrs.length; i++) {
+            if (cateId === this.filterAttrs[i].value) {
+              this.filterAttrs[i].children = children;
+            }
+          }
+        });
+      },
+      removeFilterAttr(productAttributeId) {
+        if (this.filterProductAttrList.length === 1) {
+          this.$message({
+            message: '至少要留一个',
+            type: 'warning',
+            duration: 1000
+          });
+          return;
+        }
+        var index = this.filterProductAttrList.indexOf(productAttributeId);
+        if (index !== -1) {
+          this.filterProductAttrList.splice(index, 1)
+        }
+      },
+      handleAddFilterAttr() {
+        if (this.filterProductAttrList.length === 3) {
+          this.$message({
+            message: '最多添加三个',
+            type: 'warning',
+            duration: 1000
+          });
+          return;
+        }
+        this.filterProductAttrList.push({
+          value: null,
+          key: Date.now()
+        });
+      }
+    },
+    filters: {
+      filterLabelFilter(index) {
+        if (index === 0) {
+          return '筛选属性：';
+        } else {
+          return '';
+        }
       }
     }
   }

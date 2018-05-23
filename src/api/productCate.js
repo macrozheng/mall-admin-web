@@ -35,3 +35,19 @@ export function getProductCate(id) {
     method:'get',
   })
 }
+
+export function updateShowStatus(data) {
+  return request({
+    url:'/productCategory/update/showStatus',
+    method:'post',
+    data:data
+  })
+}
+
+export function updateNavStatus(data) {
+  return request({
+    url:'/productCategory/update/navStatus',
+    method:'post',
+    data:data
+  })
+}

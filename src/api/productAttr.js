@@ -36,3 +36,10 @@ export function getProductAttr(id) {
     method:'get'
   })
 }
+
+export function getProductAttrInfo(productCategoryId) {
+  return request({
+    url:'/productAttribute/attrInfo/'+productCategoryId,
+    method:'get'
+  })
+}
