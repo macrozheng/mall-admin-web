@@ -29,3 +29,9 @@ export function updateProductAttrCate(id,data) {
     data:data
   })
 }
+export function fetchListWithAttr() {
+  return request({
+    url:'/productAttribute/category/list/withAttr',
+    method:'get'
+  })
+}

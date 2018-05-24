@@ -46,8 +46,7 @@
         <el-cascader
           clearable
           v-model="filterProductAttr.value"
-          :options="filterAttrs"
-          @active-item-change="handleItemChange">
+          :options="filterAttrs">
         </el-cascader>
         <el-button style="margin-left: 20px" @click.prevent="removeFilterAttr(filterProductAttr)">删除</el-button>
       </el-form-item>
@@ -70,8 +69,8 @@
 
 <script>
   import {fetchList, createProductCate, updateProductCate, getProductCate} from '@/api/productCate';
-  import {fetchList as fetchProductAttrCateList} from '@/api/productAttrCate';
-  import {fetchList as fetchProductAttrList,getProductAttrInfo} from '@/api/productAttr';
+  import {fetchListWithAttr} from '@/api/productAttrCate';
+  import {getProductAttrInfo} from '@/api/productAttr';
   import SingleUpload from '@/components/Upload/singleUpload';
 
   const defaultProductCate = {
@@ -116,6 +115,17 @@
         getProductCate(this.$route.query.id).then(response => {
           this.productCate = response.data;
         });
+        getProductAttrInfo(this.$route.query.id).then(response => {
+          if (response.data != null && response.data.length > 0) {
+            this.filterProductAttrList = [];
+            for (let i = 0; i < response.data.length; i++) {
+              this.filterProductAttrList.push({
+                key: Date.now() + i,
+                value: [response.data[i].attributeCategoryId, response.data[i].attributeId]
+              })
+            }
+          }
+        });
       } else {
         this.productCate = Object.assign({}, defaultProductCate);
       }
@@ -130,11 +140,20 @@
         });
       },
       getProductAttrCateList() {
-        fetchProductAttrCateList({pageSize: 100, pageNum: 1}).then(response => {
-          let productAttrCateList = response.data.list;
-          for (let i = 0; i < productAttrCateList.length; i++) {
-            let productAttrCate = productAttrCateList[i];
-            this.filterAttrs.push({label: productAttrCate.name, value: productAttrCate.id, children: []});
+        fetchListWithAttr().then(response => {
+          let list = response.data;
+          for (let i = 0; i < list.length; i++) {
+            let productAttrCate = list[i];
+            let children = [];
+            if (productAttrCate.productAttributeList != null && productAttrCate.productAttributeList.length > 0) {
+              for (let j = 0; j < productAttrCate.productAttributeList.length; j++) {
+                children.push({
+                  label: productAttrCate.productAttributeList[j].name,
+                  value: productAttrCate.productAttributeList[j].id
+                })
+              }
+            }
+            this.filterAttrs.push({label: productAttrCate.name, value: productAttrCate.id, children: children});
           }
         });
       },
@@ -158,6 +177,7 @@
               type: 'warning'
             }).then(() => {
               if (this.isEdit) {
+                this.productCate.productAttributeIdList = this.getProductAttributeIdList();
                 updateProductCate(this.$route.query.id, this.productCate).then(response => {
                   this.$message({
                     message: '修改成功',
@@ -194,24 +214,9 @@
         this.$refs[formName].resetFields();
         this.productCate = Object.assign({}, defaultProductCate);
         this.getSelectProductCateList();
-        this.filterProductAttrList= [{
+        this.filterProductAttrList = [{
           value: []
         }];
-      },
-      handleItemChange(val) {
-        let cateId = Number(val);
-        fetchProductAttrList(cateId, {pageSize: 100, pageNum: 1, type: 1}).then(response => {
-          let data = response.data.list;
-          let children = [];
-          for (let i = 0; i < data.length; i++) {
-            children.push({label: data[i].name, value: data[i].id});
-          }
-          for (let i = 0; i < this.filterAttrs.length; i++) {
-            if (cateId === this.filterAttrs[i].value) {
-              this.filterAttrs[i].children = children;
-            }
-          }
-        });
       },
       removeFilterAttr(productAttributeId) {
         if (this.filterProductAttrList.length === 1) {

@@ -60,7 +60,8 @@ export const constantRouterMap = [
         path: 'productComment',
         name: 'productComment',
         component: () => import('@/views/pms/product/index'),
-        meta: {title: '商品评价', icon: 'product-comment'}
+        meta: {title: '商品评价', icon: 'product-comment'},
+        hidden:true
       },
       {
         path: 'productCate',
