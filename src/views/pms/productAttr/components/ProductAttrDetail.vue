@@ -47,7 +47,7 @@
         </el-radio-group>
       </el-form-item>
       <el-form-item label="属性值可选值列表:">
-        <el-input :autosize="true" type="textarea" v-model="productAttr.inputList"></el-input>
+        <el-input :autosize="true" type="textarea" v-model="inputListFormat"></el-input>
       </el-form-item>
       <el-form-item label="是否支持手动新增:">
         <el-radio-group v-model="productAttr.handAddStatus">
@@ -100,18 +100,26 @@
             {min: 2, max: 140, message: '长度在 2 到 140 个字符', trigger: 'blur'}
           ]
         },
-        productAttrCateList: null
+        productAttrCateList: null,
+        inputListFormat:null
       }
     },
     created() {
       if(this.isEdit){
         getProductAttr(this.$route.query.id).then(response => {
           this.productAttr = response.data;
+          this.inputListFormat = this.productAttr.inputList.replace(/,/g,'\n');
         });
       }else{
         this.resetProductAttr();
       }
       this.getCateList();
+    },
+    watch:{
+      inputListFormat: function (newValue, oldValue) {
+        newValue = newValue.replace(/\n/g,',');
+        this.productAttr.inputList = newValue;
+      }
     },
     methods: {
       getCateList() {
