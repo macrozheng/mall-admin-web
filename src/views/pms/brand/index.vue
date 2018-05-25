@@ -2,8 +2,8 @@
   <div class="app-container">
     <div class="filter-container container-frame">
       <div>
-        <i class="el-icon-search" style="margin-top: 10px"></i>
-        <span style="margin-top: 10px">筛选搜索</span>
+        <i class="el-icon-search"></i>
+        <span>筛选搜索</span>
         <el-button
           style="float: right"
           @click="searchBrandList()"
@@ -12,14 +12,12 @@
           查询结果
         </el-button>
       </div>
-      <div style="margin-top: 20px">
-        <span>输入搜索：</span>
-        <el-input
-          size="small"
-          style="width: 200px"
-          v-model="listQuery.keyword"
-          placeholder="品牌名称/关键字"
-        ></el-input>
+      <div style="margin-top: 15px">
+        <el-form :inline="true" :model="listQuery" size="small" label-width="140px">
+          <el-form-item label="输入搜索：">
+            <el-input style="width: 203px" v-model="listQuery.keyword" placeholder="品牌名称/关键字"></el-input>
+          </el-form-item>
+        </el-form>
       </div>
     </div>
     <div class="operate-container container-frame">

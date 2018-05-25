@@ -2,8 +2,8 @@
   <div class="app-container">
     <div class="filter-container container-frame">
       <div>
-        <i class="el-icon-search" style="margin-top: 10px"></i>
-        <span style="margin-top: 10px">筛选搜索</span>
+        <i class="el-icon-search"></i>
+        <span>筛选搜索</span>
         <el-button
           style="float: right"
           @click="handleSearchList()"
@@ -11,34 +11,39 @@
           size="small">
           查询结果
         </el-button>
+        <el-button
+          style="float: right;margin-right: 15px"
+          @click="handleResetSearch()"
+          size="small">
+          重置
+        </el-button>
       </div>
-      <div style="margin-top: 20px">
-        <el-form :inline="true" :model="listQuery" size="small">
+      <div style="margin-top: 15px">
+        <el-form :inline="true" :model="listQuery" size="small" label-width="140px">
           <el-form-item label="输入搜索：">
-            <el-input v-model="listQuery.keyword" placeholder="品牌名称/关键字"></el-input>
+            <el-input style="width: 203px" v-model="listQuery.keyword" placeholder="商品名称"></el-input>
+          </el-form-item>
+          <el-form-item label="商品货号：">
+            <el-input style="width: 203px" v-model="listQuery.productSn" placeholder="商品货号"></el-input>
           </el-form-item>
           <el-form-item label="商品分类：">
-            <el-select v-model="listQuery.productCategoryId" placeholder="请选择商品分类" clearable>
-              <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value">
-              </el-option>
-            </el-select>
+            <el-cascader
+              clearable
+              v-model="selectProductCateValue"
+              :options="productCateOptions">
+            </el-cascader>
           </el-form-item>
           <el-form-item label="商品品牌：">
             <el-select v-model="listQuery.brandId" placeholder="请选择品牌" clearable>
               <el-option
-                v-for="item in options"
+                v-for="item in brandOptions"
                 :key="item.value"
                 :label="item.label"
                 :value="item.value">
               </el-option>
             </el-select>
           </el-form-item>
-          <br>
-          <el-form-item label="上下架：">
+          <el-form-item label="上架状态：">
             <el-select v-model="listQuery.publishStatus" placeholder="全部" clearable>
               <el-option
                 v-for="item in publishStatusOptions"
@@ -142,7 +147,7 @@
             <p>{{scope.row.verifyStatus | verifyStatusFilter}}</p>
             <p>
               <el-button
-                size="mini"
+                type="text"
                 @click="handleDelete(scope.$index, scope.row)">审核详情
               </el-button>
             </p>
@@ -153,17 +158,17 @@
             <p>
               <el-button
                 size="mini"
-                @click="handleUpdate(scope.$index, scope.row)">查看
+                @click="handleShowProduct(scope.$index, scope.row)">查看
               </el-button>
               <el-button
                 size="mini"
-                @click="handleDelete(scope.$index, scope.row)">编辑
+                @click="handleEdit(scope.$index, scope.row)">编辑
               </el-button>
             </p>
             <p>
               <el-button
                 size="mini"
-                @click="handleUpdate(scope.$index, scope.row)">日志
+                @click="handleShowLog(scope.$index, scope.row)">日志
               </el-button>
               <el-button
                 size="mini"
@@ -210,8 +215,26 @@
   </div>
 </template>
 <script>
-  import {fetchList} from '@/api/product'
+  import {
+    fetchList,
+    updateDeleteStatus,
+    updateNewStatus,
+    updateRecommendStatus,
+    updatePublishStatus
+  } from '@/api/product'
+  import {fetchList as fetchBrandList} from '@/api/brand'
+  import {fetchListWithChildren} from '@/api/productCate'
 
+  const defaultListQuery = {
+    keyword: null,
+    pageNum: 1,
+    pageSize: 5,
+    publishStatus: null,
+    verifyStatus: null,
+    productSn: null,
+    productCategoryId: null,
+    brandId: null
+  };
   export default {
     name: "productList",
     data() {
@@ -251,27 +274,14 @@
           }
         ],
         operateType: null,
-        listQuery: {
-          keyword: null,
-          pageNum: 1,
-          pageSize: 5,
-          publishStatus: null,
-          verifyStatus: null,
-          productSn: null,
-          productCategoryId: null,
-          brandId: null,
-        },
+        listQuery: Object.assign({}, defaultListQuery),
         list: null,
         total: null,
         listLoading: true,
+        selectProductCateValue: null,
         multipleSelection: [],
-        options: [{
-          value: '选项1',
-          label: '黄金糕'
-        }, {
-          value: '选项2',
-          label: '双皮奶'
-        }],
+        productCateOptions: [],
+        brandOptions: [],
         publishStatusOptions: [{
           value: 1,
           label: '上架'
@@ -290,6 +300,18 @@
     },
     created() {
       this.getList();
+      this.getBrandList();
+      this.getProductCateList();
+    },
+    watch: {
+      selectProductCateValue: function (newValue) {
+        if (newValue != null && newValue.length == 2) {
+          this.listQuery.productCategoryId = newValue[1];
+        } else {
+          this.listQuery.productCategoryId = null;
+        }
+
+      }
     },
     filters: {
       verifyStatusFilter(value) {
@@ -309,6 +331,30 @@
           this.total = response.data.total;
         });
       },
+      getBrandList() {
+        fetchBrandList({pageNum: 1, pageSize: 100}).then(response => {
+          this.brandOptions = [];
+          let brandList = response.data.list;
+          for (let i = 0; i < brandList.length; i++) {
+            this.brandOptions.push({label: brandList[i].name, value: brandList[i].id});
+          }
+        });
+      },
+      getProductCateList() {
+        fetchListWithChildren().then(response => {
+          let list = response.data;
+          this.productCateOptions = [];
+          for (let i = 0; i < list.length; i++) {
+            let children = [];
+            if (list[i].children != null && list[i].children.length > 0) {
+              for (let j = 0; j < list[i].children.length; j++) {
+                children.push({label: list[i].children[j].name, value: list[i].children[j].id});
+              }
+            }
+            this.productCateOptions.push({label: list[i].name, value: list[i].id, children: children});
+          }
+        });
+      },
       handleSearchList() {
         this.listQuery.pageNum = 1;
         this.getList();
@@ -317,7 +363,60 @@
         console.log("handleAddItem");
       },
       handleBatchOperate() {
-        console.log("handleBatchOperate");
+        if(this.operateType==null){
+          this.$message({
+            message: '请选择操作类型',
+            type: 'warning',
+            duration: 1000
+          });
+          return;
+        }
+        if(this.multipleSelection==null||this.multipleSelection.length<1){
+          this.$message({
+            message: '请选择要操作的商品',
+            type: 'warning',
+            duration: 1000
+          });
+          return;
+        }
+        this.$confirm('是否要进行该批量操作?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          let ids=[];
+          for(let i=0;i<this.multipleSelection.length;i++){
+            ids.push(this.multipleSelection[i].id);
+          }
+          switch (this.operateType) {
+            case this.operates[0].value:
+              this.updatePublishStatus(1,ids);
+              break;
+            case this.operates[1].value:
+              this.updatePublishStatus(0,ids);
+              break;
+            case this.operates[2].value:
+              this.updateRecommendStatus(1,ids);
+              break;
+            case this.operates[3].value:
+              this.updateRecommendStatus(0,ids);
+              break;
+            case this.operates[4].value:
+              this.updateNewStatus(1,ids);
+              break;
+            case this.operates[5].value:
+              this.updateNewStatus(0,ids);
+              break;
+            case this.operates[6].value:
+              break;
+            case this.operates[7].value:
+              this.updateDeleteStatus(1,ids);
+              break;
+            default:
+              break;
+          }
+          this.getList();
+        });
       },
       handleSizeChange(val) {
         this.listQuery.pageNum = 1;
@@ -332,13 +431,83 @@
         this.multipleSelection = val;
       },
       handlePublishStatusChange(index, row) {
-        console.log("handleBatchOperate");
+        let ids = [];
+        ids.push(row.id);
+        this.updatePublishStatus(row.publishStatus, ids);
       },
       handleNewStatusChange(index, row) {
-        console.log("handleBatchOperate");
+        let ids = [];
+        ids.push(row.id);
+        this.updateNewStatus(row.newStatus, ids);
       },
       handleRecommendStatusChange(index, row) {
-        console.log("handleBatchOperate");
+        let ids = [];
+        ids.push(row.id);
+        this.updateRecommendStatus(row.recommandStatus, ids);
+      },
+      handleResetSearch() {
+        this.selectProductCateValue = [];
+        this.listQuery = Object.assign({}, defaultListQuery);
+      },
+      handleDelete(index, row){
+        this.$confirm('是否要进行删除操作?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          let ids = [];
+          ids.push(row.id);
+          this.updateDeleteStatus(1,ids);
+        });
+      },
+      updatePublishStatus(publishStatus, ids) {
+        let params = new URLSearchParams();
+        params.append('ids', ids);
+        params.append('publishStatus', publishStatus);
+        updatePublishStatus(params).then(response => {
+          this.$message({
+            message: '修改成功',
+            type: 'success',
+            duration: 1000
+          });
+        });
+      },
+      updateNewStatus(newStatus, ids) {
+        let params = new URLSearchParams();
+        params.append('ids', ids);
+        params.append('newStatus', newStatus);
+        updateNewStatus(params).then(response => {
+          this.$message({
+            message: '修改成功',
+            type: 'success',
+            duration: 1000
+          });
+        });
+      },
+      updateRecommendStatus(recommendStatus, ids) {
+        let params = new URLSearchParams();
+        params.append('ids', ids);
+        params.append('recommendStatus', recommendStatus);
+        updateRecommendStatus(params).then(response => {
+          this.$message({
+            message: '修改成功',
+            type: 'success',
+            duration: 1000
+          });
+        });
+      },
+      updateDeleteStatus(deleteStatus, ids) {
+        let params = new URLSearchParams();
+        params.append('ids', ids);
+        params.append('deleteStatus', deleteStatus);
+        updateDeleteStatus(params).then(response => {
+          this.$message({
+            message: '删除成功',
+            type: 'success',
+            duration: 1000
+          });
+        });
+        this.getList();
       }
     }
   }
