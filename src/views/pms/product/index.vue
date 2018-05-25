@@ -1,6 +1,6 @@
 <template> 
   <div class="app-container">
-    <div class="filter-container container-frame">
+    <el-card class="filter-container" shadow="never">
       <div>
         <i class="el-icon-search"></i>
         <span>筛选搜索</span>
@@ -65,18 +65,17 @@
           </el-form-item>
         </el-form>
       </div>
-    </div>
-    <div class="operate-container container-frame">
-
-      <i class="el-icon-tickets" style="margin-top: 5px"></i>
-      <span style="margin-top: 5px">数据列表</span>
+    </el-card>
+    <el-card class="operate-container" shadow="never">
+      <i class="el-icon-tickets"></i>
+      <span>数据列表</span>
       <el-button
         class="btn-add"
         @click="handleAddItem()"
         size="mini">
         添加
       </el-button>
-    </div>
+    </el-card>
     <div class="table-container">
       <el-table ref="productTable"
                 :data="list"

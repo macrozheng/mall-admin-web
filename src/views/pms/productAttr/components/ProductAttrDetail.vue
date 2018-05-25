@@ -1,5 +1,5 @@
 <template>
-  <div class="form-container container-frame">
+  <el-card class="form-container" shadow="never">
     <el-form :model="productAttr" :rules="rules" ref="productAttrFrom" label-width="150px">
       <el-form-item label="属性名称：" prop="name">
         <el-input v-model="productAttr.name"></el-input>
@@ -63,7 +63,7 @@
         <el-button  v-if="!isEdit" @click="resetForm('productAttrFrom')">重置</el-button>
       </el-form-item>
     </el-form>
-  </div>
+  </el-card>
 </template>
 
 <script>

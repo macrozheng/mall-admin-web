@@ -1,5 +1,5 @@
 <template>
-  <div class="form-container container-frame">
+  <el-card class="form-container" shadow="never">
     <el-form :model="productCate"
              :rules="rules"
              ref="productCateFrom"
@@ -64,7 +64,7 @@
         <el-button v-if="!isEdit" @click="resetForm('productCateFrom')">重置</el-button>
       </el-form-item>
     </el-form>
-  </div>
+  </el-card>
 </template>
 
 <script>

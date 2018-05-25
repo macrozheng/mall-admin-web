@@ -1,5 +1,5 @@
 <template> 
-  <div class="form-container container-frame">
+  <el-card class="form-container" shadow="never">
     <el-form :model="brand" :rules="rules" ref="brandFrom" label-width="150px">
       <el-form-item label="品牌名称：" prop="name">
         <el-input v-model="brand.name"></el-input>
@@ -40,7 +40,7 @@
         <el-button v-if="!isEdit" @click="resetForm('brandFrom')">重置</el-button>
       </el-form-item>
     </el-form>
-  </div>
+  </el-card>
 </template>
 <script>
   import {createBrand, getBrand, updateBrand} from '@/api/brand'

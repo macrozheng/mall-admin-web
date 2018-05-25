@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <div class="operate-container container-frame">
+    <el-card class="operate-container" shadow="never">
       <i class="el-icon-tickets" style="margin-top: 5px"></i>
       <span style="margin-top: 5px">数据列表</span>
       <el-button
@@ -9,7 +9,7 @@
         size="mini">
         添加
       </el-button>
-    </div>
+    </el-card>
     <div class="table-container">
       <el-table ref="productCateTable"
                 style="width: 100%"
