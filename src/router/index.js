@@ -43,7 +43,7 @@ export const constantRouterMap = [
       name: 'product',
       component: () => import('@/views/pms/product/index'),
       meta: {title: '商品列表', icon: 'product-list'}
-      },
+    },
       {
         path: 'addProduct',
         name: 'addProduct',
@@ -55,14 +55,14 @@ export const constantRouterMap = [
         name: 'productRecycle',
         component: () => import('@/views/pms/product/index'),
         meta: {title: '商品回收站', icon: 'product-recycle'},
-        hidden:true
+        hidden: true
       },
       {
         path: 'productComment',
         name: 'productComment',
         component: () => import('@/views/pms/product/index'),
         meta: {title: '商品评价', icon: 'product-comment'},
-        hidden:true
+        hidden: true
       },
       {
         path: 'productCate',
@@ -75,14 +75,14 @@ export const constantRouterMap = [
         name: 'addProductCate',
         component: () => import('@/views/pms/productCate/add'),
         meta: {title: '添加商品分类'},
-        hidden:true
+        hidden: true
       },
       {
         path: 'updateProductCate',
         name: 'updateProductCate',
         component: () => import('@/views/pms/productCate/update'),
         meta: {title: '修改商品分类'},
-        hidden:true
+        hidden: true
       },
       {
         path: 'productAttr',
@@ -95,21 +95,21 @@ export const constantRouterMap = [
         name: 'productAttrList',
         component: () => import('@/views/pms/productAttr/productAttrList'),
         meta: {title: '商品属性列表'},
-        hidden:true
+        hidden: true
       },
       {
         path: 'addProductAttr',
         name: 'addProductAttr',
         component: () => import('@/views/pms/productAttr/addProductAttr'),
         meta: {title: '添加商品属性'},
-        hidden:true
+        hidden: true
       },
       {
         path: 'updateProductAttr',
         name: 'updateProductAttr',
         component: () => import('@/views/pms/productAttr/updateProductAttr'),
         meta: {title: '修改商品属性'},
-        hidden:true
+        hidden: true
       },
       {
         path: 'brand',
@@ -122,14 +122,14 @@ export const constantRouterMap = [
         name: 'addBrand',
         component: () => import('@/views/pms/brand/add'),
         meta: {title: '添加品牌'},
-        hidden:true
+        hidden: true
       },
       {
         path: 'updateBrand',
         name: 'updateBrand',
         component: () => import('@/views/pms/brand/update'),
         meta: {title: '编辑品牌'},
-        hidden:true
+        hidden: true
       }
     ]
   },
