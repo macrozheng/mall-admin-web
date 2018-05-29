@@ -10,8 +10,12 @@
     <add-product-sale v-show="showStatus[1]" v-model="productParam"></add-product-sale>
     <add-product-attr v-show="showStatus[2]"></add-product-attr>
     <add-product-relation v-show="showStatus[3]"></add-product-relation>
-    <el-button style="margin-top: 12px;" @click="prev">上一步</el-button>
-    <el-button style="margin-top: 12px;" @click="next">下一步</el-button>
+    <div style="display: block;text-align: center;margin-top: 50px">
+      <el-button-group>
+        <el-button icon="el-icon-arrow-left" @click="prev">上一步</el-button>
+        <el-button type="primary" @click="next">下一步<i class="el-icon-arrow-right el-icon--right"></i></el-button>
+      </el-button-group>
+    </div>
   </el-card>
 </template>
 <script>
@@ -36,6 +40,7 @@
     flashPromotionPrice: 0,
     flashPromotionSort: 0,
     giftPoint: 0,
+    giftGrowth: 0,
     keywords: '',
     lowStock: 0,
     name: '',
@@ -48,6 +53,7 @@
       {
         memberLevelId: 0,
         memberPrice: 0,
+        memberLevelName:null
       }
     ],
     productFullReductionList: [
@@ -102,7 +108,7 @@
     productSn: '',
     promotionEndTime: '',
     promotionPerLimit: 0,
-    promotionPrice: 0,
+    promotionPrice: null,
     promotionStartTime: '',
     promotionType: 0,
     publishStatus: 0,
