@@ -1,6 +1,6 @@
 <template>
   <div style="margin-top: 50px">
-    <el-form :model="value" ref="productSaleForm" label-width="150px" style="width: 600px" size="small">
+    <el-form :model="value" ref="productSaleForm" label-width="120px" style="width: 600px" size="small">
       <el-form-item label="赠送积分：">
         <el-input v-model="value.giftPoint"></el-input>
       </el-form-item>

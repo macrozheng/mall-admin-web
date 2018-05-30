@@ -1,15 +1,316 @@
 <template>
   <div style="margin-top: 50px">
-
+    <el-form :model="value" ref="productAttrForm" label-width="120px" style="width: 780px" size="small">
+      <el-form-item label="属性类型：">
+        <el-select v-model="value.productAttributeCategoryId"
+                   placeholder="请选择属性类型"
+                   @change="handleProductAttrChange">
+          <el-option
+            v-for="item in productAttributeCategoryOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+          </el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="商品规格：">
+        <el-card shadow="never" class="cardBg">
+          <div v-for="(productAttr,idx) in selectProductAttr">
+            {{productAttr.name}}：
+            <el-checkbox-group v-if="productAttr.handAddStatus===0" v-model="selectProductAttr[idx].values">
+              <el-checkbox v-for="item in getInputListArr(productAttr.inputList)" :label="item" :key="item"
+                           class="littleMarginLeft"></el-checkbox>
+            </el-checkbox-group>
+            <div v-else>
+              <el-checkbox-group v-model="selectProductAttr[idx].values">
+                <div v-for="(item,index) in selectProductAttr[idx].options" style="display: inline-block"
+                     class="littleMarginLeft">
+                  <el-checkbox :label="item" :key="item"></el-checkbox>
+                  <el-button type="text" class="littleMarginLeft" @click="handleRemoveProductAttrValue(idx,index)">删除
+                  </el-button>
+                </div>
+              </el-checkbox-group>
+              <el-input v-model="addProductAttrValue" style="width: 160px;margin-left: 10px" clearable></el-input>
+              <el-button class="littleMarginLeft" @click="handleAddProductAttrValue(idx)">增加</el-button>
+            </div>
+          </div>
+        </el-card>
+        <el-table style="width: 100%;margin-top: 20px"
+                  :data="value.skuStockList"
+                  border>
+          <el-table-column
+            v-for="(item,index) in selectProductAttr"
+            :label="item.name"
+            :key="item.id"
+            align="center">
+            <template slot-scope="scope">
+              {{getProductSkuSp(scope.row,index)}}
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="销售价格"
+            width="80"
+            align="center">
+            <template slot-scope="scope">
+              <el-input v-model="scope.row.price"></el-input>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="商品库存"
+            width="80"
+            align="center">
+            <template slot-scope="scope">
+              <el-input v-model="scope.row.stock"></el-input>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="库存预警值"
+            width="80"
+            align="center">
+            <template slot-scope="scope">
+              <el-input v-model="scope.row.lowStock"></el-input>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="SKU编号"
+            align="center">
+            <template slot-scope="scope">
+              <el-input v-model="scope.row.skuCode"></el-input>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="操作"
+            width="80"
+            align="center">
+            <template slot-scope="scope">
+              <el-button
+                type="text"
+                @click="handleRemoveProductSku(scope.$index, scope.row)">删除
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+        <el-button
+          type="primary"
+          style="margin-top: 20px"
+          @click="handleRefreshProductSkuList">刷新列表
+        </el-button>
+      </el-form-item>
+      <el-form-item label="属性图片：" v-if="hasAttrPic">
+        <div v-for="(item,index) in selectProductAttr[0].values">
+          <span style="position:relative;top: -150px;">{{item}}:</span>
+          <single-upload v-model="selectProductAttr[0].pics[index]" style="width: 250px;display: inline-block;margin-left: 10px"></single-upload>
+        </div>
+      </el-form-item>
+      <el-form-item label="商品参数：">
+        <el-card shadow="never" class="cardBg">
+        <div v-for="(item,index) in selectProductParam" :class="{littleMarginTop:index!==0}">
+          <div class="paramInputLabel">{{item.name}}:</div>
+          <el-select v-if="item.inputType===1" class="paramInput" v-model="selectProductParam[index].value">
+            <el-option
+              v-for="item in getParamInputList(item.inputList)"
+              :key="item"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+          <el-input v-else class="paramInput" v-model="selectProductParam[index].value"></el-input>
+        </div>
+        </el-card>
+      </el-form-item>
+    </el-form>
   </div>
 </template>
 
 <script>
+  import {fetchList as fetchProductAttrCateList} from '@/api/productAttrCate'
+  import {fetchList as fetchProductAttrList} from '@/api/productAttr'
+  import SingleUpload from '@/components/Upload/singleUpload'
+
   export default {
-    name: "addProductAttr"
+    name: "addProductAttr",
+    components:{SingleUpload},
+    props: {
+      value: Object
+    },
+    data() {
+      return {
+        productAttributeCategoryOptions: [],
+        selectProductAttr: [],
+        selectProductParam:[],
+        addProductAttrValue: null
+      }
+    },
+    computed: {
+      hasAttrPic() {
+        if(this.selectProductAttr.length<1){
+          return false;
+        }
+        if(this.selectProductAttr[0].values.length<1){
+          return false;
+        }
+        return true;
+      }
+    },
+    created() {
+      this.getProductAttrCateList();
+      if (this.value.productAttributeCategoryId != null) {
+        this.handleProductAttrChange(this.value.productAttributeCategoryId);
+      }
+    },
+    methods: {
+      getProductAttrCateList() {
+        let param = {pageNum: 1, pageSize: 100};
+        fetchProductAttrCateList(param).then(response => {
+          this.productAttributeCategoryOptions = [];
+          let list = response.data.list;
+          for (let i = 0; i < list.length; i++) {
+            this.productAttributeCategoryOptions.push({label: list[i].name, value: list[i].id});
+          }
+        });
+      },
+      getProductAttrList(type, cid) {
+        let param = {pageNum: 1, pageSize: 100, type: type};
+        fetchProductAttrList(cid, param).then(response => {
+          let list = response.data.list;
+          if (type === 0) {
+            this.selectProductAttr = [];
+            for (let i = 0; i < list.length; i++) {
+              this.selectProductAttr.push({
+                id: list[i].id,
+                name:list[i].name,
+                handAddStatus: list[i].handAddStatus,
+                inputList:list[i].inputList,
+                values: [],
+                options: [],
+                pics:[]
+              });
+            }
+          } else {
+            this.selectProductParam = [];
+            for (let i = 0; i < list.length; i++) {
+              this.selectProductParam.push({
+                id: list[i].id,
+                name:list[i].name,
+                value: null,
+                inputType:list[i].inputType,
+                inputList:list[i].inputList
+              });
+            }
+          }
+        });
+      },
+      handleProductAttrChange(value) {
+        this.getProductAttrList(0, value);
+        this.getProductAttrList(1, value);
+      },
+      getInputListArr(inputList) {
+        return inputList.split(',');
+      },
+      handleAddProductAttrValue(idx) {
+        let options = this.selectProductAttr[idx].options;
+        if (this.addProductAttrValue == null || this.addProductAttrValue == '') {
+          this.$message({
+            message: '属性值不能为空',
+            type: 'warning',
+            duration: 1000
+          });
+          return
+        }
+        if (options.indexOf(this.addProductAttrValue) !== -1) {
+          this.$message({
+            message: '属性值不能重复',
+            type: 'warning',
+            duration: 1000
+          });
+          return;
+        }
+        this.selectProductAttr[idx].options.push(this.addProductAttrValue);
+        this.addProductAttrValue = null;
+      },
+      handleRemoveProductAttrValue(idx, index) {
+        this.selectProductAttr[idx].options.splice(index, 1);
+      },
+      getProductSkuSp(row, index) {
+        if (index === 0) {
+          return row.sp1;
+        } else if (index === 1) {
+          return row.sp2;
+        } else {
+          return row.sp3;
+        }
+      },
+      handleRefreshProductSkuList() {
+        this.value.skuStockList = [];
+        let skuList = this.value.skuStockList;
+        //只有一个属性时
+        if (this.selectProductAttr.length === 1) {
+          let values = this.selectProductAttr[0].values;
+          for (let i = 0; i < values.length; i++) {
+            skuList.push({
+              sp1: values[i]
+            });
+          }
+        } else if (this.selectProductAttr.length === 2) {
+          let values0 = this.selectProductAttr[0].values;
+          let values1 = this.selectProductAttr[1].values;
+          for (let i = 0; i < values0.length; i++) {
+            for (let j = 0; j < values1.length; j++) {
+              skuList.push({
+                sp1: values0[i],
+                sp2: values1[j]
+              });
+            }
+          }
+        } else {
+          let values0 = this.selectProductAttr[0].values;
+          let values1 = this.selectProductAttr[1].values;
+          let values2 = this.selectProductAttr[2].values;
+          for (let i = 0; i < values0.length; i++) {
+            for (let j = 0; j < values1.length; j++) {
+              for (let k = 0; k < values2.length; k++) {
+                skuList.push({
+                  sp1: values0[i],
+                  sp2: values1[j],
+                  sp3: values2[k]
+                });
+              }
+            }
+          }
+        }
+      },
+      handleRemoveProductSku(index, row) {
+        let list = this.value.skuStockList;
+        if (list.length === 1) {
+          list.pop();
+        } else {
+          list.splice(index, 1);
+        }
+      },
+      getParamInputList(inputList){
+        return inputList.split(',');
+      }
+    }
   }
 </script>
 
 <style scoped>
-
+  .littleMarginLeft {
+    margin-left: 10px;
+  }
+  .littleMarginTop {
+    margin-top: 10px;
+  }
+  .paramInput{
+    width: 250px;
+  }
+  .paramInputLabel{
+    display: inline-block;
+    width: 100px;
+    text-align: right;
+    padding-right: 10px
+  }
+  .cardBg{
+    background: #F8F9FC;
+  }
 </style>

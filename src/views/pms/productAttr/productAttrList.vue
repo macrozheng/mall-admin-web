@@ -194,7 +194,7 @@
     filters: {
       inputTypeFilter(value) {
         if (value === 1) {
-          return '手工录入';
+          return '从列表中选取';
         } else {
           return '手工录入'
         }

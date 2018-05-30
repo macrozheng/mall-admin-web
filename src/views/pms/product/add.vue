@@ -8,7 +8,7 @@
     </el-steps>
     <add-product-info v-show="showStatus[0]" v-model="productParam"></add-product-info>
     <add-product-sale v-show="showStatus[1]" v-model="productParam"></add-product-sale>
-    <add-product-attr v-show="showStatus[2]"></add-product-attr>
+    <add-product-attr v-show="showStatus[2]" v-model="productParam"></add-product-attr>
     <add-product-relation v-show="showStatus[3]"></add-product-relation>
     <div style="display: block;text-align: center;margin-top: 50px">
       <el-button-group>
@@ -71,7 +71,7 @@
     ],
     previewStatus: 0,
     price: 0,
-    productAttributeCategoryId: 0,
+    productAttributeCategoryId: null,
     //商品属性相关
     productAttributeValueList: [
       {
@@ -158,7 +158,7 @@
 </script>
 <style>
   .form-container {
-    width: 800px;
+    width: 860px;
   }
 </style>
 
