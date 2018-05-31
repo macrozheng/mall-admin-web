@@ -3,18 +3,19 @@
     <el-upload
       action="http://macro-oss.oss-cn-shenzhen.aliyuncs.com"
       :data="dataObj"
-      list-type="picture"
-      :multiple="false" :show-file-list="showFileList"
+      list-type="picture-card"
       :file-list="fileList"
       :before-upload="beforeUpload"
       :on-remove="handleRemove"
       :on-success="handleUploadSuccess"
-      :on-preview="handlePreview">
-      <el-button size="small" type="primary">点击上传</el-button>
-      <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过10MB</div>
+      :on-preview="handlePreview"
+      :limit="maxCount"
+      :on-exceed="handleExceed"
+    >
+      <i class="el-icon-plus"></i>
     </el-upload>
     <el-dialog :visible.sync="dialogVisible">
-      <img width="100%" :src="fileList[0].url" alt="">
+      <img width="100%" :src="dialogImageUrl" alt="">
     </el-dialog>
   </div>
 </template>
@@ -22,33 +23,14 @@
   import {policy} from '@/api/oss'
 
   export default {
-    name: 'singleUpload',
+    name: 'multiUpload',
     props: {
-      value: String
-    },
-    computed: {
-      imageUrl() {
-        return this.value;
-      },
-      imageName() {
-        if (this.value != null && this.value !== '') {
-          return this.value.substr(this.value.lastIndexOf("/") + 1);
-        } else {
-          return null;
-        }
-      },
-      fileList() {
-        return [{
-          name: this.imageName,
-          url: this.imageUrl
-        }]
-      },
-      showFileList: {
-        get: function () {
-          return this.value !== null && this.value !== ''&& this.value!==undefined;
-        },
-        set: function (newValue) {
-        }
+      //图片属性数组
+      value: Array,
+      //最大上传图片数量
+      maxCount:{
+        type:Number,
+        default:5
       }
     },
     data() {
@@ -61,18 +43,33 @@
           dir: '',
           host: ''
         },
-        dialogVisible: false
+        dialogVisible: false,
+        dialogImageUrl:null
       };
     },
+    computed: {
+      fileList() {
+        let fileList=[];
+        for(let i=0;i<this.value.length;i++){
+          fileList.push({url:this.value[i]});
+        }
+        return fileList;
+      }
+    },
     methods: {
-      emitInput(val) {
-        this.$emit('input', val)
+      emitInput(fileList) {
+        let value=[];
+        for(let i=0;i<fileList.length;i++){
+          value.push(fileList[i].url);
+        }
+        this.$emit('input', value)
       },
       handleRemove(file, fileList) {
-        this.emitInput('');
+        this.emitInput(fileList);
       },
       handlePreview(file) {
         this.dialogVisible = true;
+        this.dialogImageUrl=file.url;
       },
       beforeUpload(file) {
         let _self = this;
@@ -92,11 +89,16 @@
         })
       },
       handleUploadSuccess(res, file) {
-        this.showFileList = true;
-        this.fileList.pop();
-        this.fileList.push({name: file.name, url: this.dataObj.host + '/' + this.dataObj.dir + '/' + file.name});
-        this.emitInput(this.fileList[0].url);
-      }
+        this.fileList.push({url: file.name,url:this.dataObj.host + '/' + this.dataObj.dir + '/' + file.name});
+        this.emitInput(this.fileList);
+      },
+      handleExceed(files, fileList) {
+        this.$message({
+          message: '最多只能上传'+this.maxCount+'张图片',
+          type: 'warning',
+          duration:1000
+        });
+      },
     }
   }
 </script>

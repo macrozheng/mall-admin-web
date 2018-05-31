@@ -97,10 +97,12 @@
         </el-button>
       </el-form-item>
       <el-form-item label="属性图片：" v-if="hasAttrPic">
-        <div v-for="(item,index) in selectProductAttr[0].values">
-          <span style="position:relative;top: -150px;">{{item}}:</span>
-          <single-upload v-model="selectProductAttr[0].pics[index]" style="width: 250px;display: inline-block;margin-left: 10px"></single-upload>
+        <el-card shadow="never" class="cardBg">
+        <div v-for="(item,index) in selectProductAttrPics">
+          <span>{{item.name}}:</span>
+          <single-upload v-model="item.pic" style="width: 300px;display: inline-block;margin-left: 10px"></single-upload>
         </div>
+        </el-card>
       </el-form-item>
       <el-form-item label="商品参数：">
         <el-card shadow="never" class="cardBg">
@@ -118,6 +120,19 @@
         </div>
         </el-card>
       </el-form-item>
+      <el-form-item label="商品相册：">
+        <multi-upload v-model="selectProductPics"></multi-upload>
+      </el-form-item>
+      <el-form-item label="规格参数：">
+        <el-tabs v-model="activeHtmlName" type="card">
+          <el-tab-pane label="电脑端详情" name="pc">
+            电脑端详情
+          </el-tab-pane>
+          <el-tab-pane label="移动端详情" name="mobile">
+            移动端详情
+          </el-tab-pane>
+        </el-tabs>
+      </el-form-item>
     </el-form>
   </div>
 </template>
@@ -126,27 +141,35 @@
   import {fetchList as fetchProductAttrCateList} from '@/api/productAttrCate'
   import {fetchList as fetchProductAttrList} from '@/api/productAttr'
   import SingleUpload from '@/components/Upload/singleUpload'
+  import MultiUpload from '@/components/Upload/multiUpload'
 
   export default {
     name: "addProductAttr",
-    components:{SingleUpload},
+    components:{SingleUpload,MultiUpload},
     props: {
       value: Object
     },
     data() {
       return {
+        //商品属性分类下拉选项
         productAttributeCategoryOptions: [],
+        //选中的商品属性
         selectProductAttr: [],
+        //选中的商品参数
         selectProductParam:[],
-        addProductAttrValue: null
+        //选中的商品属性图片
+        selectProductAttrPics:[],
+        //可手动添加的商品属性
+        addProductAttrValue:'',
+        //选中的商品图片
+        selectProductPics:[],
+        //商品富文本详情激活类型
+        activeHtmlName:'pc'
       }
     },
     computed: {
       hasAttrPic() {
-        if(this.selectProductAttr.length<1){
-          return false;
-        }
-        if(this.selectProductAttr[0].values.length<1){
+        if(this.selectProductAttrPics.length<1){
           return false;
         }
         return true;
@@ -182,8 +205,7 @@
                 handAddStatus: list[i].handAddStatus,
                 inputList:list[i].inputList,
                 values: [],
-                options: [],
-                pics:[]
+                options: []
               });
             }
           } else {
@@ -242,6 +264,7 @@
       },
       handleRefreshProductSkuList() {
         this.value.skuStockList = [];
+        this.refreshProductAttrPics();
         let skuList = this.value.skuStockList;
         //只有一个属性时
         if (this.selectProductAttr.length === 1) {
@@ -254,20 +277,39 @@
         } else if (this.selectProductAttr.length === 2) {
           let values0 = this.selectProductAttr[0].values;
           let values1 = this.selectProductAttr[1].values;
-          for (let i = 0; i < values0.length; i++) {
-            for (let j = 0; j < values1.length; j++) {
-              skuList.push({
-                sp1: values0[i],
-                sp2: values1[j]
-              });
-            }
+            for (let i = 0; i < values0.length; i++) {
+              if(values1.length===0){
+                skuList.push({
+                  sp1: values0[i]
+                });
+                continue;
+              }
+              for (let j = 0; j < values1.length; j++) {
+                skuList.push({
+                  sp1: values0[i],
+                  sp2: values1[j]
+                });
+              }
           }
         } else {
           let values0 = this.selectProductAttr[0].values;
           let values1 = this.selectProductAttr[1].values;
           let values2 = this.selectProductAttr[2].values;
           for (let i = 0; i < values0.length; i++) {
+            if(values1.length===0){
+              skuList.push({
+                sp1: values0[i]
+              });
+              continue;
+            }
             for (let j = 0; j < values1.length; j++) {
+              if(values2.length===0){
+                skuList.push({
+                  sp1: values0[i],
+                  sp2: values1[j]
+                });
+                continue;
+              }
               for (let k = 0; k < values2.length; k++) {
                 skuList.push({
                   sp1: values0[i],
@@ -276,6 +318,15 @@
                 });
               }
             }
+          }
+        }
+      },
+      refreshProductAttrPics(){
+        this.selectProductAttrPics=[];
+        if (this.selectProductAttr.length >= 1) {
+          let values = this.selectProductAttr[0].values;
+          for(let i=0;i<values.length;i++){
+            this.selectProductAttrPics.push({name:values[i],pic:null})
           }
         }
       },
