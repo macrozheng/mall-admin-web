@@ -23,23 +23,23 @@
           </el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="商品介绍：" prop="description">
+      <el-form-item label="商品介绍：">
         <el-input
           :autoSize="true"
           v-model="value.description"
           type="textarea"
           placeholder="请输入内容"></el-input>
       </el-form-item>
-      <el-form-item label="商品货号：" prop="requiredProp">
+      <el-form-item label="商品货号：">
         <el-input v-model="value.productSn"></el-input>
       </el-form-item>
-      <el-form-item label="商品售价：" prop="requiredProp">
+      <el-form-item label="商品售价：">
         <el-input v-model="value.price"></el-input>
       </el-form-item>
       <el-form-item label="市场价：">
         <el-input v-model="value.originalPrice"></el-input>
       </el-form-item>
-      <el-form-item label="商品库存：" prop="requiredProp">
+      <el-form-item label="商品库存：">
         <el-input v-model="value.stock"></el-input>
       </el-form-item>
       <el-form-item label="计量单位：">
@@ -48,6 +48,9 @@
       <el-form-item label="商品重量：">
         <el-input v-model="value.weight" style="width: 300px"></el-input>
         <span style="margin-left: 20px">克</span>
+      </el-form-item>
+      <el-form-item style="text-align: center">
+        <el-button type="primary" size="medium" @click="handleNext('productInfoForm')">下一步，填写商品促销</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -64,7 +67,8 @@
     },
     data() {
       return {
-        selectProductCateValue: null,
+        //选中商品分类的值
+        selectProductCateValue: [],
         productCateOptions: [],
         brandOptions: [],
         rules: {
@@ -86,7 +90,7 @@
     },
     watch: {
       selectProductCateValue: function (newValue) {
-        if (newValue != null && newValue.length == 2) {
+        if (newValue != null && newValue.length === 2) {
           this.value.productCategoryId = newValue[1];
         } else {
           this.value.productCategoryId = null;
@@ -119,12 +123,23 @@
           }
         });
       },
+      handleNext(formName){
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            this.$emit('nextStep');
+          } else {
+            this.$message({
+              message: '验证失败',
+              type: 'error',
+              duration:1000
+            });
+            return false;
+          }
+        });
+      }
     }
   }
 </script>
 
 <style scoped>
-  .smallInput {
-    width: 150px;
-  }
 </style>
