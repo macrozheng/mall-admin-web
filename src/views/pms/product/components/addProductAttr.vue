@@ -1,6 +1,6 @@
 <template>
   <div style="margin-top: 50px">
-    <el-form :model="value" ref="productAttrForm" label-width="120px" style="width: 780px" size="small">
+    <el-form :model="value" ref="productAttrForm" label-width="120px" style="width: 720px" size="small">
       <el-form-item label="属性类型：">
         <el-select v-model="value.productAttributeCategoryId"
                    placeholder="请选择属性类型"
@@ -126,10 +126,10 @@
       <el-form-item label="规格参数：">
         <el-tabs v-model="activeHtmlName" type="card">
           <el-tab-pane label="电脑端详情" name="pc">
-            电脑端详情
+            <tinymce :width="595" :height="300" v-model="value.detailHtml"></tinymce>
           </el-tab-pane>
           <el-tab-pane label="移动端详情" name="mobile">
-            移动端详情
+            <tinymce :width="595" :height="300" v-model="value.detailMobileHtml"></tinymce>
           </el-tab-pane>
         </el-tabs>
       </el-form-item>
@@ -142,10 +142,11 @@
   import {fetchList as fetchProductAttrList} from '@/api/productAttr'
   import SingleUpload from '@/components/Upload/singleUpload'
   import MultiUpload from '@/components/Upload/multiUpload'
+  import Tinymce from '@/components/Tinymce'
 
   export default {
     name: "addProductAttr",
-    components:{SingleUpload,MultiUpload},
+    components:{SingleUpload,MultiUpload,Tinymce},
     props: {
       value: Object
     },

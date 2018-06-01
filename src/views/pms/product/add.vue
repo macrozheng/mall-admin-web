@@ -158,7 +158,7 @@
 </script>
 <style>
   .form-container {
-    width: 860px;
+    width: 800px;
   }
 </style>
 
