@@ -39,6 +39,7 @@
   import AddProductSale from './components/addProductSale';
   import AddProductAttr from './components/addProductAttr';
   import AddProductRelation from './components/addProductRelation';
+  import {createProduct} from '@/api/product';
 
   const defaultProductParam = {
     albumPics: '',
@@ -132,7 +133,20 @@
         }
       },
       finishCommit() {
-        alert('finishCommit');
+        this.$confirm('是否要提交该产品', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          createProduct(this.productParam).then(response=>{
+            this.$message({
+              type: 'success',
+              message: '提交成功',
+              duration:1000
+            });
+            location.reload();
+          });
+        })
       }
     }
   }

@@ -14,7 +14,10 @@
         <el-input v-model="value.subTitle"></el-input>
       </el-form-item>
       <el-form-item label="商品品牌：" prop="brandId">
-        <el-select v-model="value.brandId" placeholder="请选择品牌">
+        <el-select
+          v-model="value.brandId"
+          @change="handleBrandChange"
+          placeholder="请选择品牌">
           <el-option
             v-for="item in brandOptions"
             :key="item.value"
@@ -95,7 +98,6 @@
         } else {
           this.value.productCategoryId = null;
         }
-
       }
     },
     methods: {
@@ -136,6 +138,16 @@
             return false;
           }
         });
+      },
+      handleBrandChange(val) {
+        let brandName = '';
+        for (let i = 0; i < this.brandOptions.length; i++) {
+          if (this.brandOptions[i].value === val) {
+            brandName = this.brandOptions[i].label;
+            break;
+          }
+        }
+        this.value.brandName = brandName;
       }
     }
   }

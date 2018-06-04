@@ -98,26 +98,27 @@
       </el-form-item>
       <el-form-item label="属性图片：" v-if="hasAttrPic">
         <el-card shadow="never" class="cardBg">
-        <div v-for="(item,index) in selectProductAttrPics">
-          <span>{{item.name}}:</span>
-          <single-upload v-model="item.pic" style="width: 300px;display: inline-block;margin-left: 10px"></single-upload>
-        </div>
+          <div v-for="(item,index) in selectProductAttrPics">
+            <span>{{item.name}}:</span>
+            <single-upload v-model="item.pic"
+                           style="width: 300px;display: inline-block;margin-left: 10px"></single-upload>
+          </div>
         </el-card>
       </el-form-item>
       <el-form-item label="商品参数：">
         <el-card shadow="never" class="cardBg">
-        <div v-for="(item,index) in selectProductParam" :class="{littleMarginTop:index!==0}">
-          <div class="paramInputLabel">{{item.name}}:</div>
-          <el-select v-if="item.inputType===1" class="paramInput" v-model="selectProductParam[index].value">
-            <el-option
-              v-for="item in getParamInputList(item.inputList)"
-              :key="item"
-              :label="item"
-              :value="item">
-            </el-option>
-          </el-select>
-          <el-input v-else class="paramInput" v-model="selectProductParam[index].value"></el-input>
-        </div>
+          <div v-for="(item,index) in selectProductParam" :class="{littleMarginTop:index!==0}">
+            <div class="paramInputLabel">{{item.name}}:</div>
+            <el-select v-if="item.inputType===1" class="paramInput" v-model="selectProductParam[index].value">
+              <el-option
+                v-for="item in getParamInputList(item.inputList)"
+                :key="item"
+                :label="item"
+                :value="item">
+              </el-option>
+            </el-select>
+            <el-input v-else class="paramInput" v-model="selectProductParam[index].value"></el-input>
+          </div>
         </el-card>
       </el-form-item>
       <el-form-item label="商品相册：">
@@ -150,7 +151,7 @@
 
   export default {
     name: "addProductAttr",
-    components:{SingleUpload,MultiUpload,Tinymce},
+    components: {SingleUpload, MultiUpload, Tinymce},
     props: {
       value: Object
     },
@@ -161,20 +162,20 @@
         //选中的商品属性
         selectProductAttr: [],
         //选中的商品参数
-        selectProductParam:[],
+        selectProductParam: [],
         //选中的商品属性图片
-        selectProductAttrPics:[],
+        selectProductAttrPics: [],
         //可手动添加的商品属性
-        addProductAttrValue:'',
+        addProductAttrValue: '',
         //选中的商品图片
-        selectProductPics:[],
+        selectProductPics: [],
         //商品富文本详情激活类型
-        activeHtmlName:'pc'
+        activeHtmlName: 'pc'
       }
     },
     computed: {
       hasAttrPic() {
-        if(this.selectProductAttrPics.length<1){
+        if (this.selectProductAttrPics.length < 1) {
           return false;
         }
         return true;
@@ -184,6 +185,25 @@
       this.getProductAttrCateList();
       if (this.value.productAttributeCategoryId != null) {
         this.handleProductAttrChange(this.value.productAttributeCategoryId);
+      }
+    },
+    watch: {
+      selectProductPics: function (newValue) {
+        if (newValue == null || newValue.length === 0) {
+          this.value.pic = null;
+          this.value.albumPics = null;
+        } else {
+          this.value.pic = newValue[0];
+          this.value.albumPics = '';
+          if (newValue.length > 1) {
+            for (let i = 1; i < newValue.length; i++) {
+              this.value.albumPics += newValue[i];
+              if (i !== newValue.length - 1) {
+                this.value.albumPics += ',';
+              }
+            }
+          }
+        }
       }
     },
     methods: {
@@ -206,9 +226,9 @@
             for (let i = 0; i < list.length; i++) {
               this.selectProductAttr.push({
                 id: list[i].id,
-                name:list[i].name,
+                name: list[i].name,
                 handAddStatus: list[i].handAddStatus,
-                inputList:list[i].inputList,
+                inputList: list[i].inputList,
                 values: [],
                 options: []
               });
@@ -218,10 +238,10 @@
             for (let i = 0; i < list.length; i++) {
               this.selectProductParam.push({
                 id: list[i].id,
-                name:list[i].name,
+                name: list[i].name,
                 value: null,
-                inputType:list[i].inputType,
-                inputList:list[i].inputList
+                inputType: list[i].inputType,
+                inputList: list[i].inputList
               });
             }
           }
@@ -282,33 +302,33 @@
         } else if (this.selectProductAttr.length === 2) {
           let values0 = this.selectProductAttr[0].values;
           let values1 = this.selectProductAttr[1].values;
-            for (let i = 0; i < values0.length; i++) {
-              if(values1.length===0){
-                skuList.push({
-                  sp1: values0[i]
-                });
-                continue;
-              }
-              for (let j = 0; j < values1.length; j++) {
-                skuList.push({
-                  sp1: values0[i],
-                  sp2: values1[j]
-                });
-              }
-          }
-        } else {
-          let values0 = this.selectProductAttr[0].values;
-          let values1 = this.selectProductAttr[1].values;
-          let values2 = this.selectProductAttr[2].values;
           for (let i = 0; i < values0.length; i++) {
-            if(values1.length===0){
+            if (values1.length === 0) {
               skuList.push({
                 sp1: values0[i]
               });
               continue;
             }
             for (let j = 0; j < values1.length; j++) {
-              if(values2.length===0){
+              skuList.push({
+                sp1: values0[i],
+                sp2: values1[j]
+              });
+            }
+          }
+        } else {
+          let values0 = this.selectProductAttr[0].values;
+          let values1 = this.selectProductAttr[1].values;
+          let values2 = this.selectProductAttr[2].values;
+          for (let i = 0; i < values0.length; i++) {
+            if (values1.length === 0) {
+              skuList.push({
+                sp1: values0[i]
+              });
+              continue;
+            }
+            for (let j = 0; j < values1.length; j++) {
+              if (values2.length === 0) {
                 skuList.push({
                   sp1: values0[i],
                   sp2: values1[j]
@@ -326,14 +346,54 @@
           }
         }
       },
-      refreshProductAttrPics(){
-        this.selectProductAttrPics=[];
+      refreshProductAttrPics() {
+        this.selectProductAttrPics = [];
         if (this.selectProductAttr.length >= 1) {
           let values = this.selectProductAttr[0].values;
-          for(let i=0;i<values.length;i++){
-            this.selectProductAttrPics.push({name:values[i],pic:null})
+          for (let i = 0; i < values.length; i++) {
+            this.selectProductAttrPics.push({name: values[i], pic: null})
           }
         }
+      },
+      //合并商品属性
+      mergeProductAttrValue() {
+        this.value.productAttributeValueList = [];
+        for (let i = 0; i < this.selectProductAttr.length; i++) {
+          let attr = this.selectProductAttr[i];
+          if (attr.handAddStatus === 1 && attr.options != null && attr.options.length > 0) {
+            this.value.productAttributeValueList.push({
+              productAttributeId: attr.id,
+              value: this.getOptionStr(attr.options)
+            });
+          }
+        }
+        for (let i = 0; i < this.selectProductParam.length; i++) {
+          let param = this.selectProductParam[i];
+          this.value.productAttributeValueList.push({
+            productAttributeId: param.id,
+            value: param.value
+          });
+        }
+      },
+      //合并商品属性图片
+      mergeProductAttrPics(){
+        for (let i = 0; i < this.selectProductAttrPics.length; i++) {
+          for (let j = 0; j < this.value.skuStockList.length; j++) {
+            if (this.value.skuStockList[j].sp1 === this.selectProductAttrPics[i].name) {
+              this.value.skuStockList[j].pic = this.selectProductAttrPics[i].pic;
+            }
+          }
+        }
+      },
+      getOptionStr(arr) {
+        let str = '';
+        for (let i = 0; i < arr.length; i++) {
+          str += arr[i];
+          if (i != arr.length - 1) {
+            str += ',';
+          }
+        }
+        return str;
       },
       handleRemoveProductSku(index, row) {
         let list = this.value.skuStockList;
@@ -343,13 +403,15 @@
           list.splice(index, 1);
         }
       },
-      getParamInputList(inputList){
+      getParamInputList(inputList) {
         return inputList.split(',');
       },
-      handlePrev(){
+      handlePrev() {
         this.$emit('prevStep')
       },
-      handleNext(){
+      handleNext() {
+        this.mergeProductAttrValue();
+        this.mergeProductAttrPics();
         this.$emit('nextStep')
       }
     }
@@ -360,19 +422,23 @@
   .littleMarginLeft {
     margin-left: 10px;
   }
+
   .littleMarginTop {
     margin-top: 10px;
   }
-  .paramInput{
+
+  .paramInput {
     width: 250px;
   }
-  .paramInputLabel{
+
+  .paramInputLabel {
     display: inline-block;
     width: 100px;
     text-align: right;
     padding-right: 10px
   }
-  .cardBg{
+
+  .cardBg {
     background: #F8F9FC;
   }
 </style>

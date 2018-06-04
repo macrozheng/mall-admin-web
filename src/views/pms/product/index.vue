@@ -359,7 +359,7 @@
         this.getList();
       },
       handleAddItem() {
-        console.log("handleAddItem");
+        this.$router.push({path:'/pms/addProduct'});
       },
       handleBatchOperate() {
         if(this.operateType==null){
