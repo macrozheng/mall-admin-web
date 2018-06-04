@@ -40,7 +40,7 @@
   import {fetchList as fetchPrefrenceAreaList} from '@/api/prefrenceArea'
 
   export default {
-    name: "addProductRelation",
+    name: "ProductRelationDetail",
     props: {
       value: Object
     },

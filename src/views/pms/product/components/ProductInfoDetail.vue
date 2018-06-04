@@ -64,7 +64,7 @@
   import {fetchList as fetchBrandList} from '@/api/brand'
 
   export default {
-    name: "addProductInfo",
+    name: "ProductInfoDetail",
     props: {
       value: Object
     },

@@ -51,6 +51,13 @@ export const constantRouterMap = [
         meta: {title: '添加商品', icon: 'product-add'}
       },
       {
+        path: 'updateProduct',
+        name: 'updateProduct',
+        component: () => import('@/views/pms/product/update'),
+        meta: {title: '修改商品', icon: 'product-add'},
+        hidden:true
+      },
+      {
         path: 'productRecycle',
         name: 'productRecycle',
         component: () => import('@/views/pms/product/index'),

@@ -167,7 +167,7 @@
 <script>
   import {fetchList as fetchMemberLevelList} from '@/api/memberLevel'
   export default {
-    name: "addProductSale",
+    name: "ProductSaleDetail",
     props: {
       value: Object
     },

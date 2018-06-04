@@ -150,7 +150,7 @@
   import Tinymce from '@/components/Tinymce'
 
   export default {
-    name: "addProductAttr",
+    name: "ProductAttrDetail",
     components: {SingleUpload, MultiUpload, Tinymce},
     props: {
       value: Object

@@ -71,7 +71,7 @@
       <span>数据列表</span>
       <el-button
         class="btn-add"
-        @click="handleAddItem()"
+        @click="handleAddProduct()"
         size="mini">
         添加
       </el-button>
@@ -147,7 +147,7 @@
             <p>
               <el-button
                 type="text"
-                @click="handleDelete(scope.$index, scope.row)">审核详情
+                @click="handleShowVerifyDetail(scope.$index, scope.row)">审核详情
               </el-button>
             </p>
           </template>
@@ -161,7 +161,7 @@
               </el-button>
               <el-button
                 size="mini"
-                @click="handleEdit(scope.$index, scope.row)">编辑
+                @click="handleUpdateProduct(scope.$index, scope.row)">编辑
               </el-button>
             </p>
             <p>
@@ -358,7 +358,7 @@
         this.listQuery.pageNum = 1;
         this.getList();
       },
-      handleAddItem() {
+      handleAddProduct() {
         this.$router.push({path:'/pms/addProduct'});
       },
       handleBatchOperate() {
@@ -458,6 +458,9 @@
           ids.push(row.id);
           this.updateDeleteStatus(1,ids);
         });
+      },
+      handleUpdateProduct(index,row){
+        this.$router.push({path:'/pms/addProduct',query:{id:row.id}});
       },
       updatePublishStatus(publishStatus, ids) {
         let params = new URLSearchParams();
