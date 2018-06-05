@@ -169,7 +169,11 @@
   export default {
     name: "ProductSaleDetail",
     props: {
-      value: Object
+      value: Object,
+      isEdit: {
+        type: Boolean,
+        default: false
+      }
     },
     data() {
       return {
@@ -184,14 +188,18 @@
       }
     },
     created(){
-      fetchMemberLevelList({defaultStatus:0}).then(response=>{
+      if(this.isEdit){
+        this.handleEditCreated();
+      }else{
+        fetchMemberLevelList({defaultStatus:0}).then(response=>{
           let memberPriceList=[];
           for(let i=0;i<response.data.length;i++){
             let item = response.data[i];
             memberPriceList.push({memberLevelId:item.id,memberLevelName:item.name})
           }
           this.value.memberPriceList=memberPriceList;
-      });
+        });
+      }
     },
     watch: {
       selectServiceList: function (newValue) {
@@ -211,6 +219,12 @@
       }
     },
     methods:{
+      handleEditCreated(){
+        let ids = this.value.serviceIds.split(',');
+        for(let i=0;i<ids.length;i++){
+          this.selectServiceList.push(Number(ids[i]));
+        }
+      },
       handleRemoveProductLadder(index,row){
         let productLadderList = this.value.productLadderList;
         if(productLadderList.length===1){

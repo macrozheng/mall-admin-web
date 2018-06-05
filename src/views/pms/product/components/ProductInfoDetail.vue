@@ -62,11 +62,16 @@
 <script>
   import {fetchListWithChildren} from '@/api/productCate'
   import {fetchList as fetchBrandList} from '@/api/brand'
+  import {getProduct} from '@/api/product';
 
   export default {
     name: "ProductInfoDetail",
     props: {
-      value: Object
+      value: Object,
+      isEdit: {
+        type: Boolean,
+        default: false
+      }
     },
     data() {
       return {
@@ -88,6 +93,9 @@
       };
     },
     created() {
+      if(this.isEdit){
+        this.handleEditCreated();
+      }
       this.getProductCateList();
       this.getBrandList();
     },
@@ -101,6 +109,16 @@
       }
     },
     methods: {
+      //处理编辑逻辑
+      handleEditCreated(){
+        getProduct(this.$route.query.id).then(response=>{
+          if(response.data.productCategoryId!=null){
+            this.selectProductCateValue.push(response.data.cateParentId);
+            this.selectProductCateValue.push(response.data.productCategoryId);
+          }
+          this.$emit('input',response.data);
+        });
+      },
       getProductCateList() {
         fetchListWithChildren().then(response => {
           let list = response.data;

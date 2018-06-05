@@ -47,3 +47,10 @@ export function createProduct(data) {
   })
 }
 
+export function getProduct(id) {
+  return request({
+    url:'/product/updateInfo/'+id,
+    method:'get',
+  })
+}
+

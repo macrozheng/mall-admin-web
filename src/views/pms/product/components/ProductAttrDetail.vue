@@ -153,7 +153,11 @@
     name: "ProductAttrDetail",
     components: {SingleUpload, MultiUpload, Tinymce},
     props: {
-      value: Object
+      value: Object,
+      isEdit: {
+        type: Boolean,
+        default: false
+      }
     },
     data() {
       return {
@@ -182,6 +186,9 @@
       }
     },
     created() {
+      if(this.isEdit){
+        this.handleEditCreated();
+      }
       this.getProductAttrCateList();
       if (this.value.productAttributeCategoryId != null) {
         this.handleProductAttrChange(this.value.productAttributeCategoryId);
@@ -207,6 +214,9 @@
       }
     },
     methods: {
+      handleEditCreated(){
+
+      },
       getProductAttrCateList() {
         let param = {pageNum: 1, pageSize: 100};
         fetchProductAttrCateList(param).then(response => {
@@ -224,13 +234,21 @@
           if (type === 0) {
             this.selectProductAttr = [];
             for (let i = 0; i < list.length; i++) {
+              let options = [];
+              let values=[];
+              if(this.isEdit){
+                if(list[i].handAddStatus===1){
+                  options = this.getEditAttrOptions(list[i].id);
+                }
+                // values = this.getEditAttrValues(i);
+              }
               this.selectProductAttr.push({
                 id: list[i].id,
                 name: list[i].name,
                 handAddStatus: list[i].handAddStatus,
                 inputList: list[i].inputList,
-                values: [],
-                options: []
+                values: values,
+                options: options
               });
             }
           } else {
@@ -246,6 +264,48 @@
             }
           }
         });
+      },
+      //获取设置的可手动添加属性值
+      getEditAttrOptions(id){
+        let options=[];
+        for(let i=0;i<this.value.productAttributeValueList.length;i++){
+          let attrValue = this.value.productAttributeValueList[i];
+          if(attrValue.productAttributeId===id){
+            let strArr = attrValue.value.split(',');
+            for(let j=0;j<strArr.length;j++){
+              options.push(strArr[j]);
+            }
+            break;
+          }
+        }
+        return options;
+      },
+      //获取选中的属性值
+      getEditAttrValues(index){
+        let values=[];
+        if(index===0){
+          for(let i=0;i<this.value.skuStockList.length;i++){
+            let sku=this.value.skuStockList[i];
+            if(sku.sp1!=null&&values.indexOf(sku.sp1)>-1){
+              values.push(sku.sp1);
+            }
+          }
+        }else if(index===1){
+          for(let i=0;i<this.value.skuStockList.length;i++){
+            let sku=this.value.skuStockList[i];
+            if(sku.sp2!=null&&values.indexOf(sku.sp2)>-1){
+              values.push(sku.sp2);
+            }
+          }
+        }else{
+          for(let i=0;i<this.value.skuStockList.length;i++){
+            let sku=this.value.skuStockList[i];
+            if(sku.sp3!=null&&values.indexOf(sku.sp3)>-1){
+              values.push(sku.sp3);
+            }
+          }
+        }
+        return values;
       },
       handleProductAttrChange(value) {
         this.getProductAttrList(0, value);

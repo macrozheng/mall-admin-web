@@ -460,7 +460,7 @@
         });
       },
       handleUpdateProduct(index,row){
-        this.$router.push({path:'/pms/addProduct',query:{id:row.id}});
+        this.$router.push({path:'/pms/updateProduct',query:{id:row.id}});
       },
       updatePublishStatus(publishStatus, ids) {
         let params = new URLSearchParams();
