@@ -42,18 +42,18 @@
   export default {
     name: "ProductRelationDetail",
     props: {
-      value: Object
+      value: Object,
+      isEdit: {
+        type: Boolean,
+        default: false
+      }
     },
     data() {
       return {
-        //选中的专题
-        selectSubject: [],
         //所有专题列表
         subjectList: [],
         //专题左右标题
         subjectTitles: ['待选择', '已选择'],
-        //选中的专题
-        selectPrefrenceArea: [],
         //所有专题列表
         prefrenceAreaList: [],
         //专题左右标题
@@ -64,17 +64,43 @@
       this.getSubjectList();
       this.getPrefrenceAreaList();
     },
-    watch: {
-      selectSubject: function (newValue) {
-        this.value.subjectProductRelationList=[];
-        for(let i=0;i<newValue.length;i++){
-          this.value.subjectProductRelationList.push({subjectId:newValue[i]});
+    computed:{
+      //选中的专题
+      selectSubject:{
+        get:function () {
+          let subjects =[];
+          if(this.value.subjectProductRelationList==null||this.value.subjectProductRelationList.length<=0){
+            return subjects;
+          }
+          for(let i=0;i<this.value.subjectProductRelationList.length;i++){
+            subjects.push(this.value.subjectProductRelationList[i].subjectId);
+          }
+          return subjects;
+        },
+        set:function (newValue) {
+          this.value.subjectProductRelationList=[];
+          for(let i=0;i<newValue.length;i++){
+            this.value.subjectProductRelationList.push({subjectId:newValue[i]});
+          }
         }
       },
-      selectPrefrenceArea: function (newValue) {
-        this.value.prefrenceAreaProductRelationList=[];
-        for(let i=0;i<newValue.length;i++){
-          this.value.prefrenceAreaProductRelationList.push({prefrenceAreaId:newValue[i]});
+      //选中的优选
+      selectPrefrenceArea:{
+        get:function () {
+          let prefrenceAreas =[];
+          if(this.value.prefrenceAreaProductRelationList==null||this.value.prefrenceAreaProductRelationList.length<=0){
+            return prefrenceAreas;
+          }
+          for(let i=0;i<this.value.prefrenceAreaProductRelationList.length;i++){
+            prefrenceAreas.push(this.value.prefrenceAreaProductRelationList[i].prefrenceAreaId);
+          }
+          return prefrenceAreas;
+        },
+        set:function (newValue) {
+          this.value.prefrenceAreaProductRelationList=[];
+          for(let i=0;i<newValue.length;i++){
+            this.value.prefrenceAreaProductRelationList.push({prefrenceAreaId:newValue[i]});
+          }
         }
       }
     },
@@ -108,7 +134,7 @@
         this.$emit('prevStep')
       },
       handleFinishCommit(){
-        this.$emit('finishCommit')
+        this.$emit('finishCommit',this.isEdit);
       }
     }
   }

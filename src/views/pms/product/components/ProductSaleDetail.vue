@@ -70,33 +70,34 @@
         <div>
           开始时间：
           <el-date-picker
-          v-model="value.promotionStartTime"
-          value-format="timestamp"
-          type="datetime"
-          :picker-options="pickerOptions1"
-          placeholder="选择开始时间">
-        </el-date-picker>
+            v-model="value.promotionStartTime"
+            value-format="timestamp"
+            type="datetime"
+            :picker-options="pickerOptions1"
+            placeholder="选择开始时间">
+          </el-date-picker>
         </div>
         <div class="littleMargin">
           结束时间：
           <el-date-picker
-          v-model="value.promotionEndTime"
-          value-format="timestamp"
-          type="datetime"
-          :picker-options="pickerOptions1"
-          placeholder="选择结束时间">
-        </el-date-picker>
+            v-model="value.promotionEndTime"
+            value-format="timestamp"
+            type="datetime"
+            :picker-options="pickerOptions1"
+            placeholder="选择结束时间">
+          </el-date-picker>
         </div>
         <div class="littleMargin">
           促销价格：
-          <el-input style="width: 220px"v-model="value.promotionPrice" placeholder="输入促销价格"></el-input>
+          <el-input style="width: 220px" v-model="value.promotionPrice" placeholder="输入促销价格"></el-input>
         </div>
 
       </el-form-item>
       <el-form-item v-show="value.promotionType===2">
-       <div v-for="(item, index) in value.memberPriceList" :class="{littleMargin:index!==0}">
-            {{item.memberLevelName}}：<el-input v-model="item.memberPrice" style="width: 200px"></el-input>
-       </div>
+        <div v-for="(item, index) in value.memberPriceList" :class="{littleMargin:index!==0}">
+          {{item.memberLevelName}}：
+          <el-input v-model="item.memberPrice" style="width: 200px"></el-input>
+        </div>
       </el-form-item>
       <el-form-item v-show="value.promotionType===3">
         <el-table :data="value.productLadderList"
@@ -166,6 +167,7 @@
 
 <script>
   import {fetchList as fetchMemberLevelList} from '@/api/memberLevel'
+
   export default {
     name: "ProductSaleDetail",
     props: {
@@ -177,8 +179,6 @@
     },
     data() {
       return {
-        //选中的服务保证
-        selectServiceList: [],
         //日期选择器配置
         pickerOptions1: {
           disabledDate(time) {
@@ -187,102 +187,114 @@
         }
       }
     },
-    created(){
-      if(this.isEdit){
-        this.handleEditCreated();
-      }else{
-        fetchMemberLevelList({defaultStatus:0}).then(response=>{
-          let memberPriceList=[];
-          for(let i=0;i<response.data.length;i++){
+    created() {
+      if (this.isEdit) {
+        // this.handleEditCreated();
+      } else {
+        fetchMemberLevelList({defaultStatus: 0}).then(response => {
+          let memberPriceList = [];
+          for (let i = 0; i < response.data.length; i++) {
             let item = response.data[i];
-            memberPriceList.push({memberLevelId:item.id,memberLevelName:item.name})
+            memberPriceList.push({memberLevelId: item.id, memberLevelName: item.name})
           }
-          this.value.memberPriceList=memberPriceList;
+          this.value.memberPriceList = memberPriceList;
         });
       }
     },
-    watch: {
-      selectServiceList: function (newValue) {
-        let serviceIds = '';
-        if (newValue != null && newValue.length > 0) {
-          for (let i = 0; i < newValue.length; i++) {
-            serviceIds += newValue[i] + ',';
+    computed: {
+      //选中的服务保证
+      selectServiceList: {
+        get() {
+          let list = [];
+          if (this.value.serviceIds === undefined || this.value.serviceIds == null || this.value.serviceIds === '') return list;
+          let ids = this.value.serviceIds.split(',');
+          for (let i = 0; i < ids.length; i++) {
+            list.push(Number(ids[i]));
           }
-          if (serviceIds.endsWith(',')) {
-            serviceIds = serviceIds.substr(0, serviceIds.length - 1)
+          return list;
+        },
+        set(newValue) {
+          let serviceIds = '';
+          if (newValue != null && newValue.length > 0) {
+            for (let i = 0; i < newValue.length; i++) {
+              serviceIds += newValue[i] + ',';
+            }
+            if (serviceIds.endsWith(',')) {
+              serviceIds = serviceIds.substr(0, serviceIds.length - 1)
+            }
+            this.value.serviceIds = serviceIds;
+          } else {
+            this.value.serviceIds = null;
           }
-          this.value.serviceIds = serviceIds;
-        } else {
-          this.value.serviceIds = null;
         }
-
       }
     },
-    methods:{
-      handleEditCreated(){
+    methods: {
+      handleEditCreated() {
         let ids = this.value.serviceIds.split(',');
-        for(let i=0;i<ids.length;i++){
+        console.log('handleEditCreated', ids);
+        for (let i = 0; i < ids.length; i++) {
           this.selectServiceList.push(Number(ids[i]));
         }
       },
-      handleRemoveProductLadder(index,row){
+      handleRemoveProductLadder(index, row) {
         let productLadderList = this.value.productLadderList;
-        if(productLadderList.length===1){
+        if (productLadderList.length === 1) {
           productLadderList.pop();
           productLadderList.push({
             count: 0,
             discount: 0,
             price: 0
           })
-        }else{
-          productLadderList.splice(index,1);
+        } else {
+          productLadderList.splice(index, 1);
         }
       },
-      handleAddProductLadder(index,row){
+      handleAddProductLadder(index, row) {
         let productLadderList = this.value.productLadderList;
-        if(productLadderList.length<3){
+        if (productLadderList.length < 3) {
           productLadderList.push({
             count: 0,
             discount: 0,
             price: 0
           })
-        }else{
+        } else {
           this.$message({
             message: '最多只能添加三条',
             type: 'warning'
           });
         }
       },
-      handleRemoveFullReduction(index,row){
+      handleRemoveFullReduction(index, row) {
         let fullReductionList = this.value.productFullReductionList;
-        if(fullReductionList.length===1){
+        if (fullReductionList.length === 1) {
           fullReductionList.pop();
           fullReductionList.push({
             fullPrice: 0,
             reducePrice: 0
           });
-        }else{
-          fullReductionList.splice(index,1);
+        } else {
+          fullReductionList.splice(index, 1);
         }
       },
-      handleAddFullReduction(index,row){
+      handleAddFullReduction(index, row) {
         let fullReductionList = this.value.productFullReductionList;
-        if(fullReductionList.length<3){
+        if (fullReductionList.length < 3) {
           fullReductionList.push({
             fullPrice: 0,
             reducePrice: 0
           });
-        }else{
+        } else {
           this.$message({
             message: '最多只能添加三条',
             type: 'warning'
           });
         }
       },
-      handlePrev(){
+      handlePrev() {
         this.$emit('prevStep')
       },
-      handleNext(){
+      handleNext() {
         this.$emit('nextStep')
       }
     }
@@ -290,7 +302,7 @@
 </script>
 
 <style scoped>
-  .littleMargin{
+  .littleMargin {
     margin-top: 10px;
   }
 </style>

@@ -161,6 +161,8 @@
     },
     data() {
       return {
+        //编辑模式时是否初始化成功
+        hasEditCreated:false,
         //商品属性分类下拉选项
         productAttributeCategoryOptions: [],
         //选中的商品属性
@@ -171,51 +173,76 @@
         selectProductAttrPics: [],
         //可手动添加的商品属性
         addProductAttrValue: '',
-        //选中的商品图片
-        selectProductPics: [],
         //商品富文本详情激活类型
         activeHtmlName: 'pc'
       }
     },
     computed: {
+      //是否有商品属性图片
       hasAttrPic() {
         if (this.selectProductAttrPics.length < 1) {
           return false;
         }
         return true;
-      }
-    },
-    created() {
-      if(this.isEdit){
-        this.handleEditCreated();
-      }
-      this.getProductAttrCateList();
-      if (this.value.productAttributeCategoryId != null) {
-        this.handleProductAttrChange(this.value.productAttributeCategoryId);
-      }
-    },
-    watch: {
-      selectProductPics: function (newValue) {
-        if (newValue == null || newValue.length === 0) {
-          this.value.pic = null;
-          this.value.albumPics = null;
-        } else {
-          this.value.pic = newValue[0];
-          this.value.albumPics = '';
-          if (newValue.length > 1) {
-            for (let i = 1; i < newValue.length; i++) {
-              this.value.albumPics += newValue[i];
-              if (i !== newValue.length - 1) {
-                this.value.albumPics += ',';
+      },
+      //商品的编号
+      productId(){
+        return this.value.id;
+      },
+      //商品的主图和画册图片
+      selectProductPics:{
+        get:function () {
+          let pics=[];
+          if(this.value.pic===undefined||this.value.pic==null||this.value.pic===''){
+            return pics;
+          }
+          pics.push(this.value.pic);
+          if(this.value.albumPics===undefined||this.value.albumPics==null||this.value.albumPics===''){
+            return pics;
+          }
+          let albumPics = this.value.albumPics.split(',');
+          for(let i=0;i<albumPics.length;i++){
+            pics.push(albumPics[i]);
+          }
+          return pics;
+        },
+        set:function (newValue) {
+          if (newValue == null || newValue.length === 0) {
+            this.value.pic = null;
+            this.value.albumPics = null;
+          } else {
+            this.value.pic = newValue[0];
+            this.value.albumPics = '';
+            if (newValue.length > 1) {
+              for (let i = 1; i < newValue.length; i++) {
+                this.value.albumPics += newValue[i];
+                if (i !== newValue.length - 1) {
+                  this.value.albumPics += ',';
+                }
               }
             }
           }
         }
       }
     },
+    created() {
+      this.getProductAttrCateList();
+    },
+    watch: {
+      productId:function (newValue) {
+        if(!this.isEdit)return;
+        if(this.hasEditCreated)return;
+        if(newValue===undefined||newValue==null||newValue===0)return;
+        this.handleEditCreated();
+      }
+    },
     methods: {
-      handleEditCreated(){
-
+      handleEditCreated() {
+        //根据商品属性分类id获取属性和参数
+        if(this.value.productAttributeCategoryId!=null){
+          this.handleProductAttrChange(this.value.productAttributeCategoryId);
+        }
+        this.hasEditCreated=true;
       },
       getProductAttrCateList() {
         let param = {pageNum: 1, pageSize: 100};
@@ -235,12 +262,14 @@
             this.selectProductAttr = [];
             for (let i = 0; i < list.length; i++) {
               let options = [];
-              let values=[];
-              if(this.isEdit){
-                if(list[i].handAddStatus===1){
+              let values = [];
+              if (this.isEdit) {
+                if (list[i].handAddStatus === 1) {
+                  //编辑状态下获取手动添加编辑属性
                   options = this.getEditAttrOptions(list[i].id);
                 }
-                // values = this.getEditAttrValues(i);
+                //编辑状态下获取选中属性
+                values = this.getEditAttrValues(i);
               }
               this.selectProductAttr.push({
                 id: list[i].id,
@@ -251,13 +280,22 @@
                 options: options
               });
             }
+            if(this.isEdit){
+              //编辑模式下刷新商品属性图片
+              this.refreshProductAttrPics();
+            }
           } else {
             this.selectProductParam = [];
             for (let i = 0; i < list.length; i++) {
+              let value=null;
+              if(this.isEdit){
+                //编辑模式下获取参数属性
+                value= this.getEditParamValue(list[i].id);
+              }
               this.selectProductParam.push({
                 id: list[i].id,
                 name: list[i].name,
-                value: null,
+                value: value,
                 inputType: list[i].inputType,
                 inputList: list[i].inputList
               });
@@ -266,13 +304,13 @@
         });
       },
       //获取设置的可手动添加属性值
-      getEditAttrOptions(id){
-        let options=[];
-        for(let i=0;i<this.value.productAttributeValueList.length;i++){
+      getEditAttrOptions(id) {
+        let options = [];
+        for (let i = 0; i < this.value.productAttributeValueList.length; i++) {
           let attrValue = this.value.productAttributeValueList[i];
-          if(attrValue.productAttributeId===id){
+          if (attrValue.productAttributeId === id) {
             let strArr = attrValue.value.split(',');
-            for(let j=0;j<strArr.length;j++){
+            for (let j = 0; j < strArr.length; j++) {
               options.push(strArr[j]);
             }
             break;
@@ -281,31 +319,39 @@
         return options;
       },
       //获取选中的属性值
-      getEditAttrValues(index){
-        let values=[];
-        if(index===0){
-          for(let i=0;i<this.value.skuStockList.length;i++){
-            let sku=this.value.skuStockList[i];
-            if(sku.sp1!=null&&values.indexOf(sku.sp1)>-1){
+      getEditAttrValues(index) {
+        let values = [];
+        if (index === 0) {
+          for (let i = 0; i < this.value.skuStockList.length; i++) {
+            let sku = this.value.skuStockList[i];
+            if (sku.sp1 != null && values.indexOf(sku.sp1) === -1) {
               values.push(sku.sp1);
             }
           }
-        }else if(index===1){
-          for(let i=0;i<this.value.skuStockList.length;i++){
-            let sku=this.value.skuStockList[i];
-            if(sku.sp2!=null&&values.indexOf(sku.sp2)>-1){
+        } else if (index === 1) {
+          for (let i = 0; i < this.value.skuStockList.length; i++) {
+            let sku = this.value.skuStockList[i];
+            if (sku.sp2 != null && values.indexOf(sku.sp2) === -1) {
               values.push(sku.sp2);
             }
           }
-        }else{
-          for(let i=0;i<this.value.skuStockList.length;i++){
-            let sku=this.value.skuStockList[i];
-            if(sku.sp3!=null&&values.indexOf(sku.sp3)>-1){
+        } else {
+          for (let i = 0; i < this.value.skuStockList.length; i++) {
+            let sku = this.value.skuStockList[i];
+            if (sku.sp3 != null && values.indexOf(sku.sp3) === -1) {
               values.push(sku.sp3);
             }
           }
         }
         return values;
+      },
+      //获取属性的值
+      getEditParamValue(id){
+        for(let i=0;i<this.value.productAttributeValueList.length;i++){
+          if(id===this.value.productAttributeValueList[i].productAttributeId){
+            return this.value.productAttributeValueList[i].value;
+          }
+        }
       },
       handleProductAttrChange(value) {
         this.getProductAttrList(0, value);
@@ -348,8 +394,17 @@
         }
       },
       handleRefreshProductSkuList() {
+        this.$confirm('刷新列表将导致sku信息重新生成，是否要刷新', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.refreshProductAttrPics();
+          this.refreshProductSkuList();
+        });
+      },
+      refreshProductSkuList() {
         this.value.skuStockList = [];
-        this.refreshProductAttrPics();
         let skuList = this.value.skuStockList;
         //只有一个属性时
         if (this.selectProductAttr.length === 1) {
@@ -411,9 +466,23 @@
         if (this.selectProductAttr.length >= 1) {
           let values = this.selectProductAttr[0].values;
           for (let i = 0; i < values.length; i++) {
-            this.selectProductAttrPics.push({name: values[i], pic: null})
+            let pic=null;
+            if(this.isEdit){
+              //编辑状态下获取图片
+              pic=this.getProductSkuPic(values[i]);
+            }
+            this.selectProductAttrPics.push({name: values[i], pic: pic})
           }
         }
+      },
+      //获取商品相关属性的图片
+      getProductSkuPic(name){
+        for(let i=0;i<this.value.skuStockList.length;i++){
+          if(name===this.value.skuStockList[i].sp1){
+            return this.value.skuStockList[i].pic;
+          }
+        }
+        return null;
       },
       //合并商品属性
       mergeProductAttrValue() {
@@ -436,7 +505,7 @@
         }
       },
       //合并商品属性图片
-      mergeProductAttrPics(){
+      mergeProductAttrPics() {
         for (let i = 0; i < this.selectProductAttrPics.length; i++) {
           for (let j = 0; j < this.value.skuStockList.length; j++) {
             if (this.value.skuStockList[j].sp1 === this.selectProductAttrPics[i].name) {
