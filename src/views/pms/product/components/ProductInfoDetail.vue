@@ -52,6 +52,9 @@
         <el-input v-model="value.weight" style="width: 300px"></el-input>
         <span style="margin-left: 20px">克</span>
       </el-form-item>
+      <el-form-item label="排序">
+        <el-input v-model="value.sort"></el-input>
+      </el-form-item>
       <el-form-item style="text-align: center">
         <el-button type="primary" size="medium" @click="handleNext('productInfoForm')">下一步，填写商品促销</el-button>
       </el-form-item>
@@ -75,6 +78,7 @@
     },
     data() {
       return {
+        hasEditCreated:false,
         //选中商品分类的值
         selectProductCateValue: [],
         productCateOptions: [],
@@ -93,13 +97,22 @@
       };
     },
     created() {
-      if(this.isEdit){
-        this.handleEditCreated();
-      }
       this.getProductCateList();
       this.getBrandList();
     },
+    computed:{
+      //商品的编号
+      productId(){
+        return this.value.id;
+      }
+    },
     watch: {
+      productId:function(newValue){
+        if(!this.isEdit)return;
+        if(this.hasEditCreated)return;
+        if(newValue===undefined||newValue==null||newValue===0)return;
+        this.handleEditCreated();
+      },
       selectProductCateValue: function (newValue) {
         if (newValue != null && newValue.length === 2) {
           this.value.productCategoryId = newValue[1];
@@ -111,13 +124,11 @@
     methods: {
       //处理编辑逻辑
       handleEditCreated(){
-        getProduct(this.$route.query.id).then(response=>{
-          if(response.data.productCategoryId!=null){
-            this.selectProductCateValue.push(response.data.cateParentId);
-            this.selectProductCateValue.push(response.data.productCategoryId);
-          }
-          this.$emit('input',response.data);
-        });
+        if(this.value.productCategoryId!=null){
+          this.selectProductCateValue.push(this.value.cateParentId);
+          this.selectProductCateValue.push(this.value.productCategoryId);
+        }
+        this.hasEditCreated=true;
       },
       getProductCateList() {
         fetchListWithChildren().then(response => {

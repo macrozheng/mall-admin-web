@@ -95,6 +95,11 @@
           style="margin-top: 20px"
           @click="handleRefreshProductSkuList">刷新列表
         </el-button>
+        <el-button
+          type="primary"
+          style="margin-top: 20px"
+          @click="handleSyncProductSkuPrice">同步价格
+        </el-button>
       </el-form-item>
       <el-form-item label="属性图片：" v-if="hasAttrPic">
         <el-card shadow="never" class="cardBg">
@@ -401,6 +406,20 @@
         }).then(() => {
           this.refreshProductAttrPics();
           this.refreshProductSkuList();
+        });
+      },
+      handleSyncProductSkuPrice(){
+        this.$confirm('将同步第一个sku的价格到所有sku,是否继续', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          if(this.value.skuStockList!==null&&this.value.skuStockList.length>0){
+            let price=this.value.skuStockList[0].price;
+            for(let i=0;i<this.value.skuStockList.length;i++){
+              this.value.skuStockList[i].price=price;
+            }
+          }
         });
       },
       refreshProductSkuList() {

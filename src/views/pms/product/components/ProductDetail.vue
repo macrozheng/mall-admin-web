@@ -119,6 +119,13 @@
         showStatus: [true, false, false, false]
       }
     },
+    created(){
+      if(this.isEdit){
+        getProduct(this.$route.query.id).then(response=>{
+          this.productParam=response.data;
+        });
+      }
+    },
     methods: {
       hideAll() {
         for (let i = 0; i < this.showStatus.length; i++) {

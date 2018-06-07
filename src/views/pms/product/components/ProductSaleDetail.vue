@@ -33,7 +33,7 @@
         </el-switch>
         <span style="margin-left: 10px;margin-right: 10px">推荐</span>
         <el-switch
-          v-model="value.recommendStatus"
+          v-model="value.recommandStatus"
           :active-value="1"
           :inactive-value="0">
         </el-switch>
