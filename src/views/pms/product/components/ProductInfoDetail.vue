@@ -116,8 +116,10 @@
       selectProductCateValue: function (newValue) {
         if (newValue != null && newValue.length === 2) {
           this.value.productCategoryId = newValue[1];
+          this.value.productCategoryName= this.getCateNameById(this.value.productCategoryId);
         } else {
           this.value.productCategoryId = null;
+          this.value.productCategoryName=null;
         }
       }
     },
@@ -153,6 +155,18 @@
             this.brandOptions.push({label: brandList[i].name, value: brandList[i].id});
           }
         });
+      },
+      getCateNameById(id){
+        let name=null;
+        for(let i=0;i<this.productCateOptions.length;i++){
+          for(let j=0;i<this.productCateOptions[i].children.length;j++){
+            if(this.productCateOptions[i].children[j].value===id){
+              name=this.productCateOptions[i].children[j].label;
+              return name;
+            }
+          }
+        }
+        return name;
       },
       handleNext(formName){
         this.$refs[formName].validate((valid) => {

@@ -216,7 +216,7 @@
       :visible.sync="editSkuInfo.dialogVisible"
       width="40%">
       <span>商品货号：</span>
-      <span>{{editSkuInfo.productName}}</span>
+      <span>{{editSkuInfo.productSn}}</span>
       <el-input placeholder="按sku编号搜索" v-model="editSkuInfo.keyword" size="small" style="width: 50%;margin-left: 20px">
         <el-button slot="append" icon="el-icon-search" @click="handleSearchEditSku"></el-button>
       </el-input>
@@ -301,7 +301,7 @@
         editSkuInfo:{
           dialogVisible:false,
           productId:null,
-          productName:'',
+          productSn:'',
           productAttributeCategoryId:null,
           stockList:[],
           productAttr:[],
@@ -435,7 +435,7 @@
       handleShowSkuEditDialog(index,row){
         this.editSkuInfo.dialogVisible=true;
         this.editSkuInfo.productId=row.id;
-        this.editSkuInfo.productName=row.name;
+        this.editSkuInfo.productSn=row.productSn;
         this.editSkuInfo.productAttributeCategoryId = row.productAttributeCategoryId;
         this.editSkuInfo.keyword=null;
         fetchSkuStockList(row.id,{keyword:this.editSkuInfo.keyword}).then(response=>{
