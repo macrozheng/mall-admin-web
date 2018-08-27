@@ -111,11 +111,11 @@
             </template>
           </el-table-column>
           <el-table-column
-            label="价格"
+            label="折扣"
             align="center"
             width="120">
             <template slot-scope="scope">
-              <el-input v-model="scope.row.price"></el-input>
+              <el-input v-model="scope.row.discount"></el-input>
             </template>
           </el-table-column>
           <el-table-column
