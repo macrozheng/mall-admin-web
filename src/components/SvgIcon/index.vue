@@ -33,9 +33,9 @@ export default {
 
 <style scoped>
 .svg-icon {
-  width: 1em;
-  height: 1em;
-  vertical-align: -0.15em;
+  width: 1.2em;
+  height: 1.2em;
+  vertical-align: -0.18em;
   fill: currentColor;
   overflow: hidden;
 }
