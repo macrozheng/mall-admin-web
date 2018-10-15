@@ -6,3 +6,19 @@ export function fetchList(params) {
     params:params
   })
 }
+
+export function closeOrder(params) {
+  return request({
+    url:'/order/update/close',
+    method:'post',
+    params:params
+  })
+}
+
+export function deleteOrder(params) {
+  return request({
+    url:'/order/delete',
+    method:'post',
+    params:params
+  })
+}

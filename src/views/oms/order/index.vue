@@ -72,8 +72,12 @@
       <el-table ref="orderTable"
                 :data="list"
                 style="width: 100%;"
+                @selection-change="handleSelectionChange"
                 v-loading="listLoading" border>
         <el-table-column type="selection" width="60" align="center"></el-table-column>
+        <el-table-column label="编号" width="80" align="center">
+          <template slot-scope="scope">{{scope.row.id}}</template>
+        </el-table-column>
         <el-table-column label="订单编号" width="180" align="center">
           <template slot-scope="scope">{{scope.row.orderSn}}</template>
         </el-table-column>
@@ -154,10 +158,26 @@
         :total="total">
       </el-pagination>
     </div>
+    <el-dialog
+      title="关闭订单"
+      :visible.sync="closeOrder.dialogVisible" width="30%">
+      <span style="vertical-align: top">操作备注：</span>
+      <el-input
+        style="width: 80%"
+        type="textarea"
+        :rows="5"
+        placeholder="请输入内容"
+        v-model="closeOrder.content">
+      </el-input>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="closeOrder.dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="handleCloseOrderConfirm">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
-  import {fetchList} from '@/api/order'
+  import {fetchList,closeOrder,deleteOrder} from '@/api/order'
   import {formatDate} from '@/utils/date';
 
   const defaultListQuery = {
@@ -179,6 +199,12 @@
         list: null,
         total: null,
         operateType: null,
+        multipleSelection: [],
+        closeOrder:{
+          dialogVisible:false,
+          content:null,
+          orderIds:[]
+        },
         statusOptions: [
           {
             label: '待付款',
@@ -285,21 +311,46 @@
         this.listQuery.pageNum = 1;
         this.getList();
       },
+      handleSelectionChange(val){
+        this.multipleSelection = val;
+      },
       handleViewOrder(index, row){},
       handleCloseOrder(index, row){
-
+        this.closeOrder.dialogVisible=true;
+        this.closeOrder.orderIds=[row.id];
       },
       handleDeliveryOrder(index, row){},
       handleViewLogistics(index, row){},
-      handleDeleteOrder(index, row){},
+      handleDeleteOrder(index, row){
+        let ids=[];
+        ids.push(row.id);
+        this.deleteOrder(ids);
+      },
       handleBatchOperate(){
-        console.log(this.operateType);
+        if(this.multipleSelection==null||this.multipleSelection.length<1){
+          this.$message({
+            message: '请选择要操作的订单',
+            type: 'warning',
+            duration: 1000
+          });
+          return;
+        }
         if(this.operateType===1){
-
+          //批量发货
         }else if(this.operateType===2){
-
+          //关闭订单
+          this.closeOrder.orderIds=[];
+          for(let i=0;i<this.multipleSelection.length;i++){
+            this.closeOrder.orderIds.push(this.multipleSelection[i].id);
+          }
+          this.closeOrder.dialogVisible=true;
         }else if(this.operateType===3){
-
+          //删除订单
+          let ids=[];
+          for(let i=0;i<this.multipleSelection.length;i++){
+            ids.push(this.multipleSelection[i].id);
+          }
+          this.deleteOrder(ids);
         }
       },
       handleSizeChange(val){
@@ -311,6 +362,29 @@
         this.listQuery.pageNum = val;
         this.getList();
       },
+      handleCloseOrderConfirm() {
+        if (this.closeOrder.content == null || this.closeOrder.content === '') {
+          this.$message({
+            message: '操作备注不能为空',
+            type: 'warning',
+            duration: 1000
+          });
+          return;
+        }
+        let params = new URLSearchParams();
+        params.append('ids', this.closeOrder.orderIds);
+        params.append('note', this.closeOrder.content);
+        closeOrder(params).then(response=>{
+          this.closeOrder.orderIds=[];
+          this.closeOrder.dialogVisible=false;
+          this.getList();
+          this.$message({
+            message: '修改成功',
+            type: 'success',
+            duration: 1000
+          });
+        });
+      },
       getList() {
         this.listLoading = true;
         fetchList(this.listQuery).then(response => {
@@ -318,6 +392,19 @@
           this.list = response.data.list;
           this.total = response.data.total;
         });
+      },
+      deleteOrder(ids){
+        this.$confirm('是否要进行该删除操作?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          let params = new URLSearchParams();
+          params.append("ids",ids);
+          deleteOrder(params).then(response=>{
+            this.getList();
+          });
+        })
       }
     }
   }
