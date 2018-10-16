@@ -53,9 +53,9 @@
   import {deliveryOrder} from '@/api/order'
   const defaultLogisticsCompanies=["顺丰快递","圆通快递","中通快递","韵达快递"];
   export default {
+    name: 'deliverOrderList',
     data() {
       return {
-        name: 'deliverOrderList',
         list:[],
         companyOptions:defaultLogisticsCompanies
       }
