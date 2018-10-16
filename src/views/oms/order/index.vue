@@ -319,7 +319,10 @@
         this.closeOrder.dialogVisible=true;
         this.closeOrder.orderIds=[row.id];
       },
-      handleDeliveryOrder(index, row){},
+      handleDeliveryOrder(index, row){
+        let listItem = this.covertOrder(row);
+        this.$router.push({path:'/oms/deliverOrderList',query:{list:[listItem]}})
+      },
       handleViewLogistics(index, row){},
       handleDeleteOrder(index, row){
         let ids=[];
@@ -337,6 +340,21 @@
         }
         if(this.operateType===1){
           //批量发货
+          let list=[];
+          for(let i=0;i<this.multipleSelection.length;i++){
+            if(this.multipleSelection[i].status===1){
+              list.push(this.covertOrder(this.multipleSelection[i]));
+            }
+          }
+          if(list.length===0){
+            this.$message({
+              message: '选中订单中没有可以发货的订单',
+              type: 'warning',
+              duration: 1000
+            });
+            return;
+          }
+          this.$router.push({path:'/oms/deliverOrderList',query:{list:list}})
         }else if(this.operateType===2){
           //关闭订单
           this.closeOrder.orderIds=[];
@@ -405,6 +423,20 @@
             this.getList();
           });
         })
+      },
+      covertOrder(order){
+        let address=order.receiverProvince+order.receiverCity+order.receiverRegion+order.receiverDetailAddress;
+        let listItem={
+          orderId:order.id,
+          orderSn:order.orderSn,
+          receiverName:order.receiverName,
+          receiverPhone:order.receiverPhone,
+          receiverPostCode:order.receiverPostCode,
+          address:address,
+          deliveryCompany:null,
+          deliverySn:null
+        };
+        return listItem;
       }
     }
   }

@@ -146,27 +146,39 @@ export const constantRouterMap = [
     redirect: '/oms/order',
     name: 'oms',
     meta: {title: '订单', icon: 'order'},
-    children: [{
-      path: 'order',
-      name: 'order',
-      component: () => import('@/views/oms/order/index'),
-      meta: {title: '订单列表', icon: 'product-list'}
-    }, {
-      path: 'orderSetting',
-      name: 'orderSetting',
-      component: () => import('@/views/oms/order/setting'),
-      meta: {title: '订单设置', icon: 'order-setting'}
-    }, {
-      path: 'returnApply',
-      name: 'returnApply',
-      component: () => import('@/views/oms/apply/index'),
-      meta: {title: '退货申请处理', icon: 'order-return'}
-    }, {
-      path: 'returnReason',
-      name: 'returnReason',
-      component: () => import('@/views/oms/apply/reason'),
-      meta: {title: '退货原因设置', icon: 'order-return-reason'}
-    }]
+    children: [
+      {
+        path: 'order',
+        name: 'order',
+        component: () => import('@/views/oms/order/index'),
+        meta: {title: '订单列表', icon: 'product-list'}
+      },
+      {
+        path: 'deliverOrderList',
+        name: 'deliverOrderList',
+        component: () => import('@/views/oms/order/deliverOrderList'),
+        meta: {title: '发货列表'},
+        hidden:true
+      },
+      {
+        path: 'orderSetting',
+        name: 'orderSetting',
+        component: () => import('@/views/oms/order/setting'),
+        meta: {title: '订单设置', icon: 'order-setting'}
+      },
+      {
+        path: 'returnApply',
+        name: 'returnApply',
+        component: () => import('@/views/oms/apply/index'),
+        meta: {title: '退货申请处理', icon: 'order-return'}
+      },
+      {
+        path: 'returnReason',
+        name: 'returnReason',
+        component: () => import('@/views/oms/apply/reason'),
+        meta: {title: '退货原因设置', icon: 'order-return-reason'}
+      }
+    ]
   },
   {path: '*', redirect: '/404', hidden: true}
 ]
