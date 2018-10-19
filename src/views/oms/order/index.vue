@@ -182,7 +182,7 @@
 
   const defaultListQuery = {
     pageNum: 1,
-    pageSize: 5,
+    pageSize: 10,
     orderSn: null,
     receiverKeyword: null,
     status: null,
@@ -420,6 +420,11 @@
           let params = new URLSearchParams();
           params.append("ids",ids);
           deleteOrder(params).then(response=>{
+            this.$message({
+              message: '删除成功！',
+              type: 'success',
+              duration: 1000
+            });
             this.getList();
           });
         })
