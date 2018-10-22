@@ -6,3 +6,11 @@ export function fetchList(params) {
     params:params
   })
 }
+
+export function deleteApply(params) {
+  return request({
+    url:'/returnApply/delete',
+    method:'post',
+    params:params
+  })
+}

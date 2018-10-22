@@ -21,21 +21,22 @@
       <div style="margin-top: 15px">
         <el-form :inline="true" :model="listQuery" size="small" label-width="140px">
           <el-form-item label="输入搜索：">
-            <el-input v-model="listQuery.orderSn" style="width: 203px" placeholder="订单编号"></el-input>
+            <el-input v-model="listQuery.orderSn" class="input-width" placeholder="订单编号"></el-input>
           </el-form-item>
           <el-form-item label="收货人：">
-            <el-input v-model="listQuery.receiverKeyword" style="width: 203px" placeholder="收货人姓名/手机号码"></el-input>
+            <el-input v-model="listQuery.receiverKeyword" class="input-width" placeholder="收货人姓名/手机号码"></el-input>
           </el-form-item>
           <el-form-item label="提交时间：">
             <el-date-picker
+              class="input-width"
               v-model="listQuery.createTime"
               value-format="yyyy-MM-dd"
               type="date"
-              placeholder="选择开始时间">
+              placeholder="请选择时间">
             </el-date-picker>
           </el-form-item>
           <el-form-item label="订单状态：">
-            <el-select v-model="listQuery.status" placeholder="全部" clearable>
+            <el-select v-model="listQuery.status" class="input-width" placeholder="全部" clearable>
               <el-option v-for="item in statusOptions"
                          :key="item.value"
                          :label="item.label"
@@ -44,7 +45,7 @@
             </el-select>
           </el-form-item>
           <el-form-item label="订单分类：">
-            <el-select v-model="listQuery.orderType" placeholder="全部" clearable>
+            <el-select v-model="listQuery.orderType" class="input-width" placeholder="全部" clearable>
               <el-option v-for="item in orderTypeOptions"
                          :key="item.value"
                          :label="item.label"
@@ -53,7 +54,7 @@
             </el-select>
           </el-form-item>
           <el-form-item label="订单来源：">
-            <el-select v-model="listQuery.sourceType" placeholder="全部" clearable>
+            <el-select v-model="listQuery.sourceType" class="input-width" placeholder="全部" clearable>
               <el-option v-for="item in sourceTypeOptions"
                          :key="item.value"
                          :label="item.label"
@@ -446,6 +447,10 @@
     }
   }
 </script>
-<style></style>
+<style scroped>
+  .input-width {
+    width: 203px;
+  }
+</style>
 
 
