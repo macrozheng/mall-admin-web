@@ -14,3 +14,10 @@ export function deleteApply(params) {
     params:params
   })
 }
+
+export function getApplyDetail(id) {
+  return request({
+    url:'/returnApply/'+id,
+    method:'get'
+  })
+}

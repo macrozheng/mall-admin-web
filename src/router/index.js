@@ -177,6 +177,13 @@ export const constantRouterMap = [
         name: 'returnReason',
         component: () => import('@/views/oms/apply/reason'),
         meta: {title: '退货原因设置', icon: 'order-return-reason'}
+      },
+      {
+        path: 'returnApplyDetail',
+        name: 'returnApplyDetail',
+        component: () => import('@/views/oms/apply/applyDetail'),
+        meta: {title: '退货原因详情'},
+        hidden:true
       }
     ]
   },

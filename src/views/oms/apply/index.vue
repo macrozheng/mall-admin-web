@@ -198,7 +198,7 @@
       },
       formatReturnAmount(row){
         return row.productRealPrice*row.productCount;
-      },
+      }
     },
     methods:{
       handleSelectionChange(val){
@@ -211,7 +211,9 @@
         this.listQuery.pageNum = 1;
         this.getList();
       },
-      handleViewDetail(){},
+      handleViewDetail(index,row){
+        this.$router.push({path:'/oms/returnApplyDetail',query:{id:row.id}})
+      },
       handleBatchOperate(){
         if(this.multipleSelection==null||this.multipleSelection.length<1){
           this.$message({
