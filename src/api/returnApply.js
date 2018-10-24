@@ -14,6 +14,13 @@ export function deleteApply(params) {
     params:params
   })
 }
+export function updateApplyStatus(id,data) {
+  return request({
+    url:'/returnApply/update/status/'+id,
+    method:'post',
+    data:data
+  })
+}
 
 export function getApplyDetail(id) {
   return request({
