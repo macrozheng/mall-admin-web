@@ -315,7 +315,9 @@
       handleSelectionChange(val){
         this.multipleSelection = val;
       },
-      handleViewOrder(index, row){},
+      handleViewOrder(index, row){
+        this.$router.push({path:'/oms/orderDetail',query:{id:row.id}})
+      },
       handleCloseOrder(index, row){
         this.closeOrder.dialogVisible=true;
         this.closeOrder.orderIds=[row.id];

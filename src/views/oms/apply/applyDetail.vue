@@ -55,7 +55,7 @@
           </el-col>
           <el-col class="form-border font-small" :span="18" style="height:50px">
             {{orderReturnApply.orderSn}}
-            <el-button type="text" size="small">查看</el-button>
+            <el-button type="text" size="small" @click="handleViewOrder">查看</el-button>
           </el-col>
         </el-row>
         <el-row>
@@ -303,6 +303,9 @@
       }
     },
     methods: {
+      handleViewOrder(){
+        this.$router.push({path:'/oms/orderDetail',query:{id:this.orderReturnApply.orderId}});
+      },
       getDetail() {
         getApplyDetail(this.id).then(response => {
           console.log("getDetail")

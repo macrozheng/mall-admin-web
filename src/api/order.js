@@ -30,3 +30,10 @@ export function deliveryOrder(data) {
     data:data
   });
 }
+
+export function getOrderDetail(id) {
+  return request({
+    url:'/order/'+id,
+    method:'get'
+  });
+}
