@@ -78,6 +78,122 @@
           <el-col :span="6" class="table-cell">{{order | formatAddress}}</el-col>
         </el-row>
       </div>
+      <div style="margin-top: 20px">
+        <svg-icon icon-class="marker" style="color: #606266"></svg-icon>
+        <span class="font-small">商品信息</span>
+      </div>
+      <el-table
+        ref="orderItemTable"
+        :data="order.orderItemList"
+        style="width: 100%;margin-top: 20px" border>
+        <el-table-column label="商品图片" width="120" align="center">
+          <template slot-scope="scope">
+            <img :src="scope.row.productPic" style="height: 80px">
+          </template>
+        </el-table-column>
+        <el-table-column label="商品名称" align="center">
+          <template slot-scope="scope">
+            <p>{{scope.row.productName}}</p>
+            <p>品牌：{{scope.row.productBrand}}</p>
+          </template>
+        </el-table-column>
+        <el-table-column label="价格/货号" width="120" align="center">
+          <template slot-scope="scope">
+            <p>价格：￥{{scope.row.productPrice}}</p>
+            <p>货号：{{scope.row.productSn}}</p>
+          </template>
+        </el-table-column>
+        <el-table-column label="属性" width="120" align="center">
+          <template slot-scope="scope">
+            {{scope.row.productAttr | formatProductAttr}}
+          </template>
+        </el-table-column>
+        <el-table-column label="数量" width="120" align="center">
+          <template slot-scope="scope">
+            {{scope.row.productQuantity}}
+          </template>
+        </el-table-column>
+        <el-table-column label="小计" width="120" align="center">
+          <template slot-scope="scope">
+            ￥{{scope.row.productPrice*scope.row.productQuantity}}
+          </template>
+        </el-table-column>
+      </el-table>
+      <div style="float: right;margin: 20px">
+        合计：<span class="color-danger">￥{{order.totalAmount}}</span>
+      </div>
+      <div style="margin-top: 60px">
+        <svg-icon icon-class="marker" style="color: #606266"></svg-icon>
+        <span class="font-small">费用信息</span>
+      </div>
+      <div class="table-layout">
+        <el-row>
+          <el-col :span="6" class="table-cell-title">商品合计</el-col>
+          <el-col :span="6" class="table-cell-title">运费</el-col>
+          <el-col :span="6" class="table-cell-title">优惠券</el-col>
+          <el-col :span="6" class="table-cell-title">积分抵扣</el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="6" class="table-cell">￥{{order.totalAmount}}</el-col>
+          <el-col :span="6" class="table-cell">￥{{order.freightAmount}}</el-col>
+          <el-col :span="6" class="table-cell">-￥{{order.couponAmount}}</el-col>
+          <el-col :span="6" class="table-cell">-￥{{order.integrationAmount}}</el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="6" class="table-cell-title">活动优惠</el-col>
+          <el-col :span="6" class="table-cell-title">折扣金额</el-col>
+          <el-col :span="6" class="table-cell-title">订单总金额</el-col>
+          <el-col :span="6" class="table-cell-title">应付款金额</el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="6" class="table-cell">-￥{{order.promotionAmount}}</el-col>
+          <el-col :span="6" class="table-cell">-￥{{order.discountAmount}}</el-col>
+          <el-col :span="6" class="table-cell">
+            <span class="color-danger">￥{{order.totalAmount+order.freightAmount}}</span>
+          </el-col>
+          <el-col :span="6" class="table-cell">
+            <span class="color-danger">￥{{order.payAmount}}</span>
+          </el-col>
+        </el-row>
+      </div>
+      <div style="margin-top: 20px">
+        <svg-icon icon-class="marker" style="color: #606266"></svg-icon>
+        <span class="font-small">操作信息</span>
+      </div>
+      <el-table style="margin-top: 20px;width: 100%"
+                ref="orderHistoryTable"
+                :data="order.historyList" border>
+        <el-table-column label="操作者"  width="120" align="center">
+          <template slot-scope="scope">
+            {{scope.row.operateMan}}
+          </template>
+        </el-table-column>
+        <el-table-column label="操作时间"  width="160" align="center">
+          <template slot-scope="scope">
+            {{formatTime(scope.row.createTime)}}
+          </template>
+        </el-table-column>
+        <el-table-column label="订单状态"  width="120" align="center">
+          <template slot-scope="scope">
+            {{scope.row.orderStatus | formatStatus}}
+          </template>
+        </el-table-column>
+        <el-table-column label="付款状态"  width="120" align="center">
+          <template slot-scope="scope">
+            {{scope.row.orderStatus | formatPayStatus}}
+          </template>
+        </el-table-column>
+        <el-table-column label="发货状态"  width="120" align="center">
+          <template slot-scope="scope">
+            {{scope.row.orderStatus | formatDeliverStatus}}
+          </template>
+        </el-table-column>
+        <el-table-column label="备注" align="center">
+          <template slot-scope="scope">
+            {{scope.row.note}}
+          </template>
+        </el-table-column>
+      </el-table>
     </el-card>
   </div>
 </template>
@@ -131,6 +247,52 @@
         str += "  " + order.receiverRegion;
         str += "  " + order.receiverDetailAddress;
         return str;
+      },
+      formatStatus(value) {
+        if (value === 1) {
+          return '待发货';
+        } else if (value === 2) {
+          return '已发货';
+        } else if (value === 3) {
+          return '已完成';
+        } else if (value === 4) {
+          return '已关闭';
+        } else if (value === 5) {
+          return '无效订单';
+        } else {
+          return '待付款';
+        }
+      },
+      formatPayStatus(value) {
+        if (value === 0) {
+          return '未支付';
+        } else if(value===4){
+          return '已退款';
+        }else{
+          return '已支付';
+        }
+      },
+      formatDeliverStatus(value) {
+        if (value === 0||value === 1) {
+          return '未发货';
+        } else {
+          return '已发货';
+        }
+      },
+      formatProductAttr(value){
+        if(value==null){
+          return '';
+        }else{
+          let attr = JSON.parse(value);
+          let result='';
+          for(let i=0;i<attr.length;i++){
+            result+=attr[i].key;
+            result+=":";
+            result+=attr[i].value;
+            result+=";";
+          }
+          return result;
+        }
       }
     },
     methods: {
