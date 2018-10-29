@@ -37,3 +37,19 @@ export function getOrderDetail(id) {
     method:'get'
   });
 }
+
+export function updateReceiverInfo(data) {
+  return request({
+    url:'/order/update/receiverInfo',
+    method:'post',
+    data:data
+  });
+}
+
+export function updateMoneyInfo(data) {
+  return request({
+    url:'/order/update/moneyInfo',
+    method:'post',
+    data:data
+  });
+}

@@ -1,7 +1,7 @@
 <template> 
   <div class="detail-container">
     <div>
-      <el-steps :active="1" finish-status="success" align-center>
+      <el-steps :active="formatStepStatus(order.status)" finish-status="success" align-center>
         <el-step title="提交订单" :description="formatTime(order.createTime)"></el-step>
         <el-step title="支付订单" :description="formatTime(order.paymentTime)"></el-step>
         <el-step title="平台发货" :description="formatTime(order.deliveryTime)"></el-step>
@@ -12,13 +12,28 @@
     <el-card shadow="never" style="margin-top: 15px">
       <div class="operate-container">
         <i class="el-icon-warning color-danger" style="margin-left: 20px"></i>
-        <span class="color-danger">当前订单状态：待付款</span>
-        <div class="operate-button-container">
-          <el-button size="mini">修改收货人信息</el-button>
+        <span class="color-danger">当前订单状态：{{order.status | formatStatus}}</span>
+        <div class="operate-button-container" v-show="order.status===0">
+          <el-button size="mini" @click="showUpdateReceiverDialog">修改收货人信息</el-button>
           <el-button size="mini">修改商品信息</el-button>
-          <el-button size="mini">修改费用信息</el-button>
+          <el-button size="mini" @click="showUpdateMoneyDialog">修改费用信息</el-button>
           <el-button size="mini">发送站内信</el-button>
           <el-button size="mini">关闭订单</el-button>
+          <el-button size="mini">备注订单</el-button>
+        </div>
+        <div class="operate-button-container" v-show="order.status===1">
+          <el-button size="mini">修改收货人信息</el-button>
+          <el-button size="mini">发送站内信</el-button>
+          <el-button size="mini">取消订单</el-button>
+          <el-button size="mini">备注订单</el-button>
+        </div>
+        <div class="operate-button-container" v-show="order.status===2||order.status===3">
+          <el-button size="mini">订单跟踪</el-button>
+          <el-button size="mini">发送站内信</el-button>
+          <el-button size="mini">备注订单</el-button>
+        </div>
+        <div class="operate-button-container" v-show="order.status===4">
+          <el-button size="mini">删除订单</el-button>
           <el-button size="mini">备注订单</el-button>
         </div>
       </div>
@@ -52,8 +67,8 @@
           <el-col :span="4" class="table-cell-title">活动信息</el-col>
         </el-row>
         <el-row style="display: table">
-          <el-col :span="4" class="table-cell">{{order.deliveryCompany}}</el-col>
-          <el-col :span="4" class="table-cell">{{order.deliverySn}}</el-col>
+          <el-col :span="4" class="table-cell">{{order.deliveryCompany | formatNull}}</el-col>
+          <el-col :span="4" class="table-cell">{{order.deliverySn | formatNull}}</el-col>
           <el-col :span="4" class="table-cell">{{order.autoConfirmDay}}天</el-col>
           <el-col :span="4" class="table-cell">{{order.integration}}</el-col>
           <el-col :span="4" class="table-cell">{{order.growth}}</el-col>
@@ -152,7 +167,7 @@
             <span class="color-danger">￥{{order.totalAmount+order.freightAmount}}</span>
           </el-col>
           <el-col :span="6" class="table-cell">
-            <span class="color-danger">￥{{order.payAmount}}</span>
+            <span class="color-danger">￥{{order.payAmount+order.freightAmount-order.discountAmount}}</span>
           </el-col>
         </el-row>
       </div>
@@ -195,18 +210,113 @@
         </el-table-column>
       </el-table>
     </el-card>
+    <el-dialog title="修改收货人信息"
+               :visible.sync="receiverDialogVisible"
+               width="40%">
+      <el-form :model="receiverInfo"
+               ref="receiverInfoForm"
+               label-width="150px">
+        <el-form-item label="收货人姓名：">
+          <el-input v-model="receiverInfo.receiverName" style="width: 200px"></el-input>
+        </el-form-item>
+        <el-form-item label="手机号码：">
+          <el-input v-model="receiverInfo.receiverPhone" style="width: 200px">
+          </el-input>
+        </el-form-item>
+        <el-form-item label="邮政编码：">
+          <el-input v-model="receiverInfo.receiverPostCode" style="width: 200px">
+          </el-input>
+        </el-form-item>
+        <el-form-item label="所在区域：">
+          <v-distpicker :province="receiverInfo.receiverProvince"
+                        :city="receiverInfo.receiverCity"
+                        :area="receiverInfo.receiverRegion"
+                        @selected="onSelectRegion"></v-distpicker>
+        </el-form-item>
+        <el-form-item label="详细地址：">
+          <el-input v-model="receiverInfo.receiverDetailAddress" type="textarea" rows="3">
+          </el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+      <el-button @click="receiverDialogVisible = false">取 消</el-button>
+      <el-button type="primary" @click="modifyReceiverInfo">确 定</el-button>
+      </span>
+    </el-dialog>
+    <el-dialog title="修改费用信息"
+               :visible.sync="moneyDialogVisible"
+               width="40%">
+      <div class="table-layout">
+        <el-row>
+          <el-col :span="6" class="table-cell-title">商品合计</el-col>
+          <el-col :span="6" class="table-cell-title">运费</el-col>
+          <el-col :span="6" class="table-cell-title">优惠券</el-col>
+          <el-col :span="6" class="table-cell-title">积分抵扣</el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="6" class="table-cell">￥{{order.totalAmount}}</el-col>
+          <el-col :span="6" class="table-cell">
+            <el-input v-model.number="moneyInfo.freightAmount" size="mini"><template slot="prepend">￥</template></el-input>
+          </el-col>
+          <el-col :span="6" class="table-cell">-￥{{order.couponAmount}}</el-col>
+          <el-col :span="6" class="table-cell">-￥{{order.integrationAmount}}</el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="6" class="table-cell-title">活动优惠</el-col>
+          <el-col :span="6" class="table-cell-title">折扣金额</el-col>
+          <el-col :span="6" class="table-cell-title">订单总金额</el-col>
+          <el-col :span="6" class="table-cell-title">应付款金额</el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="6" class="table-cell">-￥{{order.promotionAmount}}</el-col>
+          <el-col :span="6" class="table-cell">
+            <el-input v-model.number="moneyInfo.discountAmount" size="mini"><template slot="prepend">-￥</template></el-input>
+          </el-col>
+          <el-col :span="6" class="table-cell">
+            <span class="color-danger">￥{{order.totalAmount+moneyInfo.freightAmount}}</span>
+          </el-col>
+          <el-col :span="6" class="table-cell">
+            <span class="color-danger">￥{{order.payAmount+moneyInfo.freightAmount-moneyInfo.discountAmount}}</span>
+          </el-col>
+        </el-row>
+      </div>
+      <span slot="footer" class="dialog-footer">
+      <el-button @click="moneyDialogVisible = false">取 消</el-button>
+      <el-button type="primary" @click="modifyMoneyInfo">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
-  import {getOrderDetail} from '@/api/order';
+  import {getOrderDetail,updateReceiverInfo,updateMoneyInfo} from '@/api/order';
   import {formatDate} from '@/utils/date';
-
+  import VDistpicker from 'v-distpicker';
+  const defaultReceiverInfo = {
+    orderId:null,
+    receiverName:null,
+    receiverPhone:null,
+    receiverPostCode:null,
+    receiverDetailAddress:null,
+    receiverProvince:null,
+    receiverCity:null,
+    receiverRegion:null
+  };
+  const defaultMoneyInfo = {
+    orderId:null,
+    freightAmount:0,
+    discountAmount:0
+  };
   export default {
     name: 'orderDetail',
+    components: { VDistpicker },
     data() {
       return {
         id: null,
-        order: {}
+        order: {},
+        receiverDialogVisible:false,
+        receiverInfo:Object.assign({},defaultReceiverInfo),
+        moneyInfo:Object.assign({},defaultMoneyInfo),
+        moneyDialogVisible:false
       }
     },
     created() {
@@ -216,6 +326,13 @@
       });
     },
     filters: {
+      formatNull(value) {
+        if(value===undefined||value===null||value===''){
+          return '暂无';
+        }else{
+          return value;
+        }
+      },
       formatPayType(value) {
         if (value === 1) {
           return '支付宝';
@@ -296,12 +413,87 @@
       }
     },
     methods: {
+      showUpdateMoneyDialog(){
+        this.moneyDialogVisible=true;
+        this.moneyInfo.orderId=this.order.id;
+        this.moneyInfo.freightAmount=this.order.freightAmount;
+        this.moneyInfo.discountAmount=this.order.discountAmount;
+      },
+      modifyMoneyInfo(){
+        this.$confirm('是否要修改费用信息?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          updateMoneyInfo(this.moneyInfo).then(response=>{
+            this.moneyDialogVisible=false;
+            this.$message({
+              type: 'success',
+              message: '修改成功!'
+            });
+            getOrderDetail(this.id).then(response => {
+              this.order = response.data;
+            });
+          });
+        });
+      },
+      onSelectRegion(data){
+        this.receiverInfo.receiverProvince=data.province.value;
+        this.receiverInfo.receiverCity=data.city.value;
+        this.receiverInfo.receiverRegion=data.area.value;
+      },
+      showUpdateReceiverDialog(){
+        this.receiverDialogVisible=true;
+        this.receiverInfo={
+          orderId:this.order.id,
+          receiverName:this.order.receiverName,
+          receiverPhone:this.order.receiverPhone,
+          receiverPostCode:this.order.receiverPostCode,
+          receiverDetailAddress:this.order.receiverDetailAddress,
+          receiverProvince:this.order.receiverProvince,
+          receiverCity:this.order.receiverCity,
+          receiverRegion:this.order.receiverRegion
+        }
+      },
       formatTime(time) {
         if (time == null || time === '') {
           return '';
         }
         let date = new Date(time);
         return formatDate(date, 'yyyy-MM-dd hh:mm:ss')
+      },
+      formatStepStatus(value) {
+        if (value === 1) {
+          //待发货
+          return 2;
+        } else if (value === 2) {
+          //已发货
+          return 3;
+        } else if (value === 3) {
+          //已完成
+          return 4;
+        }else {
+          //待付款、已关闭、无限订单
+          return 1;
+        }
+      },
+      modifyReceiverInfo(){
+        this.$confirm('是否要修改收货信息?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          updateReceiverInfo(this.receiverInfo).then(response=>{
+            this.receiverDialogVisible=false;
+            this.$message({
+              type: 'success',
+              message: '修改成功!'
+            });
+            getOrderDetail(this.id).then(response => {
+              this.order = response.data;
+            });
+          });
+        });
       }
     }
   }
