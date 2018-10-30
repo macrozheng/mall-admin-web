@@ -53,3 +53,11 @@ export function updateMoneyInfo(data) {
     data:data
   });
 }
+
+export function updateOrderNote(params) {
+  return request({
+    url:'/order/update/note',
+    method:'post',
+    params:params
+  })
+}

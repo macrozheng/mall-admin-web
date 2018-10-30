@@ -175,12 +175,13 @@
         <el-button type="primary" @click="handleCloseOrderConfirm">确 定</el-button>
       </span>
     </el-dialog>
+    <logistics-dialog v-model="logisticsDialogVisible"></logistics-dialog>
   </div>
 </template>
 <script>
   import {fetchList,closeOrder,deleteOrder} from '@/api/order'
   import {formatDate} from '@/utils/date';
-
+  import LogisticsDialog from '@/views/oms/order/components/logisticsDialog';
   const defaultListQuery = {
     pageNum: 1,
     pageSize: 10,
@@ -193,6 +194,7 @@
   };
   export default {
     name: "orderList",
+    components:{LogisticsDialog},
     data() {
       return {
         listQuery: Object.assign({}, defaultListQuery),
@@ -262,6 +264,7 @@
             value: 3
           }
         ],
+        logisticsDialogVisible:false
       }
     },
     created() {
@@ -326,7 +329,9 @@
         let listItem = this.covertOrder(row);
         this.$router.push({path:'/oms/deliverOrderList',query:{list:[listItem]}})
       },
-      handleViewLogistics(index, row){},
+      handleViewLogistics(index, row){
+        this.logisticsDialogVisible=true;
+      },
       handleDeleteOrder(index, row){
         let ids=[];
         ids.push(row.id);

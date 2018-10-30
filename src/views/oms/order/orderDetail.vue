@@ -17,24 +17,24 @@
           <el-button size="mini" @click="showUpdateReceiverDialog">修改收货人信息</el-button>
           <el-button size="mini">修改商品信息</el-button>
           <el-button size="mini" @click="showUpdateMoneyDialog">修改费用信息</el-button>
-          <el-button size="mini">发送站内信</el-button>
-          <el-button size="mini">关闭订单</el-button>
-          <el-button size="mini">备注订单</el-button>
+          <el-button size="mini" @click="showMessageDialog">发送站内信</el-button>
+          <el-button size="mini" @click="showCloseOrderDialog">关闭订单</el-button>
+          <el-button size="mini" @click="showMarkOrderDialog">备注订单</el-button>
         </div>
         <div class="operate-button-container" v-show="order.status===1">
-          <el-button size="mini">修改收货人信息</el-button>
-          <el-button size="mini">发送站内信</el-button>
+          <el-button size="mini" @click="showUpdateReceiverDialog">修改收货人信息</el-button>
+          <el-button size="mini" @click="showMessageDialog">发送站内信</el-button>
           <el-button size="mini">取消订单</el-button>
-          <el-button size="mini">备注订单</el-button>
+          <el-button size="mini" @click="showMarkOrderDialog">备注订单</el-button>
         </div>
         <div class="operate-button-container" v-show="order.status===2||order.status===3">
-          <el-button size="mini">订单跟踪</el-button>
-          <el-button size="mini">发送站内信</el-button>
-          <el-button size="mini">备注订单</el-button>
+          <el-button size="mini" @click="showLogisticsDialog">订单跟踪</el-button>
+          <el-button size="mini" @click="showMessageDialog">发送站内信</el-button>
+          <el-button size="mini" @click="showMarkOrderDialog">备注订单</el-button>
         </div>
         <div class="operate-button-container" v-show="order.status===4">
-          <el-button size="mini">删除订单</el-button>
-          <el-button size="mini">备注订单</el-button>
+          <el-button size="mini" @click="handleDeleteOrder">删除订单</el-button>
+          <el-button size="mini" @click="showMarkOrderDialog">备注订单</el-button>
         </div>
       </div>
       <div style="margin-top: 20px">
@@ -66,7 +66,7 @@
           <el-col :span="4" class="table-cell-title">订单可得成长值</el-col>
           <el-col :span="4" class="table-cell-title">活动信息</el-col>
         </el-row>
-        <el-row style="display: table">
+        <el-row>
           <el-col :span="4" class="table-cell">{{order.deliveryCompany | formatNull}}</el-col>
           <el-col :span="4" class="table-cell">{{order.deliverySn | formatNull}}</el-col>
           <el-col :span="4" class="table-cell">{{order.autoConfirmDay}}天</el-col>
@@ -240,7 +240,7 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
       <el-button @click="receiverDialogVisible = false">取 消</el-button>
-      <el-button type="primary" @click="modifyReceiverInfo">确 定</el-button>
+      <el-button type="primary" @click="handleUpdateReceiverInfo">确 定</el-button>
       </span>
     </el-dialog>
     <el-dialog title="修改费用信息"
@@ -282,13 +282,64 @@
       </div>
       <span slot="footer" class="dialog-footer">
       <el-button @click="moneyDialogVisible = false">取 消</el-button>
-      <el-button type="primary" @click="modifyMoneyInfo">确 定</el-button>
+      <el-button type="primary" @click="handleUpdateMoneyInfo">确 定</el-button>
       </span>
     </el-dialog>
+    <el-dialog title="发送站内信"
+               :visible.sync="messageDialogVisible"
+               width="40%">
+      <el-form :model="message"
+               ref="receiverInfoForm"
+               label-width="150px">
+        <el-form-item label="标题：">
+          <el-input v-model="message.title" style="width: 200px"></el-input>
+        </el-form-item>
+        <el-form-item label="内容：">
+          <el-input v-model="message.content" type="textarea" rows="3">
+          </el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="messageDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="handleSendMessage">确 定</el-button>
+      </span>
+    </el-dialog>
+    <el-dialog title="关闭订单"
+               :visible.sync="closeDialogVisible"
+               width="40%">
+      <el-form :model="closeInfo"
+               label-width="150px">
+        <el-form-item label="操作备注：">
+          <el-input v-model="closeInfo.note" type="textarea" rows="3">
+          </el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="closeDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="handleCloseOrder">确 定</el-button>
+      </span>
+    </el-dialog>
+    <el-dialog title="备注订单"
+               :visible.sync="markOrderDialogVisible"
+               width="40%">
+      <el-form :model="markInfo"
+               label-width="150px">
+        <el-form-item label="操作备注：">
+          <el-input v-model="markInfo.note" type="textarea" rows="3">
+          </el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="markOrderDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="handleMarkOrder">确 定</el-button>
+      </span>
+    </el-dialog>
+    <logistics-dialog v-model="logisticsDialogVisible"></logistics-dialog>
   </div>
 </template>
 <script>
-  import {getOrderDetail,updateReceiverInfo,updateMoneyInfo} from '@/api/order';
+  import {getOrderDetail,updateReceiverInfo,updateMoneyInfo,closeOrder,updateOrderNote,deleteOrder} from '@/api/order';
+  import LogisticsDialog from '@/views/oms/order/components/logisticsDialog';
   import {formatDate} from '@/utils/date';
   import VDistpicker from 'v-distpicker';
   const defaultReceiverInfo = {
@@ -299,24 +350,27 @@
     receiverDetailAddress:null,
     receiverProvince:null,
     receiverCity:null,
-    receiverRegion:null
-  };
-  const defaultMoneyInfo = {
-    orderId:null,
-    freightAmount:0,
-    discountAmount:0
+    receiverRegion:null,
+    status:null
   };
   export default {
     name: 'orderDetail',
-    components: { VDistpicker },
+    components: { VDistpicker, LogisticsDialog},
     data() {
       return {
         id: null,
         order: {},
         receiverDialogVisible:false,
         receiverInfo:Object.assign({},defaultReceiverInfo),
-        moneyInfo:Object.assign({},defaultMoneyInfo),
-        moneyDialogVisible:false
+        moneyDialogVisible:false,
+        moneyInfo:{orderId:null, freightAmount:0, discountAmount:0,status:null},
+        messageDialogVisible:false,
+        message: {title:null, content:null},
+        closeDialogVisible:false,
+        closeInfo:{note:null,id:null},
+        markOrderDialogVisible:false,
+        markInfo:{note:null},
+        logisticsDialogVisible:false
       }
     },
     created() {
@@ -413,47 +467,10 @@
       }
     },
     methods: {
-      showUpdateMoneyDialog(){
-        this.moneyDialogVisible=true;
-        this.moneyInfo.orderId=this.order.id;
-        this.moneyInfo.freightAmount=this.order.freightAmount;
-        this.moneyInfo.discountAmount=this.order.discountAmount;
-      },
-      modifyMoneyInfo(){
-        this.$confirm('是否要修改费用信息?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          updateMoneyInfo(this.moneyInfo).then(response=>{
-            this.moneyDialogVisible=false;
-            this.$message({
-              type: 'success',
-              message: '修改成功!'
-            });
-            getOrderDetail(this.id).then(response => {
-              this.order = response.data;
-            });
-          });
-        });
-      },
       onSelectRegion(data){
         this.receiverInfo.receiverProvince=data.province.value;
         this.receiverInfo.receiverCity=data.city.value;
         this.receiverInfo.receiverRegion=data.area.value;
-      },
-      showUpdateReceiverDialog(){
-        this.receiverDialogVisible=true;
-        this.receiverInfo={
-          orderId:this.order.id,
-          receiverName:this.order.receiverName,
-          receiverPhone:this.order.receiverPhone,
-          receiverPostCode:this.order.receiverPostCode,
-          receiverDetailAddress:this.order.receiverDetailAddress,
-          receiverProvince:this.order.receiverProvince,
-          receiverCity:this.order.receiverCity,
-          receiverRegion:this.order.receiverRegion
-        }
       },
       formatTime(time) {
         if (time == null || time === '') {
@@ -477,7 +494,21 @@
           return 1;
         }
       },
-      modifyReceiverInfo(){
+      showUpdateReceiverDialog(){
+        this.receiverDialogVisible=true;
+        this.receiverInfo={
+          orderId:this.order.id,
+          receiverName:this.order.receiverName,
+          receiverPhone:this.order.receiverPhone,
+          receiverPostCode:this.order.receiverPostCode,
+          receiverDetailAddress:this.order.receiverDetailAddress,
+          receiverProvince:this.order.receiverProvince,
+          receiverCity:this.order.receiverCity,
+          receiverRegion:this.order.receiverRegion,
+          status:this.order.status
+        }
+      },
+      handleUpdateReceiverInfo(){
         this.$confirm('是否要修改收货信息?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
@@ -494,6 +525,123 @@
             });
           });
         });
+      },
+      showUpdateMoneyDialog(){
+        this.moneyDialogVisible=true;
+        this.moneyInfo.orderId=this.order.id;
+        this.moneyInfo.freightAmount=this.order.freightAmount;
+        this.moneyInfo.discountAmount=this.order.discountAmount;
+        this.moneyInfo.status=this.order.status;
+      },
+      handleUpdateMoneyInfo(){
+        this.$confirm('是否要修改费用信息?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          updateMoneyInfo(this.moneyInfo).then(response=>{
+            this.moneyDialogVisible=false;
+            this.$message({
+              type: 'success',
+              message: '修改成功!'
+            });
+            getOrderDetail(this.id).then(response => {
+              this.order = response.data;
+            });
+          });
+        });
+      },
+      showMessageDialog(){
+        this.messageDialogVisible=true;
+        this.message.title=null;
+        this.message.content=null;
+      },
+      handleSendMessage(){
+        this.$confirm('是否要发送站内信?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.messageDialogVisible=false;
+          this.$message({
+            type: 'success',
+            message: '发送成功!'
+          });
+        });
+      },
+      showCloseOrderDialog(){
+        this.closeDialogVisible=true;
+        this.closeInfo.note=null;
+        this.closeInfo.id=this.id;
+      },
+      handleCloseOrder(){
+        this.$confirm('是否要关闭?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+            let params = new URLSearchParams();
+            params.append("ids",[this.closeInfo.id]);
+            params.append("note",this.closeInfo.note);
+            closeOrder(params).then(response=>{
+              this.closeDialogVisible=false;
+              this.$message({
+                type: 'success',
+                message: '订单关闭成功!'
+              });
+              getOrderDetail(this.id).then(response => {
+                this.order = response.data;
+              });
+            });
+        });
+      },
+      showMarkOrderDialog(){
+        this.markOrderDialogVisible=true;
+        this.markInfo.id=this.id;
+        this.closeOrder.note=null;
+      },
+      handleMarkOrder(){
+        this.$confirm('是否要备注订单?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          let params = new URLSearchParams();
+          params.append("id",this.markInfo.id);
+          params.append("note",this.markInfo.note);
+          params.append("status",this.order.status);
+          updateOrderNote(params).then(response=>{
+            this.markOrderDialogVisible=false;
+            this.$message({
+              type: 'success',
+              message: '订单备注成功!'
+            });
+            getOrderDetail(this.id).then(response => {
+              this.order = response.data;
+            });
+          });
+        });
+      },
+      handleDeleteOrder(){
+        this.$confirm('是否要进行该删除操作?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          let params = new URLSearchParams();
+          params.append("ids",[this.id]);
+          deleteOrder(params).then(response=>{
+            this.$message({
+              message: '删除成功！',
+              type: 'success',
+              duration: 1000
+            });
+            this.$router.back();
+          });
+        })
+      },
+      showLogisticsDialog(){
+        this.logisticsDialogVisible=true;
       }
     }
   }
