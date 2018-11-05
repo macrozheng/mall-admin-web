@@ -72,7 +72,16 @@
           <el-col :span="4" class="table-cell">{{order.autoConfirmDay}}天</el-col>
           <el-col :span="4" class="table-cell">{{order.integration}}</el-col>
           <el-col :span="4" class="table-cell">{{order.growth}}</el-col>
-          <el-col :span="4" class="table-cell">{{order.promotionInfo}}</el-col>
+          <el-col :span="4" class="table-cell">
+            <el-popover
+              placement="top-start"
+              title="活动信息"
+              width="200"
+              trigger="hover"
+              :content="order.promotionInfo">
+              <span slot="reference">{{order.promotionInfo | formatLongText}}</span>
+            </el-popover>
+          </el-col>
         </el-row>
       </div>
       <div style="margin-top: 20px">
@@ -383,6 +392,15 @@
       formatNull(value) {
         if(value===undefined||value===null||value===''){
           return '暂无';
+        }else{
+          return value;
+        }
+      },
+      formatLongText(value) {
+        if(value===undefined||value===null||value===''){
+          return '暂无';
+        }else if(value.length>8){
+          return value.substr(0, 8) + '...';
         }else{
           return value;
         }
