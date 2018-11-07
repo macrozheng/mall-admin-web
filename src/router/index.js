@@ -194,6 +194,46 @@ export const constantRouterMap = [
       }
     ]
   },
+  {
+    path:'/sms',
+    component: Layout,
+    redirect: '/sms/coupon',
+    name: 'sms',
+    meta: {title: '营销', icon: 'sms'},
+    children: [
+      {
+        path: 'coupon',
+        name: 'coupon',
+        component: () => import('@/views/sms/coupon/index'),
+        meta: {title: '优惠券列表', icon: 'sms-coupon'}
+      },{
+        path: 'brand',
+        name: 'homeBrand',
+        component: () => import('@/views/sms/brand/index'),
+        meta: {title: '品牌推荐', icon: 'product-brand'}
+      },{
+        path: 'new',
+        name: 'homeNew',
+        component: () => import('@/views/sms/new/index'),
+        meta: {title: '新品推荐', icon: 'sms-new'}
+      },{
+        path: 'hot',
+        name: 'homeHot',
+        component: () => import('@/views/sms/hot/index'),
+        meta: {title: '人气推荐', icon: 'sms-hot'}
+      },{
+        path: 'subject',
+        name: 'homeSubject',
+        component: () => import('@/views/sms/subject/index'),
+        meta: {title: '专题推荐', icon: 'sms-subject'}
+      },{
+        path: 'advertise',
+        name: 'homeAdvertise',
+        component: () => import('@/views/sms/advertise/index'),
+        meta: {title: '广告列表', icon: 'sms-ad'}
+      }
+    ]
+  },
   {path: '*', redirect: '/404', hidden: true}
 ]
 
