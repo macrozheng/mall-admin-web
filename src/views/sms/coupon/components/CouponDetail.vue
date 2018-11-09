@@ -305,6 +305,9 @@
         this.coupon.productRelationList.push(this.getProductById(this.selectProduct));
         this.selectProduct=null;
       },
+      handleDeleteProductRelation(index,row){
+        this.coupon.productRelationList.splice(index,1);
+      },
       handleAddProductCategoryRelation(){
         if(this.selectProductCate===null||this.selectProductCate.length===0){
           this.$message({
@@ -315,9 +318,6 @@
         }
         this.coupon.productCategoryRelationList.push(this.getProductCateByIds(this.selectProductCate));
         this.selectProductCate=[];
-      },
-      handleDeleteProductRelation(index,row){
-        this.coupon.productRelationList.splice(index,1);
       },
       handleDeleteProductCateRelation(index,row){
         this.coupon.productCategoryRelationList.splice(index,1);

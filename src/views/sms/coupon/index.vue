@@ -76,7 +76,9 @@
         </el-table-column>
         <el-table-column label="操作" width="180" align="center">
           <template slot-scope="scope">
-            <el-button size="mini" type="text">查看</el-button>
+            <el-button size="mini"
+                       type="text"
+                       @click="handleView(scope.$index, scope.row)">查看</el-button>
             <el-button size="mini"
                        type="text"
                        @click="handleUpdate(scope.$index, scope.row)">
@@ -209,6 +211,9 @@
       },
       handleAdd(){
         this.$router.push({path: '/sms/addCoupon'})
+      },
+      handleView(index, row) {
+        this.$router.push({path: '/sms/couponHistory', query: {id: row.id}})
       },
       handleUpdate(index, row) {
         this.$router.push({path: '/sms/updateCoupon', query: {id: row.id}})
