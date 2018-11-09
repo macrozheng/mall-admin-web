@@ -81,7 +81,9 @@
                        type="text"
                        @click="handleUpdate(scope.$index, scope.row)">
               编辑</el-button>
-            <el-button size="mini" type="text">删除</el-button>
+            <el-button size="mini"
+                       type="text"
+                       @click="handleDelete(scope.$index, scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -101,7 +103,7 @@
   </div>
 </template>
 <script>
-  import {fetchList} from '@/api/coupon';
+  import {fetchList,deleteCoupon} from '@/api/coupon';
   import {formatDate} from '@/utils/date';
   const defaultListQuery = {
     pageNum: 1,
@@ -196,11 +198,35 @@
       handleSelectionChange(val){
         this.multipleSelection = val;
       },
+      handleSizeChange(val) {
+        this.listQuery.pageNum = 1;
+        this.listQuery.pageSize = val;
+        this.getList();
+      },
+      handleCurrentChange(val) {
+        this.listQuery.pageNum = val;
+        this.getList();
+      },
       handleAdd(){
         this.$router.push({path: '/sms/addCoupon'})
       },
       handleUpdate(index, row) {
         this.$router.push({path: '/sms/updateCoupon', query: {id: row.id}})
+      },
+      handleDelete(index, row) {
+        this.$confirm('是否进行删除操作?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          deleteCoupon(row.id).then(response=>{
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            });
+            this.getList();
+          });
+        })
       },
       getList(){
         fetchList(this.listQuery).then(response=>{

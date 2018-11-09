@@ -7,6 +7,14 @@ export function fetchList(params) {
   })
 }
 
+export function fetchSimpleList(params) {
+  return request({
+    url:'/product/simpleList',
+    method:'get',
+    params:params
+  })
+}
+
 export function updateDeleteStatus(params) {
   return request({
     url:'/product/update/deleteStatus',

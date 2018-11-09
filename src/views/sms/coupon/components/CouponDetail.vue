@@ -42,7 +42,7 @@
         </el-input>
       </el-form-item>
       <el-form-item label="使用门槛：" prop="minPoint">
-        <el-input v-model="coupon.minPoint" placeholder="只能输入正整数" class="input-width">
+        <el-input v-model.number="coupon.minPoint" placeholder="只能输入正整数" class="input-width">
           <template slot="prepend">满</template>
           <template slot="append">元可用</template>
         </el-input>
@@ -60,11 +60,68 @@
         </el-radio-group>
       </el-form-item>
       <el-form-item v-show="coupon.useType===1">
-        xx1
-
+        <el-cascader
+          clearable
+          placeholder="请选择分类名称"
+          v-model="selectProductCate"
+          :options="productCateOptions">
+        </el-cascader>
+        <el-button @click="handleAddProductCategoryRelation()">添加</el-button>
+        <el-table ref="productCateRelationTable"
+                  :data="coupon.productCategoryRelationList"
+                  style="width: 100%;margin-top: 20px"
+                  border>
+          <el-table-column label="分类名称" align="center">
+            <template slot-scope="scope">{{scope.row.parentCategoryName}}>{{scope.row.productCategoryName}}</template>
+          </el-table-column>
+          <el-table-column label="操作" align="center" width="100">
+            <template slot-scope="scope">
+              <el-button size="mini"
+                         type="text"
+                         @click="handleDeleteProductCateRelation(scope.$index, scope.row)">删除
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
       </el-form-item>
       <el-form-item v-show="coupon.useType===2">
-        xx2
+        <el-select
+          v-model="selectProduct"
+          filterable
+          remote
+          reserve-keyword
+          placeholder="商品名称/商品货号"
+          :remote-method="searchProductMethod"
+          :loading="selectProductLoading">
+          <el-option
+            v-for="item in selectProductOptions"
+            :key="item.productId"
+            :label="item.productName"
+            :value="item.productId">
+            <span style="float: left">{{ item.productName }}</span>
+            <span style="float: right; color: #8492a6; font-size: 13px">NO.{{ item.productSn }}</span>
+          </el-option>
+        </el-select>
+        <el-button @click="handleAddProductRelation()">添加</el-button>
+        <el-table ref="productRelationTable"
+                  :data="coupon.productRelationList"
+                  style="width: 100%;margin-top: 20px"
+                  border>
+          <el-table-column label="商品名称" align="center">
+            <template slot-scope="scope">{{scope.row.productName}}</template>
+          </el-table-column>
+          <el-table-column label="货号" align="center"  width="120" >
+            <template slot-scope="scope">NO.{{scope.row.productSn}}</template>
+          </el-table-column>
+          <el-table-column label="操作" align="center" width="100">
+            <template slot-scope="scope">
+              <el-button size="mini"
+                         type="text"
+                         @click="handleDeleteProductRelation(scope.$index, scope.row)">删除
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
       </el-form-item>
       <el-form-item label="备注：">
         <el-input
@@ -77,13 +134,15 @@
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="onSubmit('couponFrom')">提交</el-button>
-        <el-button @click="resetForm('couponFrom')">重置</el-button>
+        <el-button v-if="!isEdit" @click="resetForm('couponFrom')">重置</el-button>
       </el-form-item>
     </el-form>
   </el-card>
 </template>
 <script>
-  import {createCoupon} from '@/api/coupon';
+  import {createCoupon,getCoupon,updateCoupon} from '@/api/coupon';
+  import {fetchSimpleList as fetchProductList} from '@/api/product';
+  import {fetchListWithChildren} from '@/api/productCate'
   const defaultCoupon = {
     type: 0,
     name: null,
@@ -158,8 +217,21 @@
           minPoint: [
             {type: 'number',required: true,message: '只能输入正整数',trigger: 'blur'}
           ]
-        }
+        },
+        selectProduct:null,
+        selectProductLoading: false,
+        selectProductOptions:[],
+        selectProductCate: null,
+        productCateOptions: []
       }
+    },
+    created(){
+      if(this.isEdit){
+        getCoupon(this.$route.query.id).then(response=>{
+          this.coupon=response.data;
+        });
+      }
+      this.getProductCateList();
     },
     methods:{
       onSubmit(formName) {
@@ -170,15 +242,27 @@
               cancelButtonText: '取消',
               type: 'warning'
             }).then(() => {
-              createCoupon(this.coupon).then(response=>{
-                this.$refs[formName].resetFields();
-                this.$message({
-                  message: '提交成功',
-                  type: 'success',
-                  duration:1000
+              if(this.isEdit){
+                updateCoupon(this.$route.query.id,this.coupon).then(response=>{
+                  this.$refs[formName].resetFields();
+                  this.$message({
+                    message: '修改成功',
+                    type: 'success',
+                    duration:1000
+                  });
+                  this.$router.back();
                 });
-                this.$router.back();
-              });
+              }else{
+                createCoupon(this.coupon).then(response=>{
+                  this.$refs[formName].resetFields();
+                  this.$message({
+                    message: '提交成功',
+                    type: 'success',
+                    duration:1000
+                  });
+                  this.$router.back();
+                });
+              }
             });
           } else {
             this.$message({
@@ -193,6 +277,88 @@
       resetForm(formName) {
         this.$refs[formName].resetFields();
         this.coupon = Object.assign({},defaultCoupon);
+      },
+      searchProductMethod(query){
+        if (query !== '') {
+          this.loading = true;
+          fetchProductList({keyword:query}).then(response=>{
+            this.loading=false;
+            let productList = response.data;
+            this.selectProductOptions = [];
+            for(let i=0;i<productList.length;i++){
+              let item = productList[i];
+              this.selectProductOptions.push({productId:item.id,productName:item.name,productSn:item.productSn});
+            }
+          });
+        } else {
+          this.selectProductOptions = [];
+        }
+      },
+      handleAddProductRelation(){
+        if(this.selectProduct===null){
+          this.$message({
+            message: '请先选择商品',
+            type: 'warning'
+          });
+          return
+        }
+        this.coupon.productRelationList.push(this.getProductById(this.selectProduct));
+        this.selectProduct=null;
+      },
+      handleAddProductCategoryRelation(){
+        if(this.selectProductCate===null||this.selectProductCate.length===0){
+          this.$message({
+            message: '请先选择商品分类',
+            type: 'warning'
+          });
+          return
+        }
+        this.coupon.productCategoryRelationList.push(this.getProductCateByIds(this.selectProductCate));
+        this.selectProductCate=[];
+      },
+      handleDeleteProductRelation(index,row){
+        this.coupon.productRelationList.splice(index,1);
+      },
+      handleDeleteProductCateRelation(index,row){
+        this.coupon.productCategoryRelationList.splice(index,1);
+      },
+      getProductById(id){
+        for(let i=0;i<this.selectProductOptions.length;i++){
+          if(id===this.selectProductOptions[i].productId){
+            return this.selectProductOptions[i];
+          }
+        }
+        return null;
+      },
+      getProductCateList() {
+        fetchListWithChildren().then(response => {
+          let list = response.data;
+          this.productCateOptions = [];
+          for (let i = 0; i < list.length; i++) {
+            let children = [];
+            if (list[i].children != null && list[i].children.length > 0) {
+              for (let j = 0; j < list[i].children.length; j++) {
+                children.push({label: list[i].children[j].name, value: list[i].children[j].id});
+              }
+            }
+            this.productCateOptions.push({label: list[i].name, value: list[i].id, children: children});
+          }
+        });
+      },
+      getProductCateByIds(ids){
+        let name;
+        let parentName;
+        for (let i = 0; i < this.productCateOptions.length; i++) {
+          if (this.productCateOptions[i].value === ids[0]) {
+            parentName = this.productCateOptions[i].label;
+            for (let j = 0; j < this.productCateOptions[i].children.length; j++) {
+              if (this.productCateOptions[i].children[j].value === ids[1]) {
+                name = this.productCateOptions[i].children[j].label;
+              }
+            }
+          }
+        }
+        return {productCategoryId: ids[1], productCategoryName: name, parentCategoryName: parentName};
       }
     }
   }
