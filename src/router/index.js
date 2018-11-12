@@ -225,7 +225,7 @@ export const constantRouterMap = [
         path: 'couponHistory',
         name: 'couponHistory',
         component: () => import('@/views/sms/coupon/history'),
-        meta: {title: '优惠券领取历史'},
+        meta: {title: '优惠券领取详情'},
         hidden:true
       },
       {

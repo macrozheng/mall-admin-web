@@ -71,11 +71,52 @@
         </el-form>
       </div>
     </el-card>
+    <div class="table-container">
+      <el-table ref="couponHistoryTable"
+                :data="list"
+                style="width: 100%;"
+                v-loading="listLoading" border>
+        <el-table-column label="优惠码" width="160" align="center">
+          <template slot-scope="scope">{{scope.row.couponCode}}</template>
+        </el-table-column>
+        <el-table-column label="领取会员" width="140" align="center">
+          <template slot-scope="scope">{{scope.row.memberNickname}}</template>
+        </el-table-column>
+        <el-table-column label="领取方式" width="100" align="center">
+          <template slot-scope="scope">{{scope.row.getType | formatGetType}}</template>
+        </el-table-column>
+        <el-table-column label="领取时间" width="160" align="center">
+          <template slot-scope="scope">{{scope.row.createTime | formatTime}}</template>
+        </el-table-column>
+        <el-table-column label="当前状态" width="140" align="center">
+          <template slot-scope="scope">{{scope.row.useStatus | formatCouponHistoryUseType}}</template>
+        </el-table-column>
+        <el-table-column label="使用时间" width="160" align="center">
+          <template slot-scope="scope">{{scope.row.useTime | formatTime}}</template>
+        </el-table-column>
+        <el-table-column label="订单编号" align="center">
+          <template slot-scope="scope">{{scope.row.orderSn===null?'N/A':scope.row.orderSn}}</template>
+        </el-table-column>
+      </el-table>
+    </div>
+    <div class="pagination-container">
+      <el-pagination
+        background
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        layout="total, sizes,prev, pager, next,jumper"
+        :current-page.sync="listQuery.pageNum"
+        :page-size="listQuery.pageSize"
+        :page-sizes="[5,10,15]"
+        :total="total">
+      </el-pagination>
+    </div>
   </div>
 </template>
 <script>
   import {formatDate} from '@/utils/date';
   import {getCoupon} from '@/api/coupon';
+  import {fetchList as fetchCouponHistoryList} from '@/api/couponHistory';
 
   const defaultTypeOptions = [
     {
@@ -122,7 +163,10 @@
       return {
         coupon: {},
         listQuery: Object.assign({}, defaultListQuery),
-        useTypeOptions:Object.assign({},defaultUseTypeOptions)
+        useTypeOptions:Object.assign({},defaultUseTypeOptions),
+        list:null,
+        total:null,
+        listLoading:false
       }
     },
     created() {
@@ -130,6 +174,7 @@
         this.coupon = response.data;
       });
       this.listQuery.couponId=this.$route.query.id;
+      this.getList();
     },
     filters: {
       formatType(type) {
@@ -172,9 +217,58 @@
         } else {
           return '已过期';
         }
-      }
+      },
+      formatGetType(type) {
+        if(type===1){
+          return '主动获取';
+        }else{
+          return '后台赠送';
+        }
+      },
+      formatCouponHistoryUseType(useType) {
+        if (useType === 0) {
+          return '未使用';
+        } else if (useType === 1) {
+          return '已使用';
+        } else {
+          return '已过期';
+        }
+      },
+      formatTime(time) {
+        if (time == null || time === '') {
+          return 'N/A';
+        }
+        let date = new Date(time);
+        return formatDate(date, 'yyyy-MM-dd hh:mm:ss')
+      },
     },
-    methods: {}
+    methods: {
+      getList(){
+        this.listLoading=true;
+        fetchCouponHistoryList(this.listQuery).then(response=>{
+          this.listLoading=false;
+          this.list=response.data.list;
+          this.total=response.data.total;
+        });
+      },
+      handleResetSearch() {
+        this.listQuery = Object.assign({}, defaultListQuery);
+        this.listQuery.couponId=this.$route.query.id;
+      },
+      handleSearchList() {
+        this.listQuery.pageNum = 1;
+        this.getList();
+      },
+      handleSizeChange(val) {
+        this.listQuery.pageNum = 1;
+        this.listQuery.pageSize = val;
+        this.getList();
+      },
+      handleCurrentChange(val) {
+        this.listQuery.pageNum = val;
+        this.getList();
+      }
+    }
   }
 </script>
 <style scoped>
