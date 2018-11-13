@@ -73,7 +73,7 @@
           <template slot-scope="scope">
             <el-button size="mini"
                        type="text"
-                       @click="handleEditSort(scope.$index, scope.row)">排序
+                       @click="handleEditSort(scope.$index, scope.row)">设置排序
             </el-button>
             <el-button size="mini"
                        type="text"
@@ -153,10 +153,24 @@
         <el-button  size="small" type="primary" @click="handleSelectDialogConfirm()">确 定</el-button>
       </div>
     </el-dialog>
+    <el-dialog title="设置排序"
+               :visible.sync="sortDialogVisible"
+               width="40%">
+      <el-form :model="sortDialogData"
+               label-width="150px">
+        <el-form-item label="排序：">
+          <el-input v-model="sortDialogData.sort" style="width: 200px"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer">
+        <el-button @click="sortDialogVisible = false" size="small">取 消</el-button>
+        <el-button type="primary" @click="handleUpdateSort" size="small">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
-  import {fetchList,updateRecommendStatus,deleteHomeBrand,createHomeBrand} from '@/api/homeBrand';
+  import {fetchList,updateRecommendStatus,deleteHomeBrand,createHomeBrand,updateHomeBrandSort} from '@/api/homeBrand';
   import {fetchList as fetchBrandList} from '@/api/brand';
 
   const defaultListQuery = {
@@ -210,7 +224,9 @@
             pageNum: 1,
             pageSize: 5
           }
-        }
+        },
+        sortDialogVisible:false,
+        sortDialogData:{sort:0,id:null}
       }
     },
     created() {
@@ -333,6 +349,27 @@
           });
         });
       },
+      handleEditSort(index,row){
+        this.sortDialogVisible=true;
+        this.sortDialogData.sort=row.sort;
+        this.sortDialogData.id=row.id;
+      },
+      handleUpdateSort(){
+        this.$confirm('是否要修改排序?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          updateHomeBrandSort(this.sortDialogData).then(response=>{
+            this.sortDialogVisible=false;
+            this.getList();
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            });
+          });
+        })
+      },
       getList() {
         this.listLoading = true;
         fetchList(this.listQuery).then(response => {
@@ -357,7 +394,13 @@
               message: '修改成功!'
             });
           });
-        })
+        }).catch(() => {
+          this.$message({
+            type: 'success',
+            message: '已取消操作!'
+          });
+          this.getList();
+        });
       },
       deleteBrand(ids){
         this.$confirm('是否要删除该推荐?', '提示', {

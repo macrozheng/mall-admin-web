@@ -30,3 +30,11 @@ export function createHomeBrand(data) {
     data:data
   })
 }
+
+export function updateHomeBrandSort(params) {
+  return request({
+    url:'/home/brand/update/sort/'+params.id,
+    method:'post',
+    params:params
+  })
+}
