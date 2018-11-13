@@ -454,7 +454,7 @@
     }
   }
 </script>
-<style scroped>
+<style scoped>
   .input-width {
     width: 203px;
   }

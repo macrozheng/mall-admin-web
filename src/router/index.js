@@ -202,6 +202,12 @@ export const constantRouterMap = [
     meta: {title: '营销', icon: 'sms'},
     children: [
       {
+        path: 'flash',
+        name: 'flash',
+        component: () => import('@/views/sms/flash/index'),
+        meta: {title: '秒杀活动列表', icon: 'sms-flash'}
+      },
+      {
         path: 'coupon',
         name: 'coupon',
         component: () => import('@/views/sms/coupon/index'),
@@ -257,6 +263,20 @@ export const constantRouterMap = [
         name: 'homeAdvertise',
         component: () => import('@/views/sms/advertise/index'),
         meta: {title: '广告列表', icon: 'sms-ad'}
+      },
+      {
+        path: 'addAdvertise',
+        name: 'addHomeAdvertise',
+        component: () => import('@/views/sms/advertise/add'),
+        meta: {title: '添加广告'},
+        hidden:true
+      },
+      {
+        path: 'updateAdvertise',
+        name: 'updateHomeAdvertise',
+        component: () => import('@/views/sms/advertise/update'),
+        meta: {title: '编辑广告'},
+        hidden:true
       }
     ]
   },
