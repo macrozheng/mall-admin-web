@@ -36,7 +36,7 @@
 </template>
 
 <script>
-  import {fetchList as fetchSubjectList} from '@/api/subject'
+  import {fetchListAll as fetchSubjectList} from '@/api/subject'
   import {fetchList as fetchPrefrenceAreaList} from '@/api/prefrenceArea'
 
   export default {

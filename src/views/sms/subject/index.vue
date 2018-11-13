@@ -21,7 +21,7 @@
       <div style="margin-top: 15px">
         <el-form :inline="true" :model="listQuery" size="small" label-width="140px">
           <el-form-item label="专题名称：">
-            <el-input v-model="listQuery.subjectName" class="input-width" placeholder="商品名称"></el-input>
+            <el-input v-model="listQuery.subjectName" class="input-width" placeholder="专题名称"></el-input>
           </el-form-item>
           <el-form-item label="推荐状态：">
             <el-select v-model="listQuery.recommendStatus" placeholder="全部" clearable class="input-width">
@@ -38,10 +38,10 @@
     <el-card class="operate-container" shadow="never">
       <i class="el-icon-tickets"></i>
       <span>数据列表</span>
-      <el-button size="mini" class="btn-add" @click="handleSelectProduct()">选择专题</el-button>
+      <el-button size="mini" class="btn-add" @click="handleSelectSubject()">选择专题</el-button>
     </el-card>
     <div class="table-container">
-      <el-table ref="newProductTable"
+      <el-table ref="newSubjectTable"
                 :data="list"
                 style="width: 100%;"
                 @selection-change="handleSelectionChange"
@@ -126,13 +126,13 @@
                 @selection-change="handleDialogSelectionChange" border>
         <el-table-column type="selection" width="60" align="center"></el-table-column>
         <el-table-column label="专题名称" align="center">
-          <template slot-scope="scope">{{scope.row.name}}</template>
+          <template slot-scope="scope">{{scope.row.title}}</template>
         </el-table-column>
-        <el-table-column label="货号" width="160" align="center">
-          <template slot-scope="scope">NO.{{scope.row.productSn}}</template>
+        <el-table-column label="所属分类" width="160" align="center">
+          <template slot-scope="scope">{{scope.row.categoryName}}</template>
         </el-table-column>
-        <el-table-column label="价格" width="120" align="center">
-          <template slot-scope="scope">￥{{scope.row.price}}</template>
+        <el-table-column label="添加时间" width="160" align="center">
+          <template slot-scope="scope">{{scope.row.createTime | formatTime}}</template>
         </el-table-column>
       </el-table>
       <div class="pagination-container">
@@ -171,7 +171,8 @@
 </template>
 <script>
   import {fetchList,updateRecommendStatus,deleteHomeSubject,createHomeSubject,updateHomeSubjectSort} from '@/api/homeSubject';
-  import {fetchList as fetchProductList} from '@/api/product';
+  import {fetchList as fetchSubjectList} from '@/api/subject';
+  import {formatDate} from '@/utils/date';
 
   const defaultListQuery = {
     pageNum: 1,
@@ -231,7 +232,6 @@
     },
     created() {
       this.getList();
-      this.getDialogList();
     },
     filters:{
       formatRecommendStatus(status){
@@ -240,7 +240,14 @@
         }else{
           return '未推荐';
         }
-      }
+      },
+      formatTime(time){
+        if(time==null||time===''){
+          return 'N/A';
+        }
+        let date = new Date(time);
+        return formatDate(date, 'yyyy-MM-dd hh:mm:ss')
+      },
     },
     methods: {
       handleResetSearch() {
@@ -266,7 +273,7 @@
         this.updateRecommendStatusStatus(row.id,row.recommendStatus);
       },
       handleDelete(index,row){
-        this.deleteProduct(row.id);
+        this.deleteSubject(row.id);
       },
       handleBatchOperate(){
         if (this.multipleSelection < 1) {
@@ -289,7 +296,7 @@
           this.updateRecommendStatusStatus(ids,0);
         } else if(this.operateType===2){
           //删除
-          this.deleteProduct(ids);
+          this.deleteSubject(ids);
         }else {
           this.$message({
             message: '请选择批量操作类型',
@@ -298,8 +305,10 @@
           });
         }
       },
-      handleSelectProduct(){
+      handleSelectSubject(){
         this.selectDialogVisible=true;
+        this.dialogData.listQuery.keyword=null;
+        this.getDialogList();
       },
       handleSelectSearch(){
         this.getDialogList();
@@ -325,11 +334,11 @@
           });
           return;
         }
-        let selectProducts = [];
+        let selectSubjects = [];
         for (let i = 0; i < this.dialogData.multipleSelection.length; i++) {
-          selectProducts.push({
-            productId:this.dialogData.multipleSelection[i].id,
-            productName:this.dialogData.multipleSelection[i].name
+          selectSubjects.push({
+            subjectId:this.dialogData.multipleSelection[i].id,
+            subjectName:this.dialogData.multipleSelection[i].title
           });
         }
         this.$confirm('使用要进行添加操作?', '提示', {
@@ -337,7 +346,7 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          createHomeSubject(selectProducts).then(response=>{
+          createHomeSubject(selectSubjects).then(response=>{
             this.selectDialogVisible=false;
             this.dialogData.multipleSelection=[];
             this.getList();
@@ -401,7 +410,7 @@
           this.getList();
         });
       },
-      deleteProduct(ids){
+      deleteSubject(ids){
         this.$confirm('是否要删除该推荐?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
@@ -419,7 +428,7 @@
         })
       },
       getDialogList(){
-        fetchProductList(this.dialogData.listQuery).then(response=>{
+        fetchSubjectList(this.dialogData.listQuery).then(response=>{
           this.dialogData.list=response.data.list;
           this.dialogData.total=response.data.total;
         })

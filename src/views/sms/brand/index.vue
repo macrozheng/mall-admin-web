@@ -231,7 +231,6 @@
     },
     created() {
       this.getList();
-      this.getDialogList();
     },
     filters:{
       formatRecommendStatus(status){
@@ -301,6 +300,7 @@
       },
       handleSelectBrand(){
         this.selectDialogVisible=true;
+        this.getDialogList();
       },
       handleSelectSearch(){
         this.getDialogList();
