@@ -67,7 +67,7 @@
           <template slot-scope="scope">
             <el-button size="mini"
                        type="text"
-                       @click="handleView(scope.$index, scope.row)">设置商品
+                       @click="handleSelectSession(scope.$index, scope.row)">设置商品
             </el-button>
             <el-button size="mini"
                        type="text"
@@ -274,6 +274,9 @@
             })
           }
         })
+      },
+      handleSelectSession(index,row){
+        this.$router.push({path:'/sms/selectSession',query:{flashPromotionId:row.id}})
       },
       getList() {
         this.listLoading = true;
