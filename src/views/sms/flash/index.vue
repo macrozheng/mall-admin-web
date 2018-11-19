@@ -181,7 +181,7 @@
         }
         let date = new Date(time);
         return formatDate(date, 'yyyy-MM-dd')
-      },
+      }
     },
     methods: {
       handleResetSearch() {
@@ -206,7 +206,7 @@
         this.flashPromotion = Object.assign({},defaultFlashPromotion);
       },
       handleShowSessionList() {
-        console.log("handleShowSessionList");
+        this.$router.push({path: '/sms/flashSession'})
       },
       handleStatusChange(index, row) {
         this.$confirm('是否要修改该状态?', '提示', {
@@ -246,7 +246,7 @@
       handleUpdate(index, row) {
         this.dialogVisible = true;
         this.isEdit = true;
-        this.flashPromotion = row;
+        this.flashPromotion = Object.assign({},row);
       },
       handleDialogConfirm() {
         this.$confirm('是否要确认?', '提示', {

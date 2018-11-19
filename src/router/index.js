@@ -208,6 +208,13 @@ export const constantRouterMap = [
         meta: {title: '秒杀活动列表', icon: 'sms-flash'}
       },
       {
+        path: 'flashSession',
+        name: 'flashSession',
+        component: () => import('@/views/sms/flash/sessionList'),
+        meta: {title: '秒杀时间段列表'},
+        hidden:true
+      },
+      {
         path: 'coupon',
         name: 'coupon',
         component: () => import('@/views/sms/coupon/index'),
