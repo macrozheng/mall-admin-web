@@ -107,15 +107,21 @@ a:hover {
 }
 
 //标题
-.font-large {
+.font-title-large {
   font-size: 18px;
   color: #303133;
 }
 
 //小标题
-.font-medium {
+.font-title-medium {
   font-size: 16px;
   color: #303133;
+}
+
+//正文
+.font-medium {
+  font-size: 16px;
+  color: #606266;
 }
 
 //正文

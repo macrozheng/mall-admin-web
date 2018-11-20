@@ -1,7 +1,7 @@
 <template>
   <div class="detail-container">
     <el-card shadow="never">
-      <span class="font-medium">退货商品</span>
+      <span class="font-title-medium">退货商品</span>
       <el-table
         border
         class="standard-margin"
@@ -35,12 +35,12 @@
         </el-table-column>
       </el-table>
       <div style="float:right;margin-top:15px;margin-bottom:15px">
-        <span class="font-medium">合计：</span>
-        <span class="font-medium color-danger">￥{{totalAmount}}</span>
+        <span class="font-title-medium">合计：</span>
+        <span class="font-title-medium color-danger">￥{{totalAmount}}</span>
       </div>
     </el-card>
     <el-card shadow="never" class="standard-margin">
-      <span class="font-medium">服务单信息</span>
+      <span class="font-title-medium">服务单信息</span>
       <div class="form-container-border">
         <el-row>
           <el-col :span="6" class="form-border form-left-bg font-small">服务单号</el-col>
