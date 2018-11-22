@@ -19,8 +19,8 @@
 </template>
 
 <script>
-import img_404 from '@/assets/404_images/404.png'
-import img_404_cloud from '@/assets/404_images/404_cloud.png'
+import img_404 from '@/assets/images/404.png'
+import img_404_cloud from '@/assets/images/404_cloud.png'
 
 export default {
   data() {
