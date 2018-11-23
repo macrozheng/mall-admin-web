@@ -30,4 +30,10 @@ nprogress | 进度条控件 | [https://github.com/rstacruz/nprogress](https://gi
 ## 搭建步骤
 
 - 克隆源代码到本地，使用IDEA打开，并完成编译;
-- 运行命令：npm run dev,访问地址：[http://localhost:8090](http://localhost:8090) 即可打开后台管理系统页面；
+- 运行命令：npm run dev,访问地址：[http://localhost:8090](http://localhost:8090) 即可打开后台管理系统页面。
+
+## 许可证
+
+[MIT](https://github.com/macrozheng/mall-admin-web/blob/master/LICENSE)
+
+Copyright (c) 2018-present macrozheng
