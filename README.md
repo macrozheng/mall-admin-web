@@ -14,6 +14,8 @@
 
 ![https://github.com/macrozheng/mall/blob/master/document/resource/mall-admin.gif](https://github.com/macrozheng/mall/blob/master/document/resource/mall-admin.gif)
 
+### 组织结构
+
 ## 技术选型
 
 技术 | 说明 | 官网
