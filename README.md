@@ -62,8 +62,10 @@ src -- 源码目录
 
 ## 搭建步骤
 
+- 该项目为前后端分离项目，要先搭建后台项目才可正常访问接口，搭建后台参考后端项目[传送门](https://github.com/macrozheng/mall);
 - 克隆源代码到本地，使用IDEA打开，并完成编译;
 - 运行命令：npm run dev,访问地址：[http://localhost:8090](http://localhost:8090) 即可打开后台管理系统页面。
+- 默认登录账号：admin 123456
 
 ## 许可证
 
