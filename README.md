@@ -67,7 +67,7 @@ src -- 源码目录
 - 该项目为前后端分离项目，要先搭建后台项目才可正常访问接口，搭建后台参考后端项目[传送门](https://github.com/macrozheng/mall);
 - 克隆源代码到本地，使用IDEA打开，并完成编译;
 - 运行命令：npm run dev,访问地址：[http://localhost:8090](http://localhost:8090) 即可打开后台管理系统页面；
-- 考虑到后台搭建的复杂性，本项目已开放后台在线API，只需要将config/dev.env.js文件中的BASE_API改为http://39.98.69.210即可免后台搭建。
+- 考虑到后台搭建的复杂性，本项目已开放后台在线API，只需要将config/dev.env.js文件中的BASE_API改为[http://39.98.69.210](http://localhost:39.98.69.210)即可免后台搭建。
 
 ## 许可证
 
