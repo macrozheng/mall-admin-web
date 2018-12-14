@@ -65,11 +65,12 @@ src -- 源码目录
 ```
 
 ## 搭建步骤
-
-- 该项目为前后端分离项目，要先搭建后台项目才可正常访问接口，搭建后台参考后端项目[传送门](https://github.com/macrozheng/mall);
+- 下载node并安装；https://nodejs.org/dist/v8.9.4/node-v8.9.4-x64.msi
+- 该项目为前后端分离项目，访问本地访问接口需搭建后台环境，搭建请参考后端项目[传送门](https://github.com/macrozheng/mall);
+- 访问在线接口无需搭建后台环境，只需将config/dev.env.js文件中的BASE_API改为[http://39.98.69.210:8080](http://localhost:39.98.69.210:8080)即可；
 - 克隆源代码到本地，使用IDEA打开，并完成编译;
 - 运行命令：npm run dev,访问地址：[http://localhost:8090](http://localhost:8090) 即可打开后台管理系统页面；
-- 考虑到后台搭建的复杂性，本项目已开放后台在线API，只需要将config/dev.env.js文件中的BASE_API改为[http://39.98.69.210](http://localhost:39.98.69.210)即可免后台搭建。
+- 如遇无法运行该以上命令，需先运行npm install命令。
 
 ## 许可证
 
