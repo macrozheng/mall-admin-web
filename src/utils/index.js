@@ -52,3 +52,6 @@ export function formatTime(time, option) {
     return d.getMonth() + 1 + '月' + d.getDate() + '日' + d.getHours() + '时' + d.getMinutes() + '分'
   }
 }
+export function isExternal(path) {
+  return /^(https?:|mailto:|tel:)/.test(path)
+}

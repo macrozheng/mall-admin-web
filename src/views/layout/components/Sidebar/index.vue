@@ -9,7 +9,12 @@
       text-color="#bfcbd9"
       active-text-color="#409EFF"
     >
-      <sidebar-item :routes="routes"></sidebar-item>
+         <sidebar-item
+        v-for="route in routes"
+        :key="route.path"
+        :item="route"
+        :base-path="route.path"
+      />
     </el-menu>
   </scroll-bar>
 </template>
@@ -26,6 +31,7 @@ export default {
       'sidebar'
     ]),
     routes() {
+      console.log(this.$router)
       return this.$router.options.routes
     },
     isCollapse() {
