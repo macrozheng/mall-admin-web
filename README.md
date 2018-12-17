@@ -70,7 +70,8 @@ src -- 源码目录
 - 访问在线接口无需搭建后台环境，只需将config/dev.env.js文件中的BASE_API改为[http://39.98.69.210:8080](http://localhost:39.98.69.210:8080)即可；
 - 克隆源代码到本地，使用IDEA打开，并完成编译;
 - 在IDEA命令行中运行命令：npm run dev,访问地址：[http://localhost:8090](http://localhost:8090) 即可打开后台管理系统页面；
-- 如遇无法运行该以上命令，需先运行npm install命令。
+- 如果遇到无法运行该命令，需要配置npm的环境变量，如在path变量中添加：C:\Users\zhenghong\AppData\Roaming\npm；
+- 如果遇到IDEA下载项目后没有自动完成编译，需先运行npm install命令。
 
 ## 许可证
 
