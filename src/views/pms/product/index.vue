@@ -343,6 +343,7 @@
         ],
         operateType: null,
         listQuery: Object.assign({}, defaultListQuery),
+        trueListQuery: Object.assign({}, defaultListQuery),
         list: null,
         total: null,
         listLoading: true,
@@ -367,7 +368,7 @@
       }
     },
     created() {
-      this.getList();
+      this.getList(this.listQuery);
       this.getBrandList();
       this.getProductCateList();
     },
@@ -400,12 +401,13 @@
           return row.sp3;
         }
       },
-      getList() {
+      getList(listQuery) {
         this.listLoading = true;
-        fetchList(this.listQuery).then(response => {
+        fetchList(listQuery).then(response => {
           this.listLoading = false;
           this.list = response.data.list;
           this.total = response.data.total;
+          this.trueListQuery = Object.assign({}, listQuery);
         });
       },
       getBrandList() {
@@ -476,7 +478,7 @@
       },
       handleSearchList() {
         this.listQuery.pageNum = 1;
-        this.getList();
+        this.getList(this.listQuery);
       },
       handleAddProduct() {
         this.$router.push({path:'/pms/addProduct'});
@@ -534,17 +536,17 @@
             default:
               break;
           }
-          this.getList();
+          this.getList(this.trueListQuery);
         });
       },
       handleSizeChange(val) {
         this.listQuery.pageNum = 1;
         this.listQuery.pageSize = val;
-        this.getList();
+        this.getList(this.trueListQuery);
       },
       handleCurrentChange(val) {
         this.listQuery.pageNum = val;
-        this.getList();
+        this.getList(this.trueListQuery);
       },
       handleSelectionChange(val) {
         this.multipleSelection = val;
@@ -629,7 +631,7 @@
             duration: 1000
           });
         });
-        this.getList();
+        this.getList(this.trueListQuery);
       }
     }
   }
