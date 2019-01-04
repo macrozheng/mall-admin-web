@@ -26,7 +26,7 @@
 
 ## 项目演示
 
-项目在线演示地址：[www.macro.com/mall-admin/index.html](http://39.98.69.210/index.html)  
+项目在线演示地址：[www.macro.com/mall-admin/index.html](http://39.98.190.128/index.html)  
 
 ![https://github.com/macrozheng/mall/blob/master/document/resource/mall-admin.gif](https://github.com/macrozheng/mall/blob/master/document/resource/mall-admin.gif)
 
@@ -67,7 +67,7 @@ src -- 源码目录
 ## 搭建步骤
 - 下载node并安装：[https://nodejs.org/dist/v8.9.4/node-v8.9.4-x64.msi](https://nodejs.org/dist/v8.9.4/node-v8.9.4-x64.msi);
 - 该项目为前后端分离项目，访问本地访问接口需搭建后台环境，搭建请参考后端项目[传送门](https://github.com/macrozheng/mall);
-- 访问在线接口无需搭建后台环境，只需将config/dev.env.js文件中的BASE_API改为[http://39.98.69.210:8080](http://localhost:39.98.69.210:8080)即可;
+- 访问在线接口无需搭建后台环境，只需将config/dev.env.js文件中的BASE_API改为[http://39.98.190.128:8080](http://localhost:39.98.190.128:8080)即可;
 - 克隆源代码到本地，使用IDEA打开，并完成编译;
 - 在IDEA命令行中运行命令：npm install,下载相关依赖;
 - 在IDEA命令行中运行命令：npm run dev,运行项目;
