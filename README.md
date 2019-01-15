@@ -26,7 +26,7 @@
 
 ## 项目演示
 
-项目在线演示地址：[www.macro.com/mall-admin/index.html](http://39.98.190.128/index.html)  
+项目在线演示地址：[http://39.98.190.128/index.html](http://39.98.190.128/index.html)  
 
 ![https://github.com/macrozheng/mall/blob/master/document/resource/mall-admin.gif](https://github.com/macrozheng/mall/blob/master/document/resource/mall-admin.gif)
 
