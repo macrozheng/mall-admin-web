@@ -2,7 +2,7 @@
 
 ## 说明
 
-> 基于vue+element的电商后台管理系统，完整实现了整个流程。
+> 基于Vue+Element的电商后台管理系统，完整实现了整个流程。
 
 > 该项目为前后端分离项目，搭建步骤具体参考后端项目[传送门](https://github.com/macrozheng/mall)。
 
