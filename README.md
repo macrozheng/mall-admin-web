@@ -14,6 +14,8 @@
 
 > 如有问题或者好的建议可以在 Issues 中提。
 
+> 码云项目地址：[https://gitee.com/macrozheng/mall-admin-web](https://gitee.com/macrozheng/mall-admin-web)
+
 ## 前言
 
 `mall`项目后台管理系统的前端项目
