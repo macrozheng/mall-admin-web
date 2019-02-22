@@ -582,6 +582,15 @@
       handleUpdateProduct(index,row){
         this.$router.push({path:'/pms/updateProduct',query:{id:row.id}});
       },
+      handleShowProduct(index,row){
+        console.log("handleShowProduct",row);
+      },
+      handleShowVerifyDetail(index,row){
+        console.log("handleShowVerifyDetail",row);
+      },
+      handleShowLog(index,row){
+        console.log("handleShowLog",row);
+      },
       updatePublishStatus(publishStatus, ids) {
         let params = new URLSearchParams();
         params.append('ids', ids);
