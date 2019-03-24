@@ -9,7 +9,7 @@ export function fetchList(parentId,params) {
 export function deleteProductCate(id) {
   return request({
     url:'/productCategory/delete/'+id,
-    method:'get'
+    method:'post'
   })
 }
 
