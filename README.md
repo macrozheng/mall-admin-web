@@ -32,13 +32,13 @@
 `mall-admin-web`是一个电商后台管理系统的前端项目，基于Vue+Element实现。
 主要包括商品管理、订单管理、会员管理、促销管理、运营管理、内容管理、统计报表、财务管理、权限管理、设置等功能。
 
-## 项目演示
+### 项目演示
 
 项目在线演示地址：[http://39.98.190.128/index.html](http://39.98.190.128/index.html)  
 
 ![https://github.com/macrozheng/mall/blob/master/document/resource/mall-admin.gif](https://github.com/macrozheng/mall/blob/master/document/resource/mall-admin.gif)
 
-## 技术选型
+### 技术选型
 
 技术 | 说明 | 官网
 ----|----|----
