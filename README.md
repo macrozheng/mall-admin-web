@@ -85,6 +85,6 @@ src -- 源码目录
 
 ## 许可证
 
-[MIT](https://github.com/macrozheng/mall-admin-web/blob/master/LICENSE)
+[Apache License 2.0](https://github.com/macrozheng/mall-admin-web/blob/master/LICENSE)
 
 Copyright (c) 2018-2019 macrozheng
