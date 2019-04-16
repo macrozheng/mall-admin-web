@@ -48,7 +48,7 @@
       title="特别赞助"
       :visible.sync="dialogVisible"
       width="30%">
-      <span>mall项目已由CODING特别赞助，点击去支持，页面加载完后点击<span class="color-main font-medium">免费试用</span>按钮即可完成支持，谢谢！</span>
+      <span>mall项目已由CODING特别赞助，点击去支持，页面加载完后点击<span class="color-main font-medium">免费体验</span>按钮即可完成支持，谢谢！</span>
       <span slot="footer" class="dialog-footer">
     <el-button @click="dialogCancel">残忍拒绝</el-button>
     <el-button type="primary" @click="dialogConfirm">去支持</el-button>
