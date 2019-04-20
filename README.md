@@ -6,13 +6,11 @@
 
 > 该项目为前后端分离项目，搭建步骤具体参考后端项目[传送门](https://github.com/macrozheng/mall)。
 
-> 如果该项目对您有帮助，您可以点右上角 "Star" 支持一下 谢谢！
+> 如果该项目对您有帮助，您可以点右上角 "Star" 支持一下，谢谢！
 
-> 或者您可以 "follow" 一下，该项目将持续更新，不断完善功能。
+> 该项目已由`CODING`特别赞助，支持的可以点下赞助商链接，浏览`2~3`个页面即可，谢谢！
 
 > 项目交流QQ群：[553018255](http://qm.qq.com/cgi-bin/qm/qr?k=M5Edq2TiJL_ShcOEeYjwcmdGmq4zZrd_)、[959351312(满)](http://qm.qq.com/cgi-bin/qm/qr?k=V6xu5c12j9qhnMUNdDRzakNxRKzOxibQ)。
-
-> 如有问题或者好的建议可以在 Issues 中提。
 
 > 码云项目地址：[https://gitee.com/macrozheng/mall-admin-web](https://gitee.com/macrozheng/mall-admin-web)
 
@@ -21,18 +19,26 @@
 `mall`项目后台管理系统的前端项目
 [传送门](https://github.com/macrozheng/mall)。
 
+## 特别赞助商
+
+<p align="left">
+<a href="https://coding.net/?utm_source=macrozheng&utm_medium=banner&utm_campaign=march2019" target="_blank">
+  <img src="http://macro-oss.oss-cn-shenzhen.aliyuncs.com/mall/banner/coding.png" width=""/>
+ </a>
+</p>
+
 ## 项目介绍
 
 `mall-admin-web`是一个电商后台管理系统的前端项目，基于Vue+Element实现。
 主要包括商品管理、订单管理、会员管理、促销管理、运营管理、内容管理、统计报表、财务管理、权限管理、设置等功能。
 
-## 项目演示
+### 项目演示
 
 项目在线演示地址：[http://39.98.190.128/index.html](http://39.98.190.128/index.html)  
 
 ![https://github.com/macrozheng/mall/blob/master/document/resource/mall-admin.gif](https://github.com/macrozheng/mall/blob/master/document/resource/mall-admin.gif)
 
-## 技术选型
+### 技术选型
 
 技术 | 说明 | 官网
 ----|----|----
@@ -79,6 +85,6 @@ src -- 源码目录
 
 ## 许可证
 
-[MIT](https://github.com/macrozheng/mall-admin-web/blob/master/LICENSE)
+[Apache License 2.0](https://github.com/macrozheng/mall-admin-web/blob/master/LICENSE)
 
 Copyright (c) 2018-2019 macrozheng
