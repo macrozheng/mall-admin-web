@@ -1,25 +1,18 @@
 # mall-admin-web
-
-## 说明
-
-> 基于Vue+Element的电商后台管理系统，完整实现了整个流程。
-
-> 该项目为前后端分离项目，搭建步骤具体参考后端项目[传送门](https://github.com/macrozheng/mall)。
-
-> 如果该项目对您有帮助，您可以点右上角 "Star" 支持一下，谢谢！
-
-> 该项目已由`CODING`特别赞助，支持的可以点下赞助商链接，浏览`2~3`个页面即可，谢谢！
-
-> 项目交流QQ群：[553018255](http://qm.qq.com/cgi-bin/qm/qr?k=M5Edq2TiJL_ShcOEeYjwcmdGmq4zZrd_)、[959351312(满)](http://qm.qq.com/cgi-bin/qm/qr?k=V6xu5c12j9qhnMUNdDRzakNxRKzOxibQ)。
-
-> 码云项目地址：[https://gitee.com/macrozheng/mall-admin-web](https://gitee.com/macrozheng/mall-admin-web)
+<p>
+  <a href="https://github.com/macrozheng/mall"><img src="http://macro-oss.oss-cn-shenzhen.aliyuncs.com/mall/badge/%E5%90%8E%E5%8F%B0%E9%A1%B9%E7%9B%AE-mall-blue.svg" alt="后台项目"></a>
+  <a href="http://qm.qq.com/cgi-bin/qm/qr?k=V6xu5c12j9qhnMUNdDRzakNxRKzOxibQ"><img src="http://macro-oss.oss-cn-shenzhen.aliyuncs.com/mall/badge/QQ%E7%BE%A4-959351312-red.svg" alt="QQ群"></a>
+  <a href="http://qm.qq.com/cgi-bin/qm/qr?k=M5Edq2TiJL_ShcOEeYjwcmdGmq4zZrd_"><img src="http://macro-oss.oss-cn-shenzhen.aliyuncs.com/mall/badge/QQ%E7%BE%A4-553018255-red.svg" alt="QQ群"></a>
+  <a href="https://gitee.com/macrozheng/mall-admin-web"><img src="http://macro-oss.oss-cn-shenzhen.aliyuncs.com/mall/badge/%E7%A0%81%E4%BA%91-%E9%A1%B9%E7%9B%AE%E5%9C%B0%E5%9D%80-orange.svg" alt="码云"></a>
+</p>
 
 ## 前言
 
-`mall`项目后台管理系统的前端项目
-[传送门](https://github.com/macrozheng/mall)。
+该项目为前后端分离项目的前端部分，后端项目`mall`地址：[传送门](https://github.com/macrozheng/mall)。
 
 ## 特别赞助商
+
+> 本项目已由`CODING`特别赞助，支持的可以点下赞助商链接，探索下功能即可，谢谢！
 
 <p align="left">
 <a href="https://coding.net/?utm_source=macrozheng&utm_medium=banner&utm_campaign=march2019" target="_blank">
