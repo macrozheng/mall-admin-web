@@ -59,7 +59,8 @@
           key: '',
           ossaccessKeyId: '',
           dir: '',
-          host: ''
+          host: '',
+          // callback:'',
         },
         dialogVisible: false
       };
@@ -84,6 +85,7 @@
             _self.dataObj.key = response.data.dir + '/${filename}';
             _self.dataObj.dir = response.data.dir;
             _self.dataObj.host = response.data.host;
+            // _self.dataObj.callback = response.data.callback;
             resolve(true)
           }).catch(err => {
             console.log(err)
