@@ -441,9 +441,11 @@
         fetchSkuStockList(row.id,{keyword:this.editSkuInfo.keyword}).then(response=>{
           this.editSkuInfo.stockList=response.data;
         });
-        fetchProductAttrList(row.productAttributeCategoryId,{type:0}).then(response=>{
-          this.editSkuInfo.productAttr=response.data.list;
-        });
+        if(row.productAttributeCategoryId!=null){
+          fetchProductAttrList(row.productAttributeCategoryId,{type:0}).then(response=>{
+            this.editSkuInfo.productAttr=response.data.list;
+          });
+        }
       },
       handleSearchEditSku(){
         fetchSkuStockList(this.editSkuInfo.productId,{keyword:this.editSkuInfo.keyword}).then(response=>{
