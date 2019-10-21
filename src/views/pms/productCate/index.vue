@@ -125,6 +125,7 @@
     },
     methods: {
       resetParentId(){
+        this.listQuery.pageNum = 1;
         if (this.$route.query.parentId != null) {
           this.parentId = this.$route.query.parentId;
         } else {

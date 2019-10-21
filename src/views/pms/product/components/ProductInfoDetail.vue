@@ -159,7 +159,7 @@
       getCateNameById(id){
         let name=null;
         for(let i=0;i<this.productCateOptions.length;i++){
-          for(let j=0;i<this.productCateOptions[i].children.length;j++){
+          for(let j=0;j<this.productCateOptions[i].children.length;j++){
             if(this.productCateOptions[i].children[j].value===id){
               name=this.productCateOptions[i].children[j].label;
               return name;
