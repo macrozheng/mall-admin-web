@@ -1,5 +1,6 @@
 import { login, logout, getInfo } from '@/api/login'
 import { getToken, setToken, removeToken } from '@/utils/auth'
+import router, { resetRouter } from '@/router'
 
 const user = {
   state: {
@@ -47,7 +48,8 @@ const user = {
         getInfo().then(response => {
           const data = response.data
           if (data.roles && data.roles.length > 0) { // 验证返回的roles是否是一个非空数组
-            commit('SET_ROLES', data.roles)
+            // dummy admin permission
+            commit('SET_ROLES', ['admin'])
           } else {
             reject('getInfo: roles must be a non-null array !')
           }
@@ -79,6 +81,34 @@ const user = {
       return new Promise(resolve => {
         commit('SET_TOKEN', '')
         removeToken()
+        resolve()
+      })
+    },
+
+    // remove token
+    ResetToken({ commit }) {
+      return new Promise(resolve => {
+        commit('SET_TOKEN', '')
+        commit('SET_ROLES', [])
+        removeToken()
+        resolve()
+      })
+    },
+
+    // dynamically modify permissions
+    ChangeRoles({ commit, dispatch }, role) {
+      return new Promise(async resolve => {
+        // dummy user roles.
+        let roles = [ role ]
+        // generate accessible routes map based on roles
+        const accessRoutes = await dispatch('GenerateRoutes', roles, { root: true })
+
+        // dynamically add accessible routes
+        resetRouter()
+
+        // dynamically add accessible routes
+        router.addRoutes(accessRoutes)
+
         resolve()
       })
     }

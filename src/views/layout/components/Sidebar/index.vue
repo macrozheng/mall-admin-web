@@ -10,6 +10,7 @@
       active-text-color="#409EFF"
     >
       <sidebar-item :routes="routes"></sidebar-item>
+
     </el-menu>
   </scroll-bar>
 </template>
@@ -26,7 +27,7 @@ export default {
       'sidebar'
     ]),
     routes() {
-      return this.$router.options.routes
+      return this.$store.state.permission.routes
     },
     isCollapse() {
       return !this.sidebar.opened
