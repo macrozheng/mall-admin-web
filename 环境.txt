@@ -1,0 +1,21 @@
+下载最新node（需要手动下载安装） 和 git工具
+windows需要将sudo去掉
+
+sudo npm config set registry http://r.cnpmjs.org                    //配置npm镜像地址
+sudo npm install cnpm -g --registry=https://registry.npm.taobao.org //配置npm镜像
+sudo cnpm install -g @vue/cli                                       //下载vue-cli环境
+
+sudo vue create xxx              // 新建项目（不能有大写字母，中文，数字开头）
+sudo cnpm install                // 安装依赖
+npm  run serve                   // 运行项目
+步骤释义详见 https://www.jianshu.com/p/6307c568832d
+注意：空格选取选项，不是回车，回车是进行下一步
+
+若安装windows的cnpm失败
+1.npm config get prefix 获取npm全局安装目录的路径
+2.找到npm所有全局组件安装路径，全删或选删
+
+windows的vue-cli-3.0 图形界面移动箭头光标无效
+找到git安装目录下的etc下的bash.bashrc文件
+打开，文件最后一行加入alias vue='winpty vue.cmd'
+重启git，即刻解决
