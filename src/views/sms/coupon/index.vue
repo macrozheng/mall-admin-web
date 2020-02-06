@@ -182,7 +182,8 @@
       },
       formatStatus(endTime){
         let now = new Date().getTime();
-        if(endTime>now){
+        let endDate = new Date(endTime);
+        if(endDate>now){
           return '未过期'
         }else{
           return '已过期';
