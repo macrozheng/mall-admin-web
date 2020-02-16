@@ -24,7 +24,7 @@
             <el-input v-model="listQuery.nameKeyword" class="input-width" placeholder="资源名称" clearable></el-input>
           </el-form-item>
           <el-form-item label="资源路径：">
-            <el-input v-model="listQuery.urlKeyword" class="input-width" placeholder="资料路径" clearable></el-input>
+            <el-input v-model="listQuery.urlKeyword" class="input-width" placeholder="资源路径" clearable></el-input>
           </el-form-item>
           <el-form-item label="资源分类：">
             <el-select v-model="listQuery.categoryId" placeholder="全部" clearable class="input-width">
