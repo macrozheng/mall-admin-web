@@ -392,12 +392,11 @@
     },
     methods: {
       getProductSkuSp(row, index) {
-        if (index === 0) {
-          return row.sp1;
-        } else if (index === 1) {
-          return row.sp2;
-        } else {
-          return row.sp3;
+        let spData = JSON.parse(row.spData);
+        if(spData!=null&&index<spData.length){
+          return spData[index].value;
+        }else{
+          return null;
         }
       },
       getList() {
