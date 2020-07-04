@@ -18,7 +18,7 @@
 
 项目在线演示地址：[http://www.macrozheng.com/admin/](http://www.macrozheng.com/admin/)  
 
-![https://github.com/macrozheng/mall/blob/master/document/resource/mall-admin.gif](https://github.com/macrozheng/mall/blob/master/document/resource/mall-admin.gif)
+![后台管理系统功能演示](http://img.macrozheng.com/mall/project/mall_admin_show.png)
 
 ### 技术选型
 
