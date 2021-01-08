@@ -19,7 +19,7 @@
   ];
   const toolbar = [
     `bold italic underline strikethrough alignleft aligncenter
-  alignright outdent indent  blockquote undo redo removeformat`,
+  alignright outdent indent  blockquote undo redo removeformat code`,
     `hr bullist numlist link image charmap	 preview anchor pagebreak
     fullscreen insertdatetime media table forecolor backcolor`
   ];
