@@ -47,6 +47,9 @@
           <template slot="append">元可用</template>
         </el-input>
       </el-form-item>
+      <el-form-item label="领取日期：" prop="enableTime">
+        <el-date-picker type="date" placeholder="选择日期" v-model="coupon.enableTime" class="input-width"></el-date-picker>
+      </el-form-item>
       <el-form-item label="有效期：">
         <el-date-picker type="date" placeholder="选择日期" v-model="coupon.startTime" style="width: 150px"></el-date-picker>
         <span style="margin-left: 20px;margin-right: 20px">至</span>
