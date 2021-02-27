@@ -71,7 +71,6 @@
           开始时间：
           <el-date-picker
             v-model="value.promotionStartTime"
-            value-format="timestamp"
             type="datetime"
             :picker-options="pickerOptions1"
             placeholder="选择开始时间">
@@ -81,7 +80,6 @@
           结束时间：
           <el-date-picker
             v-model="value.promotionEndTime"
-            value-format="timestamp"
             type="datetime"
             :picker-options="pickerOptions1"
             placeholder="选择结束时间">
