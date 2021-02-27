@@ -70,6 +70,7 @@
     <el-dialog
       :title="dialogTitle"
       :visible.sync="dialogVisible"
+      :before-close="handleClose()"
       width="30%">
       <el-form ref="productAttrCatForm":model="productAttrCate" :rules="rules" label-width="120px">
         <el-form-item label="类型名称" prop="name">
@@ -194,6 +195,11 @@
             return false;
           }
         });
+      },
+      handleClose(){
+        if (!this.dialogVisible && this.$refs.productAttrCatForm) {
+          this.$refs.productAttrCatForm.clearValidate()
+        }
       }
     }
   }
