@@ -62,6 +62,10 @@
     },
     created(){
       this.list= this.$route.query.list;
+      //当list不为数组时转换为数组
+      if(this.list instanceof Array===false){
+        this.list=[];
+      }
     },
     methods:{
       cancel(){
