@@ -175,10 +175,11 @@
 
   .login-center-layout {
     background: #409EFF;
-    width: auto;
+    /* width: auto;
     height: auto;
     max-width: 100%;
-    max-height: 100%;
+    max-height: 100%; */
     margin-top: 200px;
+    width: 100%;
   }
 </style>
