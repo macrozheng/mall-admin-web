@@ -17,7 +17,7 @@
 
 ### 项目演示
 
-项目在线演示地址：[http://www.macrozheng.com/admin/](http://www.macrozheng.com/admin/)  
+项目在线演示地址：[http://www.macrozheng.com/admin/](http://www.macrozheng.com/admin/)
 
 ![后台管理系统功能演示](http://img.macrozheng.com/mall/project/mall_admin_show.png)
 
@@ -81,4 +81,4 @@ src -- 源码目录
 
 [Apache License 2.0](https://github.com/macrozheng/mall-admin-web/blob/master/LICENSE)
 
-Copyright (c) 2018-2021 macrozheng
+Copyright (c) 2018-2022 macrozheng
