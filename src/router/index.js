@@ -5,7 +5,7 @@ Vue.use(Router)
 
 /* Layout */
 import Layout from '../views/layout/Layout'
-
+import i18n from '../lang/index'
 /**
  * hidden: true                   if `hidden:true` will not show in the sidebar(default is false)
  * alwaysShow: true               if set true, will always show the root menu, whatever its child routes length
@@ -29,7 +29,9 @@ export const constantRouterMap = [
       path: 'home',
       name: 'home',
       component: () => import('@/views/home/index'),
-      meta: {title: '首页', icon: 'home'}
+       meta: {
+        title: i18n.messages[ window.localStorage.getItem("lang")].navbar.title,
+        icon: 'home'},
     }]
   }
 ]

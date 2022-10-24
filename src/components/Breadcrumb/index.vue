@@ -10,6 +10,7 @@
 </template>
 
 <script>
+import i18n from '../../lang/index'
 export default {
   created() {
     this.getBreadcrumb()
@@ -27,9 +28,12 @@ export default {
   methods: {
     getBreadcrumb() {
       let matched = this.$route.matched.filter(item => item.name)
+      let language = window.localStorage.getItem("lang");
+      let titleDisp =  ( (language =="en")?"Dashboard": "主页" );
+
       const first = matched[0]
       if (first && first.name !== 'home') {
-        matched = [{ path: '/home', meta: { title: '首页' }}].concat(matched)
+        matched = [{ path: '/home', meta: { title: titleDisp }}].concat(matched)
       }
       this.levelList = matched
     }

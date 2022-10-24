@@ -4,7 +4,7 @@
       <el-row :gutter="20">
         <el-col :span="6">
           <div class="out-border">
-            <div class="layout-title">后台项目</div>
+            <div class="layout-title">mall</div>
             <div class="color-main address-content">
               <a href="https://github.com/macrozheng/mall">mall</a>
             </div>

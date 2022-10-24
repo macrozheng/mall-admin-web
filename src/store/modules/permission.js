@@ -1,13 +1,13 @@
 import { asyncRouterMap, constantRouterMap } from '@/router/index';
 
 //判断是否有权限访问该菜单
-function hasPermission(menus, route) {
+function hasPermission(menus, route, language) {
   if (route.name) {
     let currMenu = getMenu(route.name, menus);
     if (currMenu!=null) {
       //设置菜单的标题、图标和可见性
       if (currMenu.title != null && currMenu.title !== '') {
-        route.meta.title = currMenu.title;
+        route.meta.title = (language =="zh")? currMenu.title:currMenu.titleEn;
       }
       if (currMenu.icon != null && currMenu.title !== '') {
         route.meta.icon = currMenu.icon;
@@ -77,16 +77,20 @@ const permission = {
   },
   actions: {
     GenerateRoutes({ commit }, data) {
+
+
       return new Promise(resolve => {
         const { menus } = data;
         const { username } = data;
+
         const accessedRouters = asyncRouterMap.filter(v => {
           //admin帐号直接返回所有菜单
+          let language = window.localStorage.getItem("lang");
           // if(username==='admin') return true;
-          if (hasPermission(menus, v)) {
+          if (hasPermission(menus, v, language)) {
             if (v.children && v.children.length > 0) {
               v.children = v.children.filter(child => {
-                if (hasPermission(menus, child)) {
+                if (hasPermission(menus, child,language)) {
                   return child
                 }
                 return false;
