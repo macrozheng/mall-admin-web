@@ -21,6 +21,9 @@
         <el-table-column label="菜单名称" align="center">
           <template slot-scope="scope">{{scope.row.title}}</template>
         </el-table-column>
+        <el-table-column label="菜单英文名称" align="center">
+          <template slot-scope="scope">{{scope.row.titleEn}}</template>
+        </el-table-column>
         <el-table-column label="菜单级数" width="100" align="center">
           <template slot-scope="scope">{{scope.row.level | levelFilter}}</template>
         </el-table-column>

@@ -6,6 +6,7 @@ Vue.use(Router)
 /* Layout */
 import Layout from '../views/layout/Layout'
 import i18n from '../lang/index'
+import {getCookie} from "../utils/support";
 /**
  * hidden: true                   if `hidden:true` will not show in the sidebar(default is false)
  * alwaysShow: true               if set true, will always show the root menu, whatever its child routes length
@@ -30,7 +31,7 @@ export const constantRouterMap = [
       name: 'home',
       component: () => import('@/views/home/index'),
        meta: {
-        title: i18n.messages[ window.localStorage.getItem("lang")].navbar.title,
+        title: 'Home',
         icon: 'home'},
     }]
   }
@@ -357,6 +358,27 @@ export const asyncRouterMap = [
         component: () => import('@/views/ums/resource/categoryList'),
         meta: {title: '资源分类'},
         hidden: true
+      }
+    ]
+  },
+  {
+    path:'/bas',
+    component: Layout,
+    redirect: '/bas/code',
+    name: 'bas',
+    meta: {title: "设置", icon: 'ums'},
+    children: [
+      {
+        path: 'codegroup',
+        name: 'codegroup',
+        component: () => import('@/views/bas/codegroup/index'),
+        meta: {title: '代码组分类', icon: 'ums-admin'}
+      },
+      {
+        path: 'code',
+        name: 'code',
+        component: () => import('@/views/bas/code/index'),
+        meta: {title: '代码维护', icon: 'ums-role'}
       }
     ]
   },

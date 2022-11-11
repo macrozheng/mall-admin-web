@@ -7,6 +7,9 @@
       <el-form-item label="菜单名称：" prop="title">
         <el-input v-model="menu.title"></el-input>
       </el-form-item>
+      <el-form-item label="菜单英文名称：" prop="title_en">
+        <el-input v-model="menu.titleEn"></el-input>
+      </el-form-item>
       <el-form-item label="上级菜单：">
         <el-select v-model="menu.parentId"
                    placeholder="请选择菜单">
@@ -47,6 +50,7 @@
 
   const defaultMenu = {
     title: '',
+    titleEn: '',
     parentId: 0,
     name: '',
     icon: '',
