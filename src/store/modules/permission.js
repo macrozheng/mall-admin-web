@@ -9,7 +9,7 @@ function hasPermission(menus, route) {
       if (currMenu.title != null && currMenu.title !== '') {
         route.meta.title = currMenu.title;
       }
-      if (currMenu.icon != null && currMenu.title !== '') {
+      if (currMenu.icon != null && currMenu.icon !== '') {
         route.meta.icon = currMenu.icon;
       }
       if(currMenu.hidden!=null){
