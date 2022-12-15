@@ -134,7 +134,7 @@
       <el-form-item label="商品相册：">
         <multi-upload v-model="selectProductPics"></multi-upload>
       </el-form-item>
-      <el-form-item label="规格参数：">
+      <el-form-item label="商品详情：">
         <el-tabs v-model="activeHtmlName" type="card">
           <el-tab-pane label="电脑端详情" name="pc">
             <tinymce :width="595" :height="300" v-model="value.detailHtml"></tinymce>
