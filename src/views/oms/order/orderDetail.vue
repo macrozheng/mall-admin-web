@@ -15,7 +15,6 @@
         <span class="color-danger">当前订单状态：{{order.status | formatStatus}}</span>
         <div class="operate-button-container" v-show="order.status===0">
           <el-button size="mini" @click="showUpdateReceiverDialog">修改收货人信息</el-button>
-          <el-button size="mini">修改商品信息</el-button>
           <el-button size="mini" @click="showUpdateMoneyDialog">修改费用信息</el-button>
           <el-button size="mini" @click="showMessageDialog">发送站内信</el-button>
           <el-button size="mini" @click="showCloseOrderDialog">关闭订单</el-button>
