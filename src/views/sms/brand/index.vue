@@ -221,6 +221,7 @@
           multipleSelection:[],
           listQuery:{
             keyword: null,
+            showStatus:1,
             pageNum: 1,
             pageSize: 5
           }
