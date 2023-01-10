@@ -178,6 +178,9 @@
 </script>
 <style>
   .form-container {
+    width: 960px;
+  }
+  .form-inner-container {
     width: 800px;
   }
 </style>
