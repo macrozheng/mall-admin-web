@@ -5,8 +5,8 @@
     </el-button>
     <el-dialog append-to-body :visible.sync="dialogVisible">
       <el-upload class="editor-slide-upload"
-                 action="http://macro-oss.oss-cn-shenzhen.aliyuncs.com"
-                 :data="dataObj"
+                 :action="useOss?ossUploadUrl:minioUploadUrl"
+                 :data="useOss?dataObj:null"
                  :multiple="true"
                  :file-list="fileList"
                  :show-file-list="true"
@@ -45,7 +45,10 @@
           ossaccessKeyId: '',
           dir: '',
           host: ''
-        }
+        },
+        useOss:false, //使用oss->true;使用MinIO->false
+        ossUploadUrl:'http://macro-oss.oss-cn-shenzhen.aliyuncs.com',
+        minioUploadUrl:'http://localhost:8080/minio/upload',
       }
     },
     methods: {
@@ -70,6 +73,10 @@
         for (let i = 0, len = objKeyArr.length; i < len; i++) {
           if (this.listObj[objKeyArr[i]].uid === uid) {
             this.listObj[objKeyArr[i]].url = this.dataObj.host + '/' + this.dataObj.dir + '/' + file.name;
+            if(!this.useOss){
+              //不使用oss直接获取图片路径
+              this.listObj[objKeyArr[i]].url = response.data.url;
+            }
             this.listObj[objKeyArr[i]].hasSuccess = true;
             return
           }
@@ -89,6 +96,11 @@
         const _self = this
         const fileName = file.uid;
         this.listObj[fileName] = {};
+        if(!this.useOss){
+          //不使用oss不需要获取策略
+          this.listObj[fileName] = {hasSuccess: false, uid: file.uid, width: this.width, height: this.height};
+          return true;
+        }
         return new Promise((resolve, reject) => {
           policy().then(response => {
             _self.dataObj.policy = response.data.policy;
