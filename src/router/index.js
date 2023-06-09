@@ -25,12 +25,24 @@ export const constantRouterMap = [
     path: '',
     component: Layout,
     redirect: '/home',
+    meta: {title: '首页', icon: 'home'},
     children: [{
       path: 'home',
       name: 'home',
       component: () => import('@/views/home/index'),
-      meta: {title: '首页', icon: 'home'}
-    }]
+      meta: {title: '仪表盘', icon: 'dashboard'}
+    },
+    {
+      name: 'document',
+      path: 'https://www.macrozheng.com',
+      meta: {title: '学习教程', icon: 'document'}
+    },
+    {
+      name: 'video',
+      path: 'https://www.macrozheng.com/mall/catalog/mall_video.html',
+      meta: {title: '视频教程', icon: 'video'}
+    },
+    ]
   }
 ]
 
