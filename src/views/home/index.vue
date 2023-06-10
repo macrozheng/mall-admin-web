@@ -14,7 +14,7 @@
           <div class="out-border">
             <div class="layout-title">视频教程</div>
             <div class="color-main address-content">
-              <a href="https://www.macrozheng.com/mall/catalog/mall_video.html" target="_blank">mall视频教程</a>
+              <a href="https://www.macrozheng.com/mall/catalog/mall_video.html" target="_blank">mall视频教程（2023）</a>
             </div>
           </div>
         </el-col>
