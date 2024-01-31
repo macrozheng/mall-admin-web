@@ -277,23 +277,15 @@
           shortcuts: [{
             text: '最近一周',
             onClick(picker) {
-              const end = new Date();
-              let start = new Date();
-              start.setFullYear(2018);
-              start.setMonth(10);
-              start.setDate(1);
-              end.setTime(start.getTime() + 3600 * 1000 * 24 * 7);
+              let start = new Date(2018,10,1);
+              const end = new Date(start.getTime() + 1000 * 60 * 60 * 24 * 7);
               picker.$emit('pick', [start, end]);
             }
           }, {
             text: '最近一月',
             onClick(picker) {
-              const end = new Date();
-              let start = new Date();
-              start.setFullYear(2018);
-              start.setMonth(10);
-              start.setDate(1);
-              end.setTime(start.getTime() + 3600 * 1000 * 24 * 30);
+              let start = new Date(2018,10,1);
+              const end = new Date(start.getTime() + 1000 * 60 * 60 * 24 * 30);
               picker.$emit('pick', [start, end]);
             }
           }]
@@ -324,12 +316,8 @@
         this.getData();
       },
       initOrderCountDate(){
-        let start = new Date();
-        start.setFullYear(2018);
-        start.setMonth(10);
-        start.setDate(1);
-        const end = new Date();
-        end.setTime(start.getTime() + 1000 * 60 * 60 * 24 * 7);
+        let start = new Date(2018,10,1);
+        const end = new Date(start.getTime() + 1000 * 60 * 60 * 24 * 7);
         this.orderCountDate=[start,end];
       },
       getData(){
