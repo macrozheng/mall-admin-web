@@ -166,10 +166,12 @@
     },
     filters: {
       formatActiveStatus(row) {
-        let nowTime = new Date().getTime();
-        if (nowTime >= row.startDate && nowTime <= row.endDate) {
+        let nowDate = new Date();
+        let startDate = new Date(row.startDate);
+        let endDate = new Date(row.endDate);
+        if (nowDate.getTime() >= startDate.getTime() && nowDate.getTime() <= endDate.getTime()) {
           return '活动进行中';
-        } else if (nowTime > row.endDate) {
+        } else if (nowDate.getTime() > endDate.getTime()) {
           return '活动已结束';
         } else {
           return '活动未开始';
