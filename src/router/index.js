@@ -370,6 +370,31 @@ export const asyncRouterMap = [
       }
     ]
   },
+
+  {
+    path:'/fms',
+    component: Layout,
+    redirect: '/fms/students',
+    name: 'fms',
+    meta: {title: '综合管理', icon: 'marker'},
+    children: [
+      {
+        path: 'students',
+        name: 'students',
+        component: () => import('@/views/fms/students/index'),
+        meta: {title: '学生列表', icon: 'example'}
+      },
+      {
+        path: 'invoice',
+        name: 'invoice',
+        component: () => import('@/views/fms/invoice/index'),
+        // 只是备注
+        meta: {title: '发票管理', icon: 'eye'}
+      },
+      
+    ]
+  },
+
   {path: '*', redirect: '/404', hidden: true}
 ]
 
