@@ -259,6 +259,9 @@
           <span>有效发票金额:<span class="amount-value amount-large"> {{ validAmount === '' ? 0 : validAmount}}</span></span>
           <span>无效发票金额:<span class="amount-value"> {{ invalidAmount === '' ? 0 : invalidAmount }}</span></span>
         </div>
+        <div class="repeat-license-plate">
+          <span>重复的车牌号:<span class="license-plate-value">{{ repeatLicensePlate }}</span></span>
+        </div>
         <div>
           <el-table
             :data="dateAmountList"
@@ -300,44 +303,43 @@
       :visible.sync="statusDialogVisible"
       width="40%"
     >
-
-    <el-form
-        :model="statusDialog"
-        label-width="150px"
-        ref="statusDialogForm"
-        size="small"
-      >
-        <el-form-item label="开始日期：" prop="startDate">
-          <el-date-picker
-            v-model="statusDialog.startDate"
-            type="date"
-            placeholder="请选择开始日期"
-            value-format="yyyy-MM-dd"
-            style="width: 250px"
-            clearable
-          >
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="结束日期：" prop="endDate">
-          <el-date-picker
-            v-model="statusDialog.endDate"
-            type="date"
-            placeholder="请选择结束日期"
-            value-format="yyyy-MM-dd"
-            style="width: 250px"
-            clearable
-            @change="handleChangeTest"
-          >
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="发票状态：">
-          <el-switch
-              :active-value="1"
-              :inactive-value="0"
-              v-model="statusDialog.status">
-            </el-switch>
-        </el-form-item>
-        
+      <el-form
+          :model="statusDialog"
+          label-width="150px"
+          ref="statusDialogForm"
+          size="small"
+        >
+          <el-form-item label="开始日期：" prop="startDate">
+            <el-date-picker
+              v-model="statusDialog.startDate"
+              type="date"
+              placeholder="请选择开始日期"
+              value-format="yyyy-MM-dd"
+              style="width: 250px"
+              clearable
+            >
+            </el-date-picker>
+          </el-form-item>
+          <el-form-item label="结束日期：" prop="endDate">
+            <el-date-picker
+              v-model="statusDialog.endDate"
+              type="date"
+              placeholder="请选择结束日期"
+              value-format="yyyy-MM-dd"
+              style="width: 250px"
+              clearable
+              @change="handleChangeTest"
+            >
+            </el-date-picker>
+          </el-form-item>
+          <el-form-item label="发票状态：">
+            <el-switch
+                :active-value="1"
+                :inactive-value="0"
+                v-model="statusDialog.status">
+              </el-switch>
+          </el-form-item>
+          
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="statusDialogVisible = false" size="small">取 消</el-button>
@@ -345,7 +347,6 @@
           >确 定</el-button
         >
       </span>
-      
     </el-dialog>
 
   </div>
@@ -412,6 +413,7 @@ export default {
       // 更改发票状态弹出框属性
       statusDialogVisible: false,
       statusDialog: Object.assign({}, defaultStatusDialog),
+      repeatLicensePlate: '',
 
       rules: {
         invoiceNumber: [
@@ -498,6 +500,7 @@ export default {
     },
     handleAdd() {
       this.dialogVisible = true;
+      this.$refs.invoiceForm.resetFields();
       this.isEdit = false;
       this.invoice = Object.assign({}, defaultInvoice);
     },
@@ -540,6 +543,8 @@ export default {
     },
     handleUpdate(index, row) {
       this.dialogVisible = true;
+      // 清除校验信息
+      this.$refs.invoiceForm.resetFields();
       this.isEdit = true;
       this.invoice = Object.assign({}, row);
     },
@@ -578,7 +583,6 @@ export default {
     getList() {
       this.listLoading = true;
       fetchList(this.listQuery).then((response) => {
-        console.log(response);
         this.listLoading = false;
         this.list = response.data.list;
         this.total = response.data.total;
@@ -594,12 +598,12 @@ export default {
     },
     getSumRes() {
       getSum().then((response) => {
-        console.log(response);
         this.totalAmount = response.data.totalAmount;
         this.validAmount = response.data.validAmount;
         this.invalidAmount = response.data.invalidAmount;
 
         this.dateAmountList = response.data.dateAmountList;
+        this.repeatLicensePlate = response.data.repeatLicensePlate;
       });
     },
 
@@ -651,7 +655,7 @@ export default {
   overflow: auto;
 
   .total-amount {
-    padding: 20px 0;
+    padding: 10px 0;
     font-size: 16px;
     > span {
       margin-left: 8px;
@@ -664,6 +668,16 @@ export default {
       &.amount-large {
         font-size: 25px;
       }
+    }
+  }
+  .repeat-license-plate {
+    // margin-left: 6px;
+    padding: 10px 0 10px 6px;
+    font-size: 16px;
+    .license-plate-value {
+      padding-left: 5px;
+      font-size: 18px;
+      color: rgb(50, 205, 99)
     }
   }
 }
