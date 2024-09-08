@@ -374,16 +374,10 @@ export const asyncRouterMap = [
   {
     path:'/fms',
     component: Layout,
-    redirect: '/fms/students',
+    redirect: '/fms/invoice',
     name: 'fms',
     meta: {title: '综合管理', icon: 'marker'},
     children: [
-      {
-        path: 'students',
-        name: 'students',
-        component: () => import('@/views/fms/students/index'),
-        meta: {title: '学生列表', icon: 'example'}
-      },
       {
         path: 'invoice',
         name: 'invoice',

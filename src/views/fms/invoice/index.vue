@@ -88,16 +88,24 @@
         class="btn-add"
         @click="handleChangeStatus()"
         style="margin-left: 20px"
-        type="danger"
+        type="warning"
         >一键更改发票状态</el-button
       >
       <el-button
         size="mini"
         class="btn-add"
         @click="handleSum()"
-        style="margin-left: 40px"
+        style="margin-left: 20px"
         type="success"
         >统计</el-button
+      >
+      <el-button
+        size="mini"
+        class="btn-add"
+        @click="handleDeleteAll()"
+        style="margin-left: 20px"
+        type="danger"
+        >一键删除</el-button
       >
     </el-card>
     <div class="table-container">
@@ -596,6 +604,22 @@ export default {
       this.sumDialogVisible = true;
       this.getSumRes();
     },
+    handleDeleteAll() {
+      this.$confirm("是否要删除所有发票?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      }).then(() => {
+        deleteInvoice(-1).then((response) => {
+          this.$message({
+            type: "success",
+            message: "删除成功!",
+          });
+          this.getList();
+        });
+      });
+    },
+
     getSumRes() {
       getSum().then((response) => {
         this.totalAmount = response.data.totalAmount;

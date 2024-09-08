@@ -51,7 +51,7 @@ export default {
   background-color: $menuBg;
   .scroll-wrapper {
     position: absolute;
-     width: 100%!important;
+    width: 100%!important;
   }
 }
 </style>
