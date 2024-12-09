@@ -1,5 +1,4 @@
 <template>
-   
   <div class="app-container">
     <el-card class="filter-container" shadow="never">
       <div>
@@ -209,7 +208,7 @@
             v-model="invoice.invoiceDate"
             type="date"
             placeholder="请选择开票日期"
-            value-format="yyyy-MM-dd"
+            value-format="yyyy-MM-dd HH:mm:ss"
             style="width: 250px"
             clearable
           >
@@ -225,7 +224,8 @@
           <el-date-picker
             v-model="invoice.startTime"
             type="datetime"
-            placeholder="请选择开票日期"
+            placeholder="请选择开始时间"
+            value-format="yyyy-MM-dd HH:mm:ss"
             style="width: 250px"
             clearable
           >
@@ -235,7 +235,8 @@
           <el-date-picker
             v-model="invoice.endTime"
             type="datetime"
-            placeholder="请选择开票日期"
+            placeholder="请选择结束时间"
+            value-format="yyyy-MM-dd HH:mm:ss"
             style="width: 250px"
             clearable
           >

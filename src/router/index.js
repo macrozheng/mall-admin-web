@@ -389,6 +389,24 @@ export const asyncRouterMap = [
     ]
   },
 
+  {
+    path:'/mgs',
+    component: Layout,
+    redirect: '/mgs/inital',
+    name: 'mgs',
+    meta: {title: '系统管理工作站', icon: 'marker'},
+    children: [
+      {
+        path: 'inital',
+        name: 'inital',
+        component: () => import('@/views/mgs/inital/index'),
+        // 只是备注
+        meta: {title: '初始化配置', icon: 'eye'}
+      },
+      
+    ]
+  },
+
   {path: '*', redirect: '/404', hidden: true}
 ]
 
