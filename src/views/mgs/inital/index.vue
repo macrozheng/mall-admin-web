@@ -22,14 +22,16 @@
 import ConfigInfo from './ConfigInfo.vue';
 import DatabaseCapability from './DatabaseCapability.vue';
 import InstitutionCapability from './InstitutionCapability.vue';
-import RoomSurgery from './RoomSurgery.vue';
+// import RoomSurgery from './RoomSurgery.vue';
+import WardManage from './room-ward/WardManage.vue';
 import PharmacyConfiguration from './PharmacyConfiguration.vue';
 export default {
   components: {
     ConfigInfo,
     DatabaseCapability,
     InstitutionCapability,
-    RoomSurgery,
+    // RoomSurgery,
+    WardManage,
     PharmacyConfiguration
   },
   data() {
@@ -46,7 +48,8 @@ export default {
         'ConfigInfo',
         'DatabaseCapability',
         'InstitutionCapability',
-        'RoomSurgery',
+        // 'RoomSurgery',
+        'WardManage',
         'PharmacyConfiguration'
       ]
     }

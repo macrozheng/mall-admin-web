@@ -19,10 +19,12 @@
 <script>
 import RoomManage from './room-surgery/RoomManage.vue';
 import SurgeryManage from './room-surgery/SurgeryManage.vue';
+// import WardManage from './room-ward/WardManage.vue';
 export default {
   components: {
     RoomManage,
     SurgeryManage,
+    // WardManage,
   },
   data() {
     return {
@@ -30,6 +32,7 @@ export default {
       components: [
         'RoomManage',
         'SurgeryManage',
+        // 'WardManage',
       ],
       selectedIndex: 0, // 默认选中的标签
     };
