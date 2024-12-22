@@ -407,6 +407,30 @@ export const asyncRouterMap = [
     ]
   },
 
+  {
+    path:'/classify',
+    component: Layout,
+    redirect: '/classify/fastclassify',
+    name: 'classify',
+    meta: {title: '分类工作站', icon: 'classify'},
+    children: [
+      {
+        path: 'fastclassify',
+        name: 'fastclassify',
+        component: () => import('@/views/classify/fastclassify/index'),
+        // 只是备注
+        meta: {title: '快速分类', icon: 'eye'}
+      },
+      {
+        path: 'wristband',
+        name: 'wristband',
+        component: () => import('@/views/classify/wristband/index'),
+        // 只是备注
+        meta: {title: '标识管理', icon: 'eye'}
+      },
+    ]
+  },
+
   {path: '*', redirect: '/404', hidden: true}
 ]
 
