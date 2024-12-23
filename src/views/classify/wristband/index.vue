@@ -103,7 +103,7 @@
             <el-button
               size="mini"
               type="text"
-              @click="handleDelete(scope.$index, scope.row)">删除
+              @click="handleDelete(scope.row)">删除
             </el-button>
           </template>
         </el-table-column>
@@ -135,7 +135,7 @@
         <el-form-item label="标识名称：">
           <el-input v-model="wristband.name" style="width: 250px"></el-input>
         </el-form-item>
-        <el-form-item label="固定码：">
+        <el-form-item label="固化码：">
           <el-input v-model="wristband.fixedCode" style="width: 250px"></el-input>
         </el-form-item>
         
