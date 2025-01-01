@@ -185,14 +185,14 @@ export default {
   methods: {
     // 获取床位列表
     getBedList() {
-      if (!this.room || !this.room.roomNumber) {
+      if (!this.room || !this.room.id) {
         return; // 如果没有房间信息，直接返回
       }
 
       this.listLoading = true;
       const params = {
         ...this.listQuery,
-        roomNumber: this.room.roomNumber,
+        roomId: this.room.id,
       };
 
       fetchList(params)
@@ -225,6 +225,7 @@ export default {
       this.bedForm = {
         bedName: "",
         roomNumber: this.room.roomNumber,
+        roomId: this.room.id,
       };
       this.bedDialogVisible = true;
       this.$nextTick(() => {
@@ -249,7 +250,7 @@ export default {
         cancelButtonText: "取消",
         type: "warning",
       }).then(() => {
-        deleteBed(row.bedNumber).then((response) => {
+        deleteBed(row.id).then((response) => {
           this.$message({
             type: "success",
             message: "删除成功!",

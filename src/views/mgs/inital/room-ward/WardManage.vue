@@ -10,7 +10,7 @@
           @click="selectedTab(index)"
           :class="{ active: selectedIndex === index }"
         >
-          {{ tab.label }}
+          {{ tab.name }}
         </div>
       </div>
 
@@ -193,6 +193,7 @@ const defaultListQuery = {
 const defaultRoom = {
   id: null,
   departmentNum: null,
+  departmentId: null,
   roomNumber: null,
   roomName: null,
   capacity: 0,
@@ -208,10 +209,10 @@ export default {
   data() {
     return {
       tabs: [
-        { name: "sr-dep", label: "收容" },
-        { name: "zz-dep", label: "重症" },
-        { name: "crb-dep", label: "传染病" },
-        { name: "ss-dep", label: "手术" },
+        {"id": 1, departmentNum: "sr-dep", name: "收容" },
+        {"id": 2, departmentNum: "zz-dep", name: "重症" },
+        {"id": 4, departmentNum: "crb-dep", name: "传染病" },
+        {"id": 3, departmentNum: "ss-dep", name: "手术" },
       ],
       selectedIndex: 0,
       listQuery: Object.assign({}, defaultListQuery),
@@ -268,7 +269,7 @@ export default {
     // 获取病房列表
     getList() {
       this.listLoading = true;
-      this.listQuery.departmentNum = this.tabs[this.selectedIndex].name;
+      this.listQuery.departmentId = this.tabs[this.selectedIndex].id;
       fetchList(this.listQuery).then((response) => {
         this.listLoading = false;
         this.rooms = response.data.list;
@@ -290,7 +291,7 @@ export default {
         cancelButtonText: "取消",
         type: "warning",
       }).then(() => {
-        deleteRoom(room.roomNumber).then((response) => {
+        deleteRoom(room.id).then((response) => {
           this.$message({
             type: "success",
             message: "删除成功!",
@@ -305,9 +306,11 @@ export default {
       this.$refs.editForm.validate((valid) => {
         if (valid) {
           const updateData = {
+            id: this.editForm.id,
             roomNumber: this.editForm.roomNumber,
             capacity: this.editForm.capacity,
             departmentNum: this.editForm.departmentNum,
+            departmentId: this.editForm.departmentId,
           };
 
           updateRoom(updateData).then((response) => {
@@ -338,6 +341,7 @@ export default {
       this.$refs.addForm.validate((valid) => {
         if (valid) {
           this.addForm.departmentNum = this.tabs[this.selectedIndex].name;
+          this.addForm.departmentId = this.tabs[this.selectedIndex].id;
           createRoom(this.addForm).then((response) => {
             this.$message({
               message: "添加成功！",
@@ -396,8 +400,8 @@ export default {
       }
       this.bedListVisible = true;
       this.currentRoom = { ...room };
-      console.log('bedListVisible:', this.bedListVisible);
-      console.log('currentRoom:', this.currentRoom);
+      console.log("bedListVisible:", this.bedListVisible);
+      console.log("currentRoom:", this.currentRoom);
     },
     handleBedListClose() {
       this.bedListVisible = false;
@@ -410,7 +414,9 @@ export default {
         capacity: room.capacity,
         roomNumber: room.roomNumber,
         departmentNum: room.departmentNum,
+        departmentId: room.departmentId,
       };
+      console.log(this.editForm)
       this.editDialogVisible = true;
       this.$nextTick(() => {
         this.$refs.editForm.clearValidate();
