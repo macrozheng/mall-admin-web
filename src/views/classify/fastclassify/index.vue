@@ -74,17 +74,91 @@
             ></el-input>
           </div>
         </div>
+
+        <!-- 处置建议行 -->
+        <div class="form-row">
+          <div class="form-item full-width">
+            <span class="label">处置建议：</span>
+            <el-checkbox-group v-model="suggestions">
+              <el-checkbox label="处置1">处置1</el-checkbox>
+              <el-checkbox label="处置2">处置2</el-checkbox>
+              <el-checkbox label="处置3">处置3</el-checkbox>
+              <el-checkbox label="处置4">处置4</el-checkbox>
+            </el-checkbox-group>
+          </div>
+        </div>
+
+        <!-- 去向选择行 -->
+        <div class="form-row">
+          <div class="form-item full-width">
+            <span class="label">去向：</span>
+            <div class="department-list">
+              <div
+                v-for="item in departments"
+                :key="item.id"
+                class="department-item"
+                :class="{ active: selectedDepartment === item.id }"
+                @click="selectDepartment(item)"
+              >
+                {{ item.name }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 病房列表行 -->
+        <div class="form-row" v-if="rooms.length > 0">
+          <div class="form-item full-width">
+            <span class="label">病房：</span>
+            <div class="room-list">
+              <div class="room-grid">
+                <div
+                  v-for="room in rooms"
+                  :key="room.roomId"
+                  class="room-item"
+                  :class="{ active: selectedRoom === room.roomId }"
+                  @click="selectRoom(room)"
+                >
+                  <div class="room-name">{{ room.roomName }}</div>
+                  <div class="bed-count">
+                    可用床位：{{ room.availableBedCount }}张
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- 右侧区域 -->
     <div class="right-panel">
-      <div class="panel-content">右侧内容区域</div>
+      <div class="panel-content">
+        <!-- 状态切换栏 -->
+        <div class="status-bar">
+          <div 
+            v-for="(item, index) in statusList" 
+            :key="index"
+            class="status-item"
+            :class="{ active: currentStatus === item.value }"
+            @click="switchStatus(item.value)"
+          >
+            {{ item.label }}
+          </div>
+        </div>
+
+        <!-- 列表内容区域 -->
+        <div class="list-content">
+          <!-- 根据currentStatus显示不同的列表内容 -->
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import { fetchList, bedCountOfRoomList } from "@/api/mgs/room-bed/department";
+
 export default {
   name: "FastClassify",
   data() {
@@ -98,6 +172,28 @@ export default {
       name: "",
       remark: "",
       currentTime: new Date(),
+      suggestions: [], // 处置建议多选值
+      departments: [], // 组室列表
+      selectedDepartment: null, // 选中的组室ID
+      rooms: [
+        { roomId: 1, roomName: "1号病房", availableBedCount: 10 },
+        { roomId: 2, roomName: "2号病房", availableBedCount: 10 },
+        { roomId: 3, roomName: "3号病房", availableBedCount: 10 },
+        { roomId: 4, roomName: "4号病房", availableBedCount: 10 },
+        { roomId: 3, roomName: "3号病房", availableBedCount: 10 },
+        { roomId: 4, roomName: "4号病房", availableBedCount: 10 },
+        { roomId: 3, roomName: "3号病房", availableBedCount: 10 },
+        { roomId: 4, roomName: "4号病房", availableBedCount: 10 },
+        
+      ], // 病房列表
+      selectedRoom: null, // 选中的病房ID
+      // 状态列表
+      statusList: [
+        { label: '已分类伤员', value: 'classified' },
+        { label: '未分类伤员', value: 'unclassified' },
+        { label: '已驳回伤员', value: 'rejected' }
+      ],
+      currentStatus: 'classified', // 当前选中的状态
     };
   },
   methods: {
@@ -106,12 +202,43 @@ export default {
       console.log("读取卡号");
       console.log(this.currentTime);
     },
+
+    // 获取组室列表
+    getDepartments() {
+      fetchList().then((response) => {
+        this.departments = response.data;
+      });
+    },
+
+    // 选择组室
+    selectDepartment(department) {
+      this.selectedDepartment = department.id;
+      this.selectedRoom = null; // 清空已选择的病房
+      this.getRoomList(department.id);
+    },
+
+    // 获取病房列表
+    getRoomList(departmentId) {
+      bedCountOfRoomList({ departmentId: departmentId }).then((response) => {
+        // this.rooms = response.data;
+      });
+    },
+
+    // 选择病房
+    selectRoom(room) {
+      this.selectedRoom = room.roomId;
+    },
+
+    // 切换状态
+    switchStatus(status) {
+      this.currentStatus = status;
+      // 这里可以根据状态加载不同的数据
+    }
+  },
+  created() {
+    this.getDepartments();
   },
   mounted() {
-    // 更新当前时间
-    // setInterval(() => {
-    //   this.currentTime = new Date().toLocaleString();
-    // }, 1000);
     console.log(this.currentTime);
   },
 };
@@ -119,18 +246,18 @@ export default {
 
 <style lang="scss" scoped>
 .classify-container {
-  height: 100%;
+  height: 93vh;
   display: flex;
   background-color: #f5f7fa;
   padding: 10px;
-  gap: 10px;
+  gap: 6px;
 
   // 左侧面板
   .left-panel {
     flex: 0 0 45%;
     background-color: #ffffff;
     border-radius: 8px;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 12px 0 rgba(41, 1, 1, 0.05);
 
     .panel-content {
       height: 100%;
@@ -184,6 +311,14 @@ export default {
           .el-input {
             flex: 1;
           }
+
+          // 添加多选框组的样式
+          .el-checkbox-group {
+            display: flex;
+            gap: 30px;
+            flex: 1;
+            padding-left: 10px;
+          }
         }
 
         .card-number {
@@ -194,20 +329,143 @@ export default {
             width: 150px;
           }
         }
+
+        .department-list {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 15px;
+          flex: 1;
+          padding-left: 10px;
+
+          .department-item {
+            padding: 8px 20px;
+            border-radius: 4px;
+            background-color: #f5f7fa;
+            color: #606266;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+
+            &:hover {
+              border-color: #2e7256;
+              color: #2e7256;
+            }
+
+            &.active {
+              background-color: #2e7256;
+              color: #ffffff;
+              border-color: #2e7256;
+            }
+          }
+        }
+
+        .room-list {
+          flex: 1;
+          padding-left: 10px;
+
+          .room-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); // 修改为每行四个
+            gap: 15px;
+            width: 100%;
+
+            .room-item {
+              border-radius: 4px;
+              cursor: pointer;
+              transition: all 0.3s ease;
+              border: 1px solid transparent;
+              overflow: hidden; // 确保内部元素不会溢出
+
+              &:hover {
+                border-color: #2e7256;
+              }
+
+              &.active {
+                border-color: #2e7256;
+
+                .room-name {
+                  background-color: #2e7256;
+                  color: #ffffff;
+                }
+
+                .bed-count {
+                  background-color: #40875f;
+                  color: #ffffff;
+                }
+              }
+
+              .room-name {
+                padding: 10px 15px;
+                font-size: 14px;
+                color: #303133;
+                font-weight: 500;
+                background-color: #e4e7ed;
+                text-align: center;
+                transition: all 0.3s ease;
+              }
+
+              .bed-count {
+                padding: 8px 15px;
+                font-size: 12px;
+                color: #606266;
+                background-color: #f5f7fa;
+                text-align: center;
+                transition: all 0.3s ease;
+              }
+            }
+          }
+        }
       }
     }
   }
 
   // 右侧面板
   .right-panel {
-    flex: 0 0 55%; // 固定宽度55%
-    background-color: #3c6bb1; // 稍微深一点的背景色
-    border-radius: 8px;
+    flex: 0 0 45%;
+    background-color: #ffffff; // 改为白色背景
     box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
 
     .panel-content {
       height: 100%;
-      padding: 20px;
+      // padding: 20px;
+
+      // 状态切换栏样式
+      .status-bar {
+        display: flex;
+        gap: 10px;
+        // margin-bottom: 20px;
+
+        .status-item {
+          background-color: #f5f7fa;
+          border-radius: 4px;
+          padding: 8px 20px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          border: 1px solid transparent;
+          font-size: 14px;
+          color: #606266;
+          text-align: center;
+
+          &:hover {
+            border-color: #2e7256;
+            color: #2e7256;
+          }
+
+          &.active {
+            background-color: #2e7256;
+            color: #ffffff;
+            font-weight: 600;
+          }
+        }
+      }
+
+      // 列表内容区域样式
+      .list-content {
+        height: calc(100% - 90px); // 减去状态栏的高度
+        background-color: #f8f9fb;
+        border-radius: 6px;
+        padding: 15px;
+      }
     }
   }
 }
