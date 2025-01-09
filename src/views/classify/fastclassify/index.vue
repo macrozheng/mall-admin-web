@@ -136,20 +136,138 @@
       <div class="panel-content">
         <!-- 状态切换栏 -->
         <div class="status-bar">
-          <div 
-            v-for="(item, index) in statusList" 
-            :key="index"
-            class="status-item"
-            :class="{ active: currentStatus === item.value }"
-            @click="switchStatus(item.value)"
+          <el-tabs
+            v-model="currentStatus"
+            type="card"
+            @tab-click="handleTabClick"
           >
-            {{ item.label }}
+            <el-tab-pane
+              v-for="item in statusList"
+              :key="item.value"
+              :label="item.label"
+              :name="item.value"
+            >
+            </el-tab-pane>
+          </el-tabs>
+          <el-button
+            type="primary"
+            size="small"
+            icon="el-icon-upload2"
+            @click="handleImport"
+          >
+            导入
+          </el-button>
+        </div>
+
+        <!-- 搜索栏 -->
+        <div class="search-bar">
+          <div class="left-section">
+            <el-input
+              v-model="listQuery.name"
+              placeholder="请输入姓名"
+              style="width: 200px"
+              class="filter-item"
+              @keyup.enter.native="handleFilter"
+            />
+            <el-button
+              type="primary"
+              icon="el-icon-search"
+              size="small"
+              @click="handleFilter"
+            >
+              搜索
+            </el-button>
+            <el-button size="small" @click="resetQuery"> 重置 </el-button>
+          </div>
+          <div class="right-section">
+            <el-button
+              type="primary"
+              icon="el-icon-view"
+              size="small"
+              @click="handlePreview"
+            >
+              预览
+            </el-button>
           </div>
         </div>
 
-        <!-- 列表内容区域 -->
-        <div class="list-content">
-          <!-- 根据currentStatus显示不同的列表内容 -->
+        <!-- 数据列表 -->
+        <el-table
+          v-loading="listLoading"
+          :data="list"
+          style="width: 100%"
+          border
+        >
+          <el-table-column
+            type="index"
+            label="序号"
+            width="50"
+            align="center"
+          />
+          <el-table-column 
+            prop="suggestion" 
+            label="处置建议" 
+            align="center"
+            min-width="100"
+            show-overflow-tooltip
+          />
+          <el-table-column 
+            prop="patientName" 
+            label="姓名" 
+            align="center"
+            min-width="80"
+            show-overflow-tooltip
+          />
+          <el-table-column
+            prop="toDepartmentName"
+            label="去往组室"
+            align="center"
+            min-width="100"
+            show-overflow-tooltip
+          />
+          <el-table-column
+            prop="transferTime"
+            label="时间"
+            align="center"
+            width="160"
+          />
+          <el-table-column
+            prop="dataOriginalDescription"
+            label="数据来源"
+            align="center"
+            min-width="100"
+            show-overflow-tooltip
+          />
+          <el-table-column 
+            label="操作" 
+            width="100" 
+            align="center"
+            fixed="right"
+          >
+            <template slot-scope="scope">
+              <el-button
+                size="mini"
+                type="text"
+                @click="handleChangeDestination(scope.row)"
+              >
+                更改去向
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+
+        <!-- 分页 -->
+        <div class="pagination-container">
+          <el-pagination
+            background
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page.sync="listQuery.pageNum"
+            :page-sizes="[5, 10, 15]"
+            :page-size="listQuery.pageSize"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+          />
         </div>
       </div>
     </div>
@@ -157,8 +275,8 @@
 </template>
 
 <script>
-import { fetchList, bedCountOfRoomList } from "@/api/mgs/room-bed/department";
-
+import { fetchList } from "@/api/classify/fastClassify";
+import {fetchList as  fetchDepartmentList, bedCountOfRoomList } from "@/api/mgs/room-bed/department";
 export default {
   name: "FastClassify",
   data() {
@@ -184,16 +302,25 @@ export default {
         { roomId: 4, roomName: "4号病房", availableBedCount: 10 },
         { roomId: 3, roomName: "3号病房", availableBedCount: 10 },
         { roomId: 4, roomName: "4号病房", availableBedCount: 10 },
-        
       ], // 病房列表
       selectedRoom: null, // 选中的病房ID
       // 状态列表
       statusList: [
-        { label: '已分类伤员', value: 'classified' },
-        { label: '未分类伤员', value: 'unclassified' },
-        { label: '已驳回伤员', value: 'rejected' }
+        { label: "已分类病人", value: "0" },
+        { label: "未分类病人", value: "unclassified" },
+        { label: "已驳回病人", value: "2" },
       ],
-      currentStatus: 'classified', // 当前选中的状态
+      currentStatus: "0", // 修改默认值为"0"，对应已分类病人
+      // 列表相关数据
+      list: [],
+      total: 0,
+      listLoading: false,
+      listQuery: {
+        pageNum: 1,
+        pageSize: 5,
+        name: "",
+        transferStatus: 0, // 确保初始值与 currentStatus 对应
+      },
     };
   },
   methods: {
@@ -205,8 +332,12 @@ export default {
 
     // 获取组室列表
     getDepartments() {
-      fetchList().then((response) => {
+      fetchDepartmentList().then((response) => {
         this.departments = response.data;
+        // 如果有组室数据，默认选中第一个
+        if (this.departments && this.departments.length > 0) {
+          this.selectDepartment(this.departments[0]);
+        }
       });
     },
 
@@ -220,7 +351,7 @@ export default {
     // 获取病房列表
     getRoomList(departmentId) {
       bedCountOfRoomList({ departmentId: departmentId }).then((response) => {
-        // this.rooms = response.data;
+        this.rooms = response.data;
       });
     },
 
@@ -232,11 +363,69 @@ export default {
     // 切换状态
     switchStatus(status) {
       this.currentStatus = status;
-      // 这里可以根据状态加载不同的数据
-    }
+      this.listQuery.transferStatus = status;
+      this.listQuery.pageNum = 1;
+      this.getList();
+    },
+
+    // 获取列表数据
+    getList() {
+      this.listLoading = true;
+      fetchList(this.listQuery).then((response) => {
+        const { list, total } = response.data;
+        this.list = list;
+        this.total = total;
+        this.listLoading = false;
+      });
+    },
+
+    // 搜索
+    handleFilter() {
+      this.listQuery.pageNum = 1;
+      this.getList();
+    },
+
+    // 重置搜索
+    resetQuery() {
+      this.listQuery.name = "";
+      this.handleFilter();
+    },
+
+    // 导入
+    handleImport() {
+      // 实现导入功能
+    },
+
+    // 预览
+    handlePreview() {
+      // 实现预览功能
+    },
+
+    // 更改去向
+    handleChangeDestination(row) {
+      // 实现更改去向功能
+    },
+
+    // 分页方法
+    handleSizeChange(val) {
+      this.listQuery.pageSize = val;
+      this.getList();
+    },
+    handleCurrentChange(val) {
+      this.listQuery.pageNum = val;
+      this.getList();
+    },
+
+    // 修改状态切换方法
+    handleTabClick(tab) {
+      this.listQuery.transferStatus = this.currentStatus;
+      this.listQuery.pageNum = 1;
+      this.getList();
+    },
   },
   created() {
     this.getDepartments();
+    this.getList();
   },
   mounted() {
     console.log(this.currentTime);
@@ -246,7 +435,7 @@ export default {
 
 <style lang="scss" scoped>
 .classify-container {
-  height: 93vh;
+  height: 96vh;
   display: flex;
   background-color: #f5f7fa;
   padding: 10px;
@@ -254,7 +443,8 @@ export default {
 
   // 左侧面板
   .left-panel {
-    flex: 0 0 45%;
+    width: 45%;
+    // flex: 0 0 45%;
     background-color: #ffffff;
     border-radius: 8px;
     box-shadow: 0 2px 12px 0 rgba(41, 1, 1, 0.05);
@@ -325,9 +515,9 @@ export default {
           display: flex;
           gap: 10px;
 
-          .card-input {
-            width: 150px;
-          }
+          // .card-input {
+          //   width: 150px;
+          // }
         }
 
         .department-list {
@@ -421,52 +611,110 @@ export default {
 
   // 右侧面板
   .right-panel {
-    flex: 0 0 45%;
-    background-color: #ffffff; // 改为白色背景
+    // flex: 0 0 55%;
+    width: 55%;
+    background-color: #ffffff;
     box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
+    overflow: hidden; // 防止内容溢出
 
     .panel-content {
+      padding: 20px;
       height: 100%;
-      // padding: 20px;
+      display: flex;
+      flex-direction: column;
 
       // 状态切换栏样式
       .status-bar {
+        flex-shrink: 0; // 防止压缩
         display: flex;
-        gap: 10px;
-        // margin-bottom: 20px;
+        justify-content: space-between;
+        align-items: center;
+        // padding: 0 0 0 0;
+        // border-bottom: 1px solid #ebeef5;
+        background-color: #fff;
 
-        .status-item {
-          background-color: #f5f7fa;
-          border-radius: 4px;
-          padding: 8px 20px;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          border: 1px solid transparent;
-          font-size: 14px;
-          color: #606266;
-          text-align: center;
+        :deep(.el-tabs) {
+          flex: 1;
 
-          &:hover {
-            border-color: #2e7256;
-            color: #2e7256;
+          .el-tabs__header {
+            margin: 0;
           }
 
-          &.active {
+          .el-tabs__nav-wrap::after {
+            display: none;
+          }
+
+          .el-tabs__item {
+            height: 50px;
+            line-height: 50px;
+            font-size: 14px;
+            color: #606266;
+
+            &.is-active {
+              color: #2e7256;
+              font-weight: 500;
+            }
+
+            &:hover {
+              color: #2e7256;
+            }
+          }
+
+          .el-tabs__active-bar {
             background-color: #2e7256;
-            color: #ffffff;
-            font-weight: 600;
+          }
+        }
+
+        .el-button {
+          margin-left: 20px;
+        }
+      }
+
+      // 搜索栏样式
+      .search-bar {
+        flex-shrink: 0; // 防止压缩
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 0 15px 0;
+        background-color: #fff;
+
+        .left-section {
+          display: flex;
+          gap: 10px;
+        }
+      }
+
+      // 表格容器
+      .el-table {
+        flex: 1;
+        
+        ::v-deep {
+          .el-table__body-wrapper {
+            overflow-x: hidden;
+          }
+
+          // 确保单元格内容不会换行
+          .cell {
+            white-space: nowrap;
           }
         }
       }
 
-      // 列表内容区域样式
-      .list-content {
-        height: calc(100% - 90px); // 减去状态栏的高度
-        background-color: #f8f9fb;
-        border-radius: 6px;
-        padding: 15px;
+      // 分页容器
+      .pagination-container {
+        flex-shrink: 0; // 防止压缩
+        padding: 15px 20px;
+        text-align: right;
+        background-color: #fff;
+        // border-top: 1px solid #f0f0f0;
       }
     }
   }
+}
+
+.pagination-container {
+  padding: 15px 20px;
+  text-align: right;
 }
 </style>
