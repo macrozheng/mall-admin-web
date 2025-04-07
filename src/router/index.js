@@ -39,7 +39,7 @@ export const constantRouterMap = [
     },
     {
       name: 'video',
-      path: 'https://www.macrozheng.com/mall/catalog/mall_video.html',
+      path: 'https://www.macrozheng.com/mall/foreword/mall_video.html',
       meta: {title: '视频教程', icon: 'video'}
     },
     ]
