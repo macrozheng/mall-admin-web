@@ -29,19 +29,20 @@ export const constantRouterMap = [
     children: [{
       path: 'home',
       name: 'home',
-      component: () => import('@/views/home/index'),
+      // component: () => import('@/views/home/index'),
+      component: () => import('@/views/pms/product/index'),
       meta: {title: '仪表盘', icon: 'dashboard'}
     },
-    {
-      name: 'document',
-      path: 'https://www.macrozheng.com',
-      meta: {title: '学习教程', icon: 'document'}
-    },
-    {
-      name: 'video',
-      path: 'https://www.macrozheng.com/mall/foreword/mall_video.html',
-      meta: {title: '视频教程', icon: 'video'}
-    },
+    // {
+    //   name: 'document',
+    //   path: 'https://www.macrozheng.com',
+    //   meta: {title: '学习教程', icon: 'document'}
+    // },
+    // {
+    //   name: 'video',
+    //   path: 'https://www.macrozheng.com/mall/foreword/mall_video.html',
+    //   meta: {title: '视频教程', icon: 'video'}
+    // },
     ]
   }
 ]
@@ -137,6 +138,26 @@ export const asyncRouterMap = [
         name: 'updateBrand',
         component: () => import('@/views/pms/brand/update'),
         meta: {title: '编辑品牌'},
+        hidden: true
+      },      
+      {
+        path: 'channel',
+        name: 'channel',
+        component: () => import('@/views/pms/channel/index'),
+        meta: {title: '渠道管理', icon: 'channel'}
+      },
+      {
+        path: 'addChannel',
+        name: 'addChannel',
+        component: () => import('@/views/pms/channel/add'),
+        meta: {title: '添加渠道'},
+        hidden: true
+      },
+      {
+        path: 'updateChannel',
+        name: 'updateChannel',
+        component: () => import('@/views/pms/channel/update'),
+        meta: {title: '修改渠道'},
         hidden: true
       }
     ]
