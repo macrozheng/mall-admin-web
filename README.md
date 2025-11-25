@@ -19,7 +19,7 @@
 
 项目在线演示地址：[https://www.macrozheng.com/admin/](https://www.macrozheng.com/admin/)
 
-![后台管理系统功能演示](http://img.macrozheng.com/mall/project/mall_admin_show.png)
+![后台管理系统功能演示](http://macro-oss.oss-cn-shenzhen.aliyuncs.com/mall/project/mall_admin_show.png)
 
 ### 技术选型
 
