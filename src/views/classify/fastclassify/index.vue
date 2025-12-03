@@ -34,6 +34,7 @@
               type="datetime"
               placeholder="选择日期时间"
               default-time="12:00:00"
+              class="date-picker-custom"
             >
             </el-date-picker>
           </div>
@@ -500,6 +501,10 @@ export default {
 
           .el-input {
             flex: 1;
+          }
+
+          .date-picker-custom {
+            width: 200px;
           }
 
           // 添加多选框组的样式
