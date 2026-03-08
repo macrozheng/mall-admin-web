@@ -19,8 +19,8 @@ import Layout from '../views/layout/Layout'
   }
  **/
 export const constantRouterMap = [
-  {path: '/login', component: () => import('@/views/login/index'), hidden: true},
-  {path: '/404', component: () => import('@/views/404'), hidden: true},
+  {path: '/login', component: () => import(/* webpackChunkName: "login" */ '@/views/login/index'), hidden: true},
+  {path: '/404', component: () => import(/* webpackChunkName: "404" */ '@/views/404'), hidden: true},
   {
     path: '',
     component: Layout,
@@ -29,7 +29,7 @@ export const constantRouterMap = [
     children: [{
       path: 'home',
       name: 'home',
-      component: () => import('@/views/home/index'),
+      component: () => import(/* webpackChunkName: "home" */ '@/views/home/index'),
       meta: {title: '仪表盘', icon: 'dashboard'}
     },
     {

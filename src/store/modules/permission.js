@@ -2,46 +2,63 @@ import { asyncRouterMap, constantRouterMap } from '@/router/index';
 
 //判断是否有权限访问该菜单
 function hasPermission(menus, route) {
-  if (route.name) {
-    let currMenu = getMenu(route.name, menus);
-    if (currMenu!=null) {
-      //设置菜单的标题、图标和可见性
-      if (currMenu.title != null && currMenu.title !== '') {
-        route.meta.title = currMenu.title;
-      }
-      if (currMenu.icon != null && currMenu.title !== '') {
-        route.meta.icon = currMenu.icon;
-      }
-      if(currMenu.hidden!=null){
-        route.hidden = currMenu.hidden !== 0;
-      }
-      if (currMenu.sort != null && currMenu.sort !== '') {
-        route.sort = currMenu.sort;
-      }
+  if (!route.name) {
+    return true;
+  }
+  
+  // 使用 Map 缓存菜单查找，提高性能
+  if (!hasPermission.menuMap) {
+    hasPermission.menuMap = new Map();
+  }
+  
+  const cacheKey = `${JSON.stringify(menus)}-${route.name}`;
+  if (hasPermission.menuMap.has(cacheKey)) {
+    const cached = hasPermission.menuMap.get(cacheKey);
+    if (cached.found) {
+      applyMenuProperties(route, cached.menu);
+    }
+    return cached.result;
+  }
+  
+  let currMenu = null;
+  for (let i = 0; i < menus.length; i++) {
+    if (route.name === menus[i].name) {
+      currMenu = menus[i];
+      break;
+    }
+  }
+  
+  if (currMenu !== null) {
+    applyMenuProperties(route, currMenu);
+    hasPermission.menuMap.set(cacheKey, { found: true, menu: currMenu, result: true });
+    return true;
+  } else {
+    route.sort = 0;
+    if (route.hidden !== undefined && route.hidden === true) {
+      route.sort = -1;
+      hasPermission.menuMap.set(cacheKey, { found: false, menu: null, result: true });
       return true;
     } else {
-      route.sort = 0;
-      if (route.hidden !== undefined && route.hidden === true) {
-        route.sort=-1;
-        return true;
-      } else {
-        return false;
-      }
+      hasPermission.menuMap.set(cacheKey, { found: false, menu: null, result: false });
+      return false;
     }
-  } else {
-    return true
   }
 }
 
-//根据路由名称获取菜单
-function getMenu(name, menus) {
-  for (let i = 0; i < menus.length; i++) {
-    let menu = menus[i];
-    if (name===menu.name) {
-      return menu;
-    }
+// 应用菜单属性到路由
+function applyMenuProperties(route, menu) {
+  if (menu.title != null && menu.title !== '') {
+    route.meta.title = menu.title;
   }
-  return null;
+  if (menu.icon != null && menu.icon !== '') {
+    route.meta.icon = menu.icon;
+  }
+  if (menu.hidden != null) {
+    route.hidden = menu.hidden !== 0;
+  }
+  if (menu.sort != null && menu.sort !== '') {
+    route.sort = menu.sort;
+  }
 }
 
 //对菜单进行排序

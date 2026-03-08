@@ -31,16 +31,18 @@ module.exports = {
   },
   module: {
     rules: [
-      {
+      // 开发环境下启用 ESLint 检查，生产环境禁用以提高构建速度
+      ...(process.env.NODE_ENV === 'development' ? [{
         test: /\.(js|vue)$/,
         loader: 'eslint-loader',
         enforce: 'pre',
         include: [resolve('src'), resolve('test')],
         options: {
           formatter: require('eslint-friendly-formatter'),
-          emitWarning: true
+          emitWarning: true,
+          cache: true // 启用缓存提高构建速度
         }
-      },
+      }] : []),
       {
         test: /\.vue$/,
         loader: 'vue-loader',
