@@ -13,6 +13,7 @@
     "axios": "^0.18.0",
     "echarts": "^4.2.0-rc.2",
     "element-ui": "^2.3.7",
+    "eslint": "^10.0.3",
     "js-cookie": "^2.2.0",
     "normalize.css": "^8.0.0",
     "nprogress": "^0.2.0",
