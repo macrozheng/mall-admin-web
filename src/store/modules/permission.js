@@ -1,84 +1,71 @@
 import { asyncRouterMap, constantRouterMap } from '@/router/index';
 
-//判断是否有权限访问该菜单
+// Create a Set for O(1) menu name lookup instead of complex caching
 function hasPermission(menus, route) {
+  if (!Array.isArray(menus) || !route) {
+    return false;
+  }
+  
   if (!route.name) {
     return true;
   }
   
-  // 使用 Map 缓存菜单查找，提高性能
-  if (!hasPermission.menuMap) {
-    hasPermission.menuMap = new Map();
+  // Initialize menu name set if not exists
+  if (!hasPermission.menuNameSet) {
+    hasPermission.menuNameSet = new Set(menus.map(menu => menu.name));
   }
   
-  const cacheKey = `${JSON.stringify(menus)}-${route.name}`;
-  if (hasPermission.menuMap.has(cacheKey)) {
-    const cached = hasPermission.menuMap.get(cacheKey);
-    if (cached.found) {
-      applyMenuProperties(route, cached.menu);
-    }
-    return cached.result;
-  }
+  const hasMenu = hasPermission.menuNameSet.has(route.name);
   
-  let currMenu = null;
-  for (let i = 0; i < menus.length; i++) {
-    if (route.name === menus[i].name) {
-      currMenu = menus[i];
-      break;
-    }
-  }
-  
-  if (currMenu !== null) {
-    applyMenuProperties(route, currMenu);
-    hasPermission.menuMap.set(cacheKey, { found: true, menu: currMenu, result: true });
+  if (hasMenu) {
+    const menu = menus.find(m => m.name === route.name);
+    applyMenuProperties(route, menu);
     return true;
   } else {
     route.sort = 0;
-    if (route.hidden !== undefined && route.hidden === true) {
+    if (route.hidden === true) {
       route.sort = -1;
-      hasPermission.menuMap.set(cacheKey, { found: false, menu: null, result: true });
       return true;
-    } else {
-      hasPermission.menuMap.set(cacheKey, { found: false, menu: null, result: false });
-      return false;
     }
+    return false;
   }
 }
 
-// 应用菜单属性到路由
+// Clear cache when menus change
+hasPermission.clearCache = () => {
+  hasPermission.menuNameSet = null;
+};
+
+// Apply menu properties to route
 function applyMenuProperties(route, menu) {
-  if (menu.title != null && menu.title !== '') {
+  if (menu?.title) {
     route.meta.title = menu.title;
   }
-  if (menu.icon != null && menu.icon !== '') {
+  if (menu?.icon) {
     route.meta.icon = menu.icon;
   }
-  if (menu.hidden != null) {
+  if (menu?.hidden !== undefined) {
     route.hidden = menu.hidden !== 0;
   }
-  if (menu.sort != null && menu.sort !== '') {
-    route.sort = menu.sort;
+  if (menu?.sort !== undefined && menu.sort !== '') {
+    route.sort = Number(menu.sort) || 0;
   }
 }
 
-//对菜单进行排序
+// Sort routers by sort property (descending order)
 function sortRouters(accessedRouters) {
-  for (let i = 0; i < accessedRouters.length; i++) {
-    let router = accessedRouters[i];
-    if(router.children && router.children.length > 0){
-      router.children.sort(compare("sort"));
+  const compare = (property) => (a, b) => {
+    const valA = a[property] ?? 0;
+    const valB = b[property] ?? 0;
+    return valB - valA;
+  };
+  
+  accessedRouters.forEach(router => {
+    if (router.children?.length > 0) {
+      router.children.sort(compare('sort'));
     }
-  }
-  accessedRouters.sort(compare("sort"));
-}
-
-//降序比较函数
-function compare(p){
-  return function(m,n){
-    let a = m[p];
-    let b = n[p];
-    return b - a;
-  }
+  });
+  accessedRouters.sort(compare('sort'));
 }
 
 const permission = {
@@ -90,39 +77,55 @@ const permission = {
     SET_ROUTERS: (state, routers) => {
       state.addRouters = routers;
       state.routers = constantRouterMap.concat(routers);
+    },
+    CLEAR_PERMISSION_CACHE: () => {
+      hasPermission.clearCache();
     }
   },
   actions: {
     GenerateRoutes({ commit }, data) {
       return new Promise(resolve => {
-        const { menus } = data;
-        const { username } = data;
-        const accessedRouters = asyncRouterMap.filter(v => {
-          //admin帐号直接返回所有菜单
-          // if(username==='admin') return true;
-          if (hasPermission(menus, v)) {
-            if (v.children && v.children.length > 0) {
-              v.children = v.children.filter(child => {
-                if (hasPermission(menus, child)) {
-                  return child
-                }
-                return false;
-              });
-              return v
-            } else {
-              return v
-            }
-          }
-          return false;
-        });
-        //对菜单进行排序
-        sortRouters(accessedRouters);
-        commit('SET_ROUTERS', accessedRouters);
-        resolve();
-      })
+        try {
+          const { menus, username } = data;
+          
+          // Admin account returns all menus (uncomment if needed)
+          // if (username === 'admin') {
+          //   const allRouters = JSON.parse(JSON.stringify(asyncRouterMap));
+          //   sortRouters(allRouters);
+          //   commit('SET_ROUTERS', allRouters);
+          //   resolve();
+          //   return;
+          // }
+          
+          const accessedRouters = asyncRouterMap
+            .filter(route => hasPermission(menus, route))
+            .map(route => {
+              if (route.children?.length > 0) {
+                const filteredChildren = route.children.filter(child => 
+                  hasPermission(menus, child)
+                );
+                return {
+                  ...route,
+                  children: filteredChildren
+                };
+              }
+              return route;
+            })
+            .filter(route => 
+              !route.children || route.children.length > 0
+            );
+          
+          sortRouters(accessedRouters);
+          commit('SET_ROUTERS', accessedRouters);
+          resolve();
+        } catch (error) {
+          console.error('Error generating routes:', error);
+          commit('SET_ROUTERS', []);
+          resolve();
+        }
+      });
     }
   }
 };
 
 export default permission;
-
