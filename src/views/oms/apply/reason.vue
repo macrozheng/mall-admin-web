@@ -1,92 +1,220 @@
-<template> 
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { Tickets } from '@element-plus/icons-vue'
+import { getReturnReasonListAPI, returnReasonDeleteByIdsAPI, returnReasonUpdateStatusAPI, returnReasonCreateAPI, getReturnReasonByIdAPI, returnReasonUpdateAPI } from '@/apis/returnReason'
+import { formatDateTime } from '@/utils/datetime'
+import type { PageParam } from '@/types/common'
+import type { OmsOrderReturnReason } from '@/types/returnReason'
+
+// 列表查询参数
+const listQuery = ref<PageParam>({
+  pageNum: 1,
+  pageSize: 10
+})
+// 列表数据
+const list = ref<OmsOrderReturnReason[]>([])
+// 列表总条数
+const total = ref(0)
+// 表格中被选中的行
+const multipleSelection = ref<OmsOrderReturnReason[]>([])
+// 表格数据加载进度条
+const listLoading = ref(true)
+// 获取列表数据
+const getList = async () => {
+  listLoading.value = true
+  const res = await getReturnReasonListAPI(listQuery.value)
+  listLoading.value = false
+  list.value = res.data.list
+  total.value = res.data.total
+}
+
+// 组件挂载后加载数据
+onMounted(() => {
+  getList()
+})
+
+// reason对象默认值
+const defaultReturnReason: OmsOrderReturnReason = {
+  name: '',
+  sort: 0,
+  status: 1,
+}
+// 编辑框是否可见
+const dialogVisible = ref(false)
+// 当前操作的reason对象
+const returnReason = ref(Object.assign({}, defaultReturnReason))
+// 当前操作的reasonId,为null时表示新增
+const operateReasonId = ref<number>()
+
+// 批量操作类型
+const operateType = ref()
+// 所有批量操作
+const operateOptions = ref([
+  {
+    label: "删除",
+    value: 1
+  }
+])
+
+const handleAdd = () => {
+  dialogVisible.value = true
+  operateReasonId.value = undefined
+  returnReason.value = Object.assign({}, defaultReturnReason)
+}
+
+const handleConfirm = async () => {
+  if (!operateReasonId.value) {
+    // 添加操作
+    await returnReasonCreateAPI(returnReason.value)
+    dialogVisible.value = false
+    operateReasonId.value = undefined
+    ElMessage({
+      message: '添加成功！',
+      type: 'success',
+      duration: 1000
+    })
+    getList()
+  } else {
+    // 编辑操作
+    await returnReasonUpdateAPI(operateReasonId.value, returnReason.value)
+    dialogVisible.value = false
+    operateReasonId.value = undefined
+    ElMessage({
+      message: '修改成功！',
+      type: 'success',
+      duration: 1000
+    })
+    getList()
+  }
+}
+
+const handleUpdate = async (index: number, row: OmsOrderReturnReason) => {
+  dialogVisible.value = true
+  operateReasonId.value = row.id
+  const res = await getReturnReasonByIdAPI(row.id!)
+  returnReason.value = res.data
+}
+
+const handleDelete = (index: number, row: OmsOrderReturnReason) => {
+  const ids = []
+  ids.push(row.id!)
+  deleteReasonMethod(ids)
+}
+
+const handleSelectionChange = (val: OmsOrderReturnReason[]) => {
+  multipleSelection.value = val
+}
+
+const handleStatusChange = async (index: number, row: OmsOrderReturnReason) => {
+  const ids = []
+  ids.push(row.id)
+  await returnReasonUpdateStatusAPI({ ids: ids.join(','), status: row.status })
+  ElMessage({
+    message: '状态修改成功',
+    type: 'success'
+  })
+}
+
+const handleBatchOperate = () => {
+  if (!multipleSelection.value || multipleSelection.value.length < 1) {
+    ElMessage({
+      message: '请选择要操作的条目',
+      type: 'warning',
+      duration: 1000
+    })
+    return
+  }
+  if (operateType.value === 1) {
+    deleteReasonMethod(multipleSelection.value.map(item => item.id!))
+  }
+}
+
+const handleSizeChange = (val: number) => {
+  listQuery.value.pageNum = 1
+  listQuery.value.pageSize = val
+  getList()
+}
+
+const handleCurrentChange = (val: number) => {
+  listQuery.value.pageNum = val
+  getList()
+}
+
+const deleteReasonMethod = async (ids: number[]) => {
+  await ElMessageBox.confirm('是否要进行该删除操作?', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  })
+  await returnReasonDeleteByIdsAPI({ ids: ids.join(',') })
+  ElMessage({
+    message: '删除成功！',
+    type: 'success',
+    duration: 1000
+  })
+  listQuery.value.pageNum = 1
+  getList()
+}
+</script>
+
+<template>
   <div class="app-container">
     <el-card class="operate-container" shadow="never">
-      <i class="el-icon-tickets"></i>
+      <el-icon class="el-icon-middle">
+        <Tickets />
+      </el-icon>
       <span>数据列表</span>
-      <el-button
-        size="mini"
-        @click="handleAdd"
-        class="btn-add">添加
-      </el-button>
+      <el-button @click="handleAdd" class="btn-add">添加</el-button>
     </el-card>
     <div class="table-container">
-      <el-table ref="returnReasonTable"
-                :data="list"
-                style="width: 100%;"
-                @selection-change="handleSelectionChange"
-                v-loading="listLoading" border>
+      <el-table ref="returnReasonTable" :data="list" style="width: 100%;" @selection-change="handleSelectionChange"
+        v-loading="listLoading" border>
         <el-table-column type="selection" width="60" align="center"></el-table-column>
         <el-table-column label="编号" width="80" align="center">
-          <template slot-scope="scope">{{scope.row.id}}</template>
+          <template v-slot="scope">{{ scope.row.id }}</template>
         </el-table-column>
         <el-table-column label="原因类型" align="center">
-          <template slot-scope="scope">{{scope.row.name}}</template>
+          <template v-slot="scope">{{ scope.row.name }}</template>
         </el-table-column>
         <el-table-column label="排序" width="100" align="center">
-          <template slot-scope="scope">{{scope.row.sort }}</template>
+          <template v-slot="scope">{{ scope.row.sort }}</template>
         </el-table-column>
         <el-table-column label="是否可用" align="center">
-          <template slot-scope="scope">
-            <el-switch
-              v-model="scope.row.status"
-              @change="handleStatusChange(scope.$index,scope.row)"
-              :active-value="1"
-              :inactive-value="0">
+          <template v-slot="scope">
+            <el-switch v-model="scope.row.status" @change="handleStatusChange(scope.$index, scope.row)"
+              :active-value="1" :inactive-value="0">
             </el-switch>
           </template>
         </el-table-column>
         <el-table-column label="添加时间" width="180" align="center">
-          <template slot-scope="scope">{{scope.row.createTime | formatCreateTime}}</template>
+          <template v-slot="scope">{{ formatDateTime(scope.row.createTime) }}</template>
         </el-table-column>
         <el-table-column label="操作" width="160" align="center">
-          <template slot-scope="scope">
-            <el-button
-              size="mini"
-              @click="handleUpdate(scope.$index, scope.row)">编辑</el-button>
-            <el-button
-              size="mini"
-              @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+          <template v-slot="scope">
+            <el-button size="small" @click="handleUpdate(scope.$index, scope.row)">编辑</el-button>
+            <el-button size="small" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
     </div>
     <div class="batch-operate-container">
-      <el-select
-        size="small"
-        v-model="operateType" placeholder="批量操作">
-        <el-option
-          v-for="item in operateOptions"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value">
+      <el-select v-model="operateType" placeholder="批量操作">
+        <el-option v-for="item in operateOptions" :key="item.value" :label="item.label" :value="item.value">
         </el-option>
       </el-select>
-      <el-button
-        style="margin-left: 20px"
-        class="search-button"
-        @click="handleBatchOperate"
-        type="primary"
-        size="small">
+      <el-button style="margin-left: 20px" class="search-button" @click="handleBatchOperate" type="primary">
         确定
       </el-button>
     </div>
     <div class="pagination-container">
-      <el-pagination
-        background
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        layout="total, sizes,prev, pager, next,jumper"
-        :current-page.sync="listQuery.pageNum"
-        :page-size="listQuery.pageSize"
-        :page-sizes="[5,10,15]"
-        :total="total">
+      <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange"
+        layout="total, sizes,prev, pager, next,jumper" v-model:current-page="listQuery.pageNum"
+        :page-size="listQuery.pageSize" :page-sizes="[5, 10, 15]" :total="total">
       </el-pagination>
     </div>
-    <el-dialog
-      title="添加退货原因"
-      :visible.sync="dialogVisible" width="30%">
-      <el-form :model="returnReason"
-               ref="reasonForm" label-width="150px">
+    <el-dialog title="添加退货原因" v-model="dialogVisible" width="30%">
+      <el-form :model="returnReason" ref="reasonForm" label-width="150px">
         <el-form-item label="原因类型：">
           <el-input v-model="returnReason.name" class="input-width"></el-input>
         </el-form-item>
@@ -97,177 +225,18 @@
           <el-switch v-model="returnReason.status" :active-value="1" :inactive-value="0"></el-switch>
         </el-form-item>
       </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="handleConfirm">确 定</el-button>
-      </span>
+      <template v-slot:footer>
+        <span class="dialog-footer">
+          <el-button @click="dialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="handleConfirm">确 定</el-button>
+        </span>
+      </template>
     </el-dialog>
   </div>
 </template>
-<script>
-  import {formatDate} from '@/utils/date';
-  import {fetchList,deleteReason,updateStatus,addReason,getReasonDetail,updateReason} from '@/api/returnReason';
-  const defaultListQuery = {
-    pageNum: 1,
-    pageSize: 5
-  };
-  const defaultReturnReason = {
-    name:null,
-    sort:0,
-    status:1,
-    createTime:null
-  };
-  export default {
-    name: 'returnReasonList',
-    data() {
-      return {
-        list: null,
-        total: null,
-        multipleSelection: [],
-        listLoading:true,
-        listQuery:Object.assign({}, defaultListQuery),
-        operateType:null,
-        operateOptions: [
-          {
-            label: "删除",
-            value: 1
-          }
-        ],
-        dialogVisible:false,
-        returnReason:Object.assign({},defaultReturnReason),
-        operateReasonId:null
-      }
-    },
-    created(){
-      this.getList();
-    },
-    filters:{
-      formatCreateTime(time) {
-        let date = new Date(time);
-        return formatDate(date, 'yyyy-MM-dd hh:mm:ss')
-      }
-    },
-    methods: {
-      handleAdd() {
-        this.dialogVisible=true;
-        this.operateReasonId=null;
-        this.returnReason=Object.assign({},defaultReturnReason);
-      },
-      handleConfirm(){
-        if(this.operateReasonId==null){
-          //添加操作
-          addReason(this.returnReason).then(response=>{
-            this.dialogVisible=false;
-            this.operateReasonId=null;
-            this.$message({
-              message: '添加成功！',
-              type: 'success',
-              duration:1000
-            });
-            this.getList();
-          });
-        }else{
-          //编辑操作
-          updateReason(this.operateReasonId,this.returnReason).then(response=>{
-            this.dialogVisible=false;
-            this.operateReasonId=null;
-            this.$message({
-              message: '修改成功！',
-              type: 'success',
-              duration:1000
-            });
-            this.getList();
-          });
-        }
-      },
-      handleUpdate(index, row){
-        this.dialogVisible=true;
-        this.operateReasonId=row.id;
-        getReasonDetail(row.id).then(response=>{
-          this.returnReason=response.data;
-        });
-      },
-      handleDelete(index, row){
-        let ids=[];
-        ids.push(row.id);
-        this.deleteReason(ids);
-      },
-      handleSelectionChange(val){
-        this.multipleSelection = val;
-      },
-      handleStatusChange(index,row){
-        let ids=[];
-        ids.push(row.id);
-        let param = new URLSearchParams();
-        param.append("status",row.status);
-        param.append("ids",ids);
-        updateStatus(param).then(response=>{
-          this.$message({
-            message: '状态修改成功',
-            type: 'success'
-          });
-        });
-      },
-      handleBatchOperate(){
-        if(this.multipleSelection==null||this.multipleSelection.length<1){
-          this.$message({
-            message: '请选择要操作的条目',
-            type: 'warning',
-            duration: 1000
-          });
-          return;
-        }
-        if(this.operateType===1){
-          let ids=[];
-          for(let i=0;i<this.multipleSelection.length;i++){
-            ids.push(this.multipleSelection[i].id);
-          }
-          this.deleteReason(ids);
-        }
-      },
-      handleSizeChange(val){
-        this.listQuery.pageNum = 1;
-        this.listQuery.pageSize = val;
-        this.getList();
-      },
-      handleCurrentChange(val){
-        this.listQuery.pageNum = val;
-        this.getList();
-      },
-      getList(){
-        this.listLoading = true;
-        fetchList(this.listQuery).then(response => {
-          this.listLoading = false;
-          this.list = response.data.list;
-          this.total = response.data.total;
-        });
-      },
-      deleteReason(ids){
-        this.$confirm('是否要进行该删除操作?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          let params = new URLSearchParams();
-          params.append("ids",ids);
-          deleteReason(params).then(response=>{
-            this.$message({
-              message: '删除成功！',
-              type: 'success',
-              duration: 1000
-            });
-            this.listQuery.pageNum=1;
-            this.getList();
-          });
-        })
-      },
-    }
-  }
-</script>
+
 <style scoped>
-  .input-width {
-    width: 80%;
-  }
+.input-width {
+  width: 80%
+}
 </style>
-
-

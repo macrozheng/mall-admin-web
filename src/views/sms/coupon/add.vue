@@ -1,14 +1,8 @@
-<template> 
+<script lang="ts" setup>
+import CouponDetail from './components/CouponDetail.vue'
+</script>
+<template>
   <coupon-detail :isEdit="false"></coupon-detail>
 </template>
-<script>
-  import CouponDetail from './components/CouponDetail'
-  export default {
-    name: 'addCoupon',
-    components: { CouponDetail }
-  }
-</script>
-<style scoped>
-</style>
 
-
+<style scoped></style>

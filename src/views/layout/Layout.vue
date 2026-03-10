@@ -1,49 +1,47 @@
+<script lang="ts" setup>
+import { computed } from 'vue'
+import { useAppStore } from '@/stores/app'
+import Navbar from './components/Navbar.vue'
+import Sidebar from './components/Sidebar/index.vue'
+import AppMain from './components/AppMain.vue'
+import useResizeHandler from './composables/useResizeHandler'
+
+// 使用 Pinia store
+const appStore = useAppStore()
+
+// 获取响应式状态
+const sidebar = computed(() => appStore.sidebar)
+const device = computed(() => appStore.device)
+
+// 计算类名
+const classObj = computed(() => ({
+  hideSidebar: !sidebar.value.opened,
+  withoutAnimation: sidebar.value.withoutAnimation,
+  mobile: device.value === 'mobile'
+}))
+
+// 使用 resize handler composable
+useResizeHandler()
+</script>
+
+
 <template>
   <div class="app-wrapper" :class="classObj">
-    <sidebar class="sidebar-container"></sidebar>
+    <Sidebar class="sidebar-container"></Sidebar>
     <div class="main-container">
-      <navbar></navbar>
-      <app-main></app-main>
+      <Navbar></Navbar>
+      <AppMain></AppMain>
     </div>
   </div>
 </template>
 
-<script>
-import { Navbar, Sidebar, AppMain } from './components'
-import ResizeMixin from './mixin/ResizeHandler'
+<style lang="scss" scoped>
+@use "@/styles/mixin.scss";
 
-export default {
-  name: 'layout',
-  components: {
-    Navbar,
-    Sidebar,
-    AppMain
-  },
-  mixins: [ResizeMixin],
-  computed: {
-    sidebar() {
-      return this.$store.state.app.sidebar
-    },
-    device() {
-      return this.$store.state.app.device
-    },
-    classObj() {
-      return {
-        hideSidebar: !this.sidebar.opened,
-        withoutAnimation: this.sidebar.withoutAnimation,
-        mobile: this.device === 'mobile'
-      }
-    }
-  }
+.app-wrapper {
+  @include mixin.clearfix;
+  position: relative;
+  height: 100%;
+  width: 100%;
 }
-</script>
-
-<style rel="stylesheet/scss" lang="scss" scoped>
-  @import "src/styles/mixin.scss";
-  .app-wrapper {
-    @include clearfix;
-    position: relative;
-    height: 100%;
-    width: 100%;
-  }
 </style>

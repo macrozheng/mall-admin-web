@@ -1,57 +1,64 @@
-<template>
-  <div class="scroll-container" ref="scrollContainer" @wheel.prevent="handleScroll" >
-    <div class="scroll-wrapper" ref="scrollWrapper" :style="{top: top + 'px'}">
-      <slot></slot>
-    </div>
-  </div>
-</template>
+<script lang="ts" setup>
+import { ref } from 'vue'
 
-<script>
+// 定义组件名称
+defineOptions({
+  name: 'ScrollBar'
+})
+
 const delta = 15
 
-export default {
-  name: 'scrollBar',
-  data() {
-    return {
-      top: 0
-    }
-  },
-  methods: {
-    handleScroll(e) {
-      const eventDelta = e.wheelDelta || -e.deltaY * 3
-      const $container = this.$refs.scrollContainer
-      const $containerHeight = $container.offsetHeight
-      const $wrapper = this.$refs.scrollWrapper
-      const $wrapperHeight = $wrapper.offsetHeight
-      if (eventDelta > 0) {
-        this.top = Math.min(0, this.top + eventDelta)
+// 响应式数据
+const top = ref(0)
+const scrollContainer = ref<HTMLDivElement>()
+const scrollWrapper = ref<HTMLDivElement>()
+
+// 处理滚动事件
+const handleScroll = (e: WheelEvent) => {
+  const eventDelta = -e.deltaY * 3
+  const $container = scrollContainer.value
+  if (!$container) return
+  const $containerHeight = $container.offsetHeight
+  const $wrapper = scrollWrapper.value
+  if (!$wrapper) return
+  const $wrapperHeight = $wrapper.offsetHeight
+
+  if (eventDelta > 0) {
+    top.value = Math.min(0, top.value + eventDelta)
+  } else {
+    if ($containerHeight - delta < $wrapperHeight) {
+      if (top.value < -($wrapperHeight - $containerHeight + delta)) {
+        // 当已经到达边界时，无需重新赋值
       } else {
-        if ($containerHeight - delta < $wrapperHeight) {
-          if (this.top < -($wrapperHeight - $containerHeight + delta)) {
-            this.top = this.top
-          } else {
-            this.top = Math.max(this.top + eventDelta, $containerHeight - $wrapperHeight - delta)
-          }
-        } else {
-          this.top = 0
-        }
+        top.value = Math.max(top.value + eventDelta, $containerHeight - $wrapperHeight - delta)
       }
+    } else {
+      top.value = 0
     }
   }
 }
 </script>
 
+<template>
+  <div class="scroll-container" ref="scrollContainer" @wheel.prevent="handleScroll">
+    <div class="scroll-wrapper" ref="scrollWrapper" :style="{ top: top + 'px' }">
+      <slot></slot>
+    </div>
+  </div>
+</template>
+
 <style rel="stylesheet/scss" lang="scss" scoped>
-@import '../../styles/variables.scss';
+@use '../../styles/variables.scss' as vars;
 
 .scroll-container {
   position: relative;
   width: 100%;
   height: 100%;
-  background-color: $menuBg;
+  background-color: vars.$menuBg;
+
   .scroll-wrapper {
     position: absolute;
-     width: 100%!important;
+    width: 100% !important;
   }
 }
 </style>

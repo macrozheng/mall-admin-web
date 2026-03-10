@@ -1,10 +1,201 @@
+<script setup lang="ts">
+import { ref, onMounted, computed } from 'vue'
+import { str2Date } from '@/utils/datetime'
+import img_home_order from '@/assets/images/home_order.png'
+import img_home_today_amount from '@/assets/images/home_today_amount.png'
+import img_home_yesterday_amount from '@/assets/images/home_yesterday_amount.png'
+import { use } from 'echarts/core'
+import { CanvasRenderer } from 'echarts/renderers'
+import { LineChart } from 'echarts/charts'
+import VChart from 'vue-echarts'
+import {
+  GridComponent,
+  TooltipComponent,
+  LegendComponent,
+  TitleComponent
+} from 'echarts/components'
+
+// 通过use()方法按需注入ECharts的模块
+use([
+  CanvasRenderer, // 画布渲染器
+  LineChart, // 折线图的绘制功能
+  GridComponent, // 直角坐标系网格组件
+  TooltipComponent, // 鼠标悬停时显示数据详情
+  LegendComponent,  // 图例组件
+  TitleComponent // 显示图表标题
+])
+
+// 折线图数据类型
+type LineChartDataItem = {
+  date: string, // 交易日期
+  orderCount: number, // 订单数量
+  orderAmount: number // 订单金额
+}
+
+// 默认图表数据
+const defaultLineChartData: LineChartDataItem[] = [
+  { date: '2026-01-01', orderCount: 10, orderAmount: 1093 },
+  { date: '2026-01-02', orderCount: 20, orderAmount: 2230 },
+  { date: '2026-01-03', orderCount: 33, orderAmount: 3623 },
+  { date: '2026-01-04', orderCount: 50, orderAmount: 6423 },
+  { date: '2026-01-05', orderCount: 80, orderAmount: 8492 },
+  { date: '2026-01-06', orderCount: 60, orderAmount: 6293 },
+  { date: '2026-01-07', orderCount: 20, orderAmount: 2293 },
+  { date: '2026-01-08', orderCount: 60, orderAmount: 6293 },
+  { date: '2026-01-09', orderCount: 50, orderAmount: 5293 },
+  { date: '2026-01-10', orderCount: 30, orderAmount: 3293 },
+  { date: '2026-01-11', orderCount: 20, orderAmount: 2293 },
+  { date: '2026-01-12', orderCount: 80, orderAmount: 8293 },
+  { date: '2026-01-13', orderCount: 100, orderAmount: 10293 },
+  { date: '2026-01-14', orderCount: 10, orderAmount: 1293 },
+  { date: '2026-01-15', orderCount: 40, orderAmount: 4293 }
+]
+
+// 默认起始日期
+const defaultStartDate = new Date(2026, 0, 1)
+
+// 日期选择器日期范围[start,end]
+const datePickerRange = ref<Date[]>([])
+// 初始化日期选择器数据
+const initDatePickerRange = () => {
+  const start = defaultStartDate
+  const end = new Date(start.getTime() + 1000 * 60 * 60 * 24 * 7)
+  datePickerRange.value = [start, end] as Date[]
+}
+// 图表数据
+const lineChartData = ref<LineChartDataItem[]>([])
+// 图表数据加载状态
+const loading = ref(false)
+// 获取图表数据
+const getLineChartData = () => {
+  loading.value = true
+  setTimeout(() => {
+    const start = datePickerRange.value[0]
+    const end = datePickerRange.value[1]
+    // 获取在当前区间范围内的数据
+    lineChartData.value = defaultLineChartData.filter(item => {
+      const currDate = str2Date(item.date)
+      return currDate!.getTime() >= start!.getTime() && currDate!.getTime() <= end!.getTime()
+    })
+    loading.value = false
+  }, 1000)
+}
+
+// 组件挂载成功初始化数据
+onMounted(() => {
+  initDatePickerRange()
+  getLineChartData()
+})
+
+// 日期选择器选项
+const shortcuts = [
+  {
+    text: '最近一周',
+    value: () => {
+      const start = defaultStartDate
+      const end = new Date(start.getTime() + 1000 * 60 * 60 * 24 * 7)
+      return [start, end]
+    }
+  },
+  {
+    text: '最近一月',
+    value: () => {
+      const start = defaultStartDate
+      const end = new Date(start.getTime() + 1000 * 60 * 60 * 24 * 30)
+      return [start, end]
+    }
+  }
+]
+// 处理日期范围变化
+const handleDatePickerRangeChange = () => {
+  getLineChartData()
+}
+
+// X 轴：日期（2026-01-01 到 2026-01-15）
+// 左 Y 轴：订单数量（0-100）
+// 右 Y 轴：订单金额（0-10000+）
+// 蓝色曲线：订单数量趋势（带填充）
+// 绿色曲线：订单金额趋势（带填充）
+// 鼠标悬停：显示交叉线和详细数据
+// vue-charts中的选项
+const chartOption = computed(() => {
+  const dates = lineChartData.value.map(item => item.date)
+  const orderCounts = lineChartData.value.map(item => item.orderCount)
+  const orderAmounts = lineChartData.value.map(item => item.orderAmount)
+  return {
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'cross'
+      }
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
+      boundaryGap: false,
+      data: dates,
+      axisLabel: {
+        formatter: '{value}',
+        rotate: 0
+      }
+    },
+    yAxis: [
+      {
+        type: 'value',
+        name: '订单数量',
+        position: 'left',
+        axisLabel: {
+          formatter: '{value}'
+        }
+      },
+      {
+        type: 'value',
+        name: '订单金额',
+        position: 'right',
+        axisLabel: {
+          formatter: '{value}'
+        }
+      }
+    ],
+    series: [
+      {
+        name: '订单数量',
+        type: 'line',
+        areaStyle: {},
+        data: orderCounts,
+        smooth: true,
+        itemStyle: {
+          color: '#409EFF'
+        }
+      },
+      {
+        name: '订单金额',
+        type: 'line',
+        yAxisIndex: 1,
+        areaStyle: {},
+        data: orderAmounts,
+        smooth: true,
+        itemStyle: {
+          color: '#67C23A'
+        }
+      }
+    ]
+  }
+})
+</script>
+
 <template>
   <div class="app-container">
     <div class="address-layout">
       <el-row :gutter="20">
         <el-col :span="6">
           <div class="out-border">
-            <div class="layout-title">学习教程</div>
+            <div class="layout-title">Spring Boot项目学习</div>
             <div class="color-main address-content">
               <a href="https://www.macrozheng.com" target="_blank">mall学习教程</a>
             </div>
@@ -12,9 +203,9 @@
         </el-col>
         <el-col :span="6">
           <div class="out-border">
-            <div class="layout-title">视频教程</div>
+            <div class="layout-title">Spring Cloud项目学习</div>
             <div class="color-main address-content">
-              <a href="https://www.macrozheng.com/mall/catalog/mall_video.html" target="_blank">mall视频教程（2023）</a>
+              <a href="https://cloud.macrozheng.com" target="_blank">mall-swarm学习教程</a>
             </div>
           </div>
         </el-col>
@@ -51,22 +242,15 @@
             <div class="total-value">￥5000.00</div>
           </div>
         </el-col>
-        <!--<el-col :span="6">-->
-          <!--<div class="total-frame">-->
-            <!--<svg-icon icon-class="total-week" class="total-icon">-->
-            <!--</svg-icon>-->
-            <!--<div class="total-title">近7天销售总额</div>-->
-            <!--<div class="total-value">￥50000.00</div>-->
-          <!--</div>-->
-        <!--</el-col>-->
       </el-row>
     </div>
     <el-card class="mine-layout">
       <div style="text-align: center">
-        <img width="150px" height="150px" src="http://macro-oss.oss-cn-shenzhen.aliyuncs.com/mall/banner/qrcode_for_macrozheng_258.jpg">
+        <img width="140px" height="140px"
+          src="http://macro-oss.oss-cn-shenzhen.aliyuncs.com/mall/banner/qrcode_for_macrozheng_258.jpg">
       </div>
-      <div style="text-align: center">mall全套学习教程连载中！</div>
-      <div style="text-align: center;margin-top: 5px"><span class="color-main">关注公号</span>，第一时间获取。</div>
+      <div style="text-align: center">扫码关注作者<span class="color-main">公众号</span></div>
+      <div style="text-align: center;margin-top: 5px">获取更多技术干货</div>
     </el-card>
     <div class="un-handle-layout">
       <div class="layout-title">待处理事务</div>
@@ -216,26 +400,16 @@
         </el-col>
         <el-col :span="20">
           <div style="padding: 10px;border-left:1px solid #DCDFE6">
-            <el-date-picker
-              style="float: right;z-index: 1"
-              size="small"
-              v-model="orderCountDate"
-              type="daterange"
-              align="right"
-              unlink-panels
-              range-separator="至"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
-              @change="handleDateChange"
-              :picker-options="pickerOptions">
+            <el-date-picker style="float: right;z-index: 1" size="small" v-model="datePickerRange" type="daterange"
+              align="right" unlink-panels range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"
+              :shortcuts="shortcuts" @change="handleDatePickerRangeChange">
             </el-date-picker>
-            <div>
-              <ve-line
-                :data="chartData"
-                :legend-visible="false"
-                :loading="loading"
-                :data-empty="dataEmpty"
-                :settings="chartSettings"></ve-line>
+            <div style="height: 400px;">
+              <v-chart v-if="!loading" :option="chartOption" autoresize />
+              <div v-else
+                style="display: flex; justify-content: center; align-items: center; height: 100%;width: 100%;">
+                <el-skeleton :rows="5" animated />
+              </div>
             </div>
           </div>
         </el-col>
@@ -244,199 +418,99 @@
   </div>
 </template>
 
-<script>
-  import {str2Date} from '@/utils/date';
-  import img_home_order from '@/assets/images/home_order.png';
-  import img_home_today_amount from '@/assets/images/home_today_amount.png';
-  import img_home_yesterday_amount from '@/assets/images/home_yesterday_amount.png';
-  const DATA_FROM_BACKEND = {
-    columns: ['date', 'orderCount','orderAmount'],
-    rows: [
-      {date: '2018-11-01', orderCount: 10, orderAmount: 1093},
-      {date: '2018-11-02', orderCount: 20, orderAmount: 2230},
-      {date: '2018-11-03', orderCount: 33, orderAmount: 3623},
-      {date: '2018-11-04', orderCount: 50, orderAmount: 6423},
-      {date: '2018-11-05', orderCount: 80, orderAmount: 8492},
-      {date: '2018-11-06', orderCount: 60, orderAmount: 6293},
-      {date: '2018-11-07', orderCount: 20, orderAmount: 2293},
-      {date: '2018-11-08', orderCount: 60, orderAmount: 6293},
-      {date: '2018-11-09', orderCount: 50, orderAmount: 5293},
-      {date: '2018-11-10', orderCount: 30, orderAmount: 3293},
-      {date: '2018-11-11', orderCount: 20, orderAmount: 2293},
-      {date: '2018-11-12', orderCount: 80, orderAmount: 8293},
-      {date: '2018-11-13', orderCount: 100, orderAmount: 10293},
-      {date: '2018-11-14', orderCount: 10, orderAmount: 1293},
-      {date: '2018-11-15', orderCount: 40, orderAmount: 4293}
-    ]
-  };
-  export default {
-    name: 'home',
-    data() {
-      return {
-        pickerOptions: {
-          shortcuts: [{
-            text: '最近一周',
-            onClick(picker) {
-              let start = new Date(2018,10,1);
-              const end = new Date(start.getTime() + 1000 * 60 * 60 * 24 * 7);
-              picker.$emit('pick', [start, end]);
-            }
-          }, {
-            text: '最近一月',
-            onClick(picker) {
-              let start = new Date(2018,10,1);
-              const end = new Date(start.getTime() + 1000 * 60 * 60 * 24 * 30);
-              picker.$emit('pick', [start, end]);
-            }
-          }]
-        },
-        orderCountDate: '',
-        chartSettings: {
-          xAxisType: 'time',
-          area:true,
-          axisSite: { right: ['orderAmount']},
-        labelMap: {'orderCount': '订单数量', 'orderAmount': '订单金额'}},
-        chartData: {
-          columns: [],
-          rows: []
-        },
-        loading: false,
-        dataEmpty: false,
-        img_home_order,
-        img_home_today_amount,
-        img_home_yesterday_amount
-      }
-    },
-    created(){
-      this.initOrderCountDate();
-      this.getData();
-    },
-    methods:{
-      handleDateChange(){
-        this.getData();
-      },
-      initOrderCountDate(){
-        let start = new Date(2018,10,1);
-        const end = new Date(start.getTime() + 1000 * 60 * 60 * 24 * 7);
-        this.orderCountDate=[start,end];
-      },
-      getData(){
-        setTimeout(() => {
-          this.chartData = {
-            columns: ['date', 'orderCount','orderAmount'],
-            rows: []
-          };
-          for(let i=0;i<DATA_FROM_BACKEND.rows.length;i++){
-            let item=DATA_FROM_BACKEND.rows[i];
-            let currDate=str2Date(item.date);
-            let start=this.orderCountDate[0];
-            let end=this.orderCountDate[1];
-            if(currDate.getTime()>=start.getTime()&&currDate.getTime()<=end.getTime()){
-              this.chartData.rows.push(item);
-            }
-          }
-          this.dataEmpty = false;
-          this.loading = false
-        }, 1000)
-      }
-    }
-  }
-</script>
-
 <style scoped>
-  .app-container {
-    margin-top: 40px;
-    margin-left: 120px;
-    margin-right: 120px;
-  }
+.app-container {
+  margin-top: 40px;
+  margin-left: 120px;
+  margin-right: 120px;
+}
 
-  .address-layout {
-  }
+.total-layout {
+  margin-top: 20px;
+}
 
-  .total-layout {
-    margin-top: 20px;
-  }
+.total-frame {
+  border: 1px solid #DCDFE6;
+  padding: 20px;
+  height: 100px;
+}
 
-  .total-frame {
-    border: 1px solid #DCDFE6;
-    padding: 20px;
-    height: 100px;
-  }
+.total-icon {
+  color: #409EFF;
+  width: 60px;
+  height: 60px;
+}
 
-  .total-icon {
-    color: #409EFF;
-    width: 60px;
-    height: 60px;
-  }
+.total-title {
+  position: relative;
+  font-size: 16px;
+  color: #909399;
+  left: 70px;
+  top: -50px;
+}
 
-  .total-title {
-    position: relative;
-    font-size: 16px;
-    color: #909399;
-    left: 70px;
-    top: -50px;
-  }
+.total-value {
+  position: relative;
+  font-size: 18px;
+  color: #606266;
+  left: 70px;
+  top: -40px;
+}
 
-  .total-value {
-    position: relative;
-    font-size: 18px;
-    color: #606266;
-    left: 70px;
-    top: -40px;
-  }
+.un-handle-layout {
+  margin-top: 20px;
+  border: 1px solid #DCDFE6;
+}
 
-  .un-handle-layout {
-    margin-top: 20px;
-    border: 1px solid #DCDFE6;
-  }
+.layout-title {
+  color: #606266;
+  padding: 15px 20px;
+  background: #F2F6FC;
+  font-weight: bold;
+}
 
-  .layout-title {
-    color: #606266;
-    padding: 15px 20px;
-    background: #F2F6FC;
-    font-weight: bold;
-  }
+.un-handle-content {
+  padding: 20px 40px;
+}
 
-  .un-handle-content {
-    padding: 20px 40px;
-  }
+.un-handle-item {
+  border-bottom: 1px solid #EBEEF5;
+  padding: 10px;
+}
 
-  .un-handle-item {
-    border-bottom: 1px solid #EBEEF5;
-    padding: 10px;
-  }
+.overview-layout {
+  margin-top: 20px;
+}
 
-  .overview-layout {
-    margin-top: 20px;
-  }
+.overview-item-value {
+  font-size: 24px;
+  text-align: center;
+}
 
-  .overview-item-value {
-    font-size: 24px;
-    text-align: center;
-  }
+.overview-item-title {
+  margin-top: 10px;
+  text-align: center;
+}
 
-  .overview-item-title {
-    margin-top: 10px;
-    text-align: center;
-  }
+.out-border {
+  border: 1px solid #DCDFE6;
+}
 
-  .out-border {
-    border: 1px solid #DCDFE6;
-  }
+.statistics-layout {
+  margin-top: 20px;
+  border: 1px solid #DCDFE6;
+}
 
-  .statistics-layout {
-    margin-top: 20px;
-    border: 1px solid #DCDFE6;
-  }
-  .mine-layout {
-    position: absolute;
-    right: 140px;
-    top: 107px;
-    width: 250px;
-    height: 235px;
-  }
-  .address-content{
-    padding: 20px;
-    font-size: 18px
-  }
+.mine-layout {
+  position: absolute;
+  right: 140px;
+  top: 107px;
+  width: 250px;
+  height: 235px;
+}
+
+.address-content {
+  padding: 20px;
+  font-size: 18px
+}
 </style>

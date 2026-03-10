@@ -1,25 +1,202 @@
-<template> 
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { Search, Tickets } from '@element-plus/icons-vue'
+import { getFlashListAPI, flashUpdateStatusByIdAPI, flashDeleteByIdAPI, flashCreateAPI, flashUpdateByIdAPI } from '@/apis/flash'
+import { formatDate } from '@/utils/datetime'
+import type { SmsFlashPromotion } from '@/types/flash'
+import type { PageParam } from '@/types/common'
+
+// 获取路由
+const router = useRouter()
+
+// 列表查询参数
+const listQuery = ref<PageParam>({
+  pageNum: 1,
+  pageSize: 10,
+  keyword: ''
+})
+// 列表数据
+const list = ref<SmsFlashPromotion[]>([])
+// 总条数
+const total = ref<number>(0)
+// 加载张图
+const listLoading = ref(false)
+// 获取列表数据
+const getList = async () => {
+  listLoading.value = true
+  try {
+    const res = await getFlashListAPI(listQuery.value)
+    listLoading.value = false
+    list.value = res.data.list
+    total.value = res.data.total
+  } catch (error) {
+    listLoading.value = false
+    console.error('获取秒杀活动列表失败:', error)
+  }
+}
+
+// 组件挂载时获取数据
+onMounted(() => {
+  getList()
+})
+
+// 默认秒杀活动对象
+const defaultSmsFlashPromotion: SmsFlashPromotion = {
+  title: '',
+  status: 0
+}
+// 当前操作的秒杀活动对象
+const flashPromotion = ref(Object.assign({}, defaultSmsFlashPromotion))
+// 编辑框是否可见
+const dialogVisible = ref(false)
+// 是否为编辑状态
+const isEdit = ref(false)
+
+// 重置搜索条件
+const handleResetSearch = () => {
+  listQuery.value = { pageNum: 0, pageSize: 10 }
+}
+
+// 搜索列表
+const handleSearchList = () => {
+  listQuery.value.pageNum = 1
+  getList()
+}
+
+// 每页大小改变
+const handleSizeChange = (val: number) => {
+  listQuery.value.pageNum = 1
+  listQuery.value.pageSize = val
+  getList()
+}
+
+// 当前页改变
+const handleCurrentChange = (val: number) => {
+  listQuery.value.pageNum = val
+  getList()
+}
+
+// 添加活动
+const handleAdd = () => {
+  dialogVisible.value = true
+  isEdit.value = false
+  flashPromotion.value = Object.assign({}, defaultSmsFlashPromotion)
+}
+
+// 显示时间段列表
+const handleShowSessionList = () => {
+  router.push({ path: '/sms/flashSession' })
+}
+
+// 状态改变
+const handleStatusChange = async (index: number, row: SmsFlashPromotion) => {
+  try {
+    await ElMessageBox.confirm('是否要修改该状态?', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+    await flashUpdateStatusByIdAPI(row.id!, { status: row.status })
+    ElMessage.success('修改成功!')
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('更新状态失败:', error)
+    }
+    ElMessage.info('取消修改')
+    getList()
+  }
+}
+
+// 删除活动
+const handleDelete = async (index: number, row: SmsFlashPromotion) => {
+  try {
+    await ElMessageBox.confirm('是否要删除该活动?', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+    await flashDeleteByIdAPI(row.id!)
+    ElMessage.success('删除成功!')
+    getList()
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('删除活动失败:', error)
+    }
+  }
+}
+
+// 更新活动
+const handleUpdate = (index: number, row: SmsFlashPromotion) => {
+  dialogVisible.value = true
+  isEdit.value = true
+  flashPromotion.value = Object.assign({}, row)
+}
+
+// 处理对话框确认
+const handleDialogConfirm = async () => {
+  await ElMessageBox.confirm('是否要确认?', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  })
+  try {
+    if (isEdit.value) {
+      await flashUpdateByIdAPI(flashPromotion.value.id!, flashPromotion.value)
+      ElMessage.success('修改成功！')
+      dialogVisible.value = false
+      getList()
+    } else {
+      await flashCreateAPI(flashPromotion.value)
+      ElMessage.success('添加成功！')
+      dialogVisible.value = false
+      getList()
+    }
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('处理活动失败:', error)
+    }
+  }
+}
+
+// 选择时间段
+const handleSelectSession = (index: number, row: SmsFlashPromotion) => {
+  router.push({ path: '/sms/selectSession', query: { flashPromotionId: row.id } })
+}
+
+// 格式化活动状态
+const formatActiveStatus = (row: SmsFlashPromotion) => {
+  const nowDate = new Date()
+  const startDate = new Date(row.startDate!)
+  const endDate = new Date(row.endDate!)
+  if (nowDate.getTime() >= startDate.getTime() && nowDate.getTime() <= endDate.getTime()) {
+    return '活动进行中'
+  } else if (nowDate.getTime() > endDate.getTime()) {
+    return '活动已结束'
+  } else {
+    return '活动未开始'
+  }
+}
+</script>
+
+<template>
   <div class="app-container">
     <el-card class="filter-container" shadow="never">
       <div>
-        <i class="el-icon-search"></i>
+        <el-icon class="el-icon-middle">
+          <Search />
+        </el-icon>
         <span>筛选搜索</span>
-        <el-button
-          style="float:right"
-          type="primary"
-          @click="handleSearchList()"
-          size="small">
+        <el-button style="float:right" type="primary" @click="handleSearchList()">
           查询搜索
         </el-button>
-        <el-button
-          style="float:right;margin-right: 15px"
-          @click="handleResetSearch()"
-          size="small">
+        <el-button style="float:right;margin-right: 15px" @click="handleResetSearch()">
           重置
         </el-button>
       </div>
       <div style="margin-top: 15px">
-        <el-form :inline="true" :model="listQuery" size="small" label-width="140px">
+        <el-form :inline="true" :model="listQuery" label-width="140px">
           <el-form-item label="活动名称：">
             <el-input v-model="listQuery.keyword" class="input-width" placeholder="活动名称" clearable></el-input>
           </el-form-item>
@@ -27,95 +204,68 @@
       </div>
     </el-card>
     <el-card class="operate-container" shadow="never">
-      <i class="el-icon-tickets"></i>
+      <el-icon class="el-icon-middle">
+        <Tickets />
+      </el-icon>
       <span>数据列表</span>
-      <el-button size="mini" class="btn-add" @click="handleAdd()" style="margin-left: 20px">添加活动</el-button>
-      <el-button size="mini" class="btn-add" @click="handleShowSessionList()">秒杀时间段列表</el-button>
+      <el-button class="btn-add" @click="handleAdd()" style="margin-left: 20px">添加活动</el-button>
+      <el-button class="btn-add" @click="handleShowSessionList()">秒杀时间段列表</el-button>
     </el-card>
     <div class="table-container">
-      <el-table ref="flashTable"
-                :data="list"
-                style="width: 100%;"
-                v-loading="listLoading" border>
+      <el-table ref="flashTable" :data="list" style="width: 100%;" v-loading="listLoading" border>
         <el-table-column type="selection" width="60" align="center"></el-table-column>
         <el-table-column label="编号" width="100" align="center">
-          <template slot-scope="scope">{{scope.row.id}}</template>
+          <template #default="scope">{{ scope.row.id }}</template>
         </el-table-column>
         <el-table-column label="活动标题" align="center">
-          <template slot-scope="scope">{{scope.row.title}}</template>
+          <template #default="scope">{{ scope.row.title }}</template>
         </el-table-column>
         <el-table-column label="活动状态" width="140" align="center">
-          <template slot-scope="scope">{{scope.row |formatActiveStatus}}</template>
+          <template #default="scope">{{ formatActiveStatus(scope.row) }}</template>
         </el-table-column>
         <el-table-column label="开始时间" width="140" align="center">
-          <template slot-scope="scope">{{scope.row.startDate | formatDate}}</template>
+          <template #default="scope">{{ formatDate(scope.row.startDate) }}</template>
         </el-table-column>
         <el-table-column label="结束时间" width="140" align="center">
-          <template slot-scope="scope">{{scope.row.endDate | formatDate}}</template>
+          <template #default="scope">{{ formatDate(scope.row.endDate) }}</template>
         </el-table-column>
         <el-table-column label="上线/下线" width="200" align="center">
-          <template slot-scope="scope">
-            <el-switch
-              @change="handleStatusChange(scope.$index, scope.row)"
-              :active-value="1"
-              :inactive-value="0"
+          <template #default="scope">
+            <el-switch @change="handleStatusChange(scope.$index, scope.row)" :active-value="1" :inactive-value="0"
               v-model="scope.row.status">
             </el-switch>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="180" align="center">
-          <template slot-scope="scope">
-            <el-button size="mini"
-                       type="text"
-                       @click="handleSelectSession(scope.$index, scope.row)">设置商品
+          <template #default="scope">
+            <el-button size="small" type="primary" link @click="handleSelectSession(scope.$index, scope.row)">设置商品
             </el-button>
-            <el-button size="mini"
-                       type="text"
-                       @click="handleUpdate(scope.$index, scope.row)">
+            <el-button size="small" type="primary" link @click="handleUpdate(scope.$index, scope.row)">
               编辑
             </el-button>
-            <el-button size="mini"
-                       type="text"
-                       @click="handleDelete(scope.$index, scope.row)">删除
+            <el-button size="small" type="primary" link @click="handleDelete(scope.$index, scope.row)">删除
             </el-button>
           </template>
         </el-table-column>
       </el-table>
     </div>
     <div class="pagination-container">
-      <el-pagination
-        background
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        layout="total, sizes,prev, pager, next,jumper"
-        :current-page.sync="listQuery.pageNum"
-        :page-size="listQuery.pageSize"
-        :page-sizes="[5,10,15]"
-        :total="total">
+      <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange"
+        layout="total, sizes,prev, pager, next,jumper" v-model:current-page="listQuery.pageNum"
+        :page-size="listQuery.pageSize" :page-sizes="[5, 10, 15]" :total="total">
       </el-pagination>
     </div>
-    <el-dialog
-      title="添加活动"
-      :visible.sync="dialogVisible"
-      width="40%">
-      <el-form :model="flashPromotion"
-               ref="flashPromotionForm"
-               label-width="150px" size="small">
+    <el-dialog title="添加活动" v-model="dialogVisible" width="40%">
+      <el-form :model="flashPromotion" ref="SmsFlashPromotionForm" label-width="150px">
         <el-form-item label="活动标题：">
           <el-input v-model="flashPromotion.title" style="width: 250px"></el-input>
         </el-form-item>
         <el-form-item label="开始时间：">
-          <el-date-picker
-            v-model="flashPromotion.startDate"
-            type="date"
-            placeholder="请选择时间">
+          <el-date-picker v-model="flashPromotion.startDate" type="date" placeholder="请选择时间">
           </el-date-picker>
         </el-form-item>
         <el-form-item label="结束时间：">
-          <el-date-picker
-            v-model="flashPromotion.endDate"
-            type="date"
-            placeholder="请选择时间">
+          <el-date-picker v-model="flashPromotion.endDate" type="date" placeholder="请选择时间">
           </el-date-picker>
         </el-form-item>
         <el-form-item label="上线/下线">
@@ -125,172 +275,14 @@
           </el-radio-group>
         </el-form-item>
       </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false" size="small">取 消</el-button>
-        <el-button type="primary" @click="handleDialogConfirm()" size="small">确 定</el-button>
-      </span>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="dialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="handleDialogConfirm()">确 定</el-button>
+        </span>
+      </template>
     </el-dialog>
   </div>
 </template>
-<script>
-  import {fetchList, updateStatus, deleteFlash, createFlash, updateFlash} from '@/api/flash';
-  import {formatDate} from '@/utils/date';
 
-  const defaultListQuery = {
-    pageNum: 1,
-    pageSize: 5,
-    keyword: null
-  };
-  const defaultFlashPromotion = {
-    id: null,
-    title: null,
-    startDate: null,
-    endDate: null,
-    status: 0
-  };
-  export default {
-    name: 'flashPromotionList',
-    data() {
-      return {
-        listQuery: Object.assign({}, defaultListQuery),
-        list: null,
-        total: null,
-        listLoading: false,
-        dialogVisible: false,
-        flashPromotion: Object.assign({}, defaultFlashPromotion),
-        isEdit: false
-      }
-    },
-    created() {
-      this.getList();
-    },
-    filters: {
-      formatActiveStatus(row) {
-        let nowDate = new Date();
-        let startDate = new Date(row.startDate);
-        let endDate = new Date(row.endDate);
-        if (nowDate.getTime() >= startDate.getTime() && nowDate.getTime() <= endDate.getTime()) {
-          return '活动进行中';
-        } else if (nowDate.getTime() > endDate.getTime()) {
-          return '活动已结束';
-        } else {
-          return '活动未开始';
-        }
-      },
-      formatDate(time) {
-        if (time == null || time === '') {
-          return 'N/A';
-        }
-        let date = new Date(time);
-        return formatDate(date, 'yyyy-MM-dd')
-      }
-    },
-    methods: {
-      handleResetSearch() {
-        this.listQuery = Object.assign({}, defaultListQuery);
-      },
-      handleSearchList() {
-        this.listQuery.pageNum = 1;
-        this.getList();
-      },
-      handleSizeChange(val) {
-        this.listQuery.pageNum = 1;
-        this.listQuery.pageSize = val;
-        this.getList();
-      },
-      handleCurrentChange(val) {
-        this.listQuery.pageNum = val;
-        this.getList();
-      },
-      handleAdd() {
-        this.dialogVisible = true;
-        this.isEdit = false;
-        this.flashPromotion = Object.assign({},defaultFlashPromotion);
-      },
-      handleShowSessionList() {
-        this.$router.push({path: '/sms/flashSession'})
-      },
-      handleStatusChange(index, row) {
-        this.$confirm('是否要修改该状态?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          updateStatus(row.id, {status: row.status}).then(response => {
-            this.$message({
-              type: 'success',
-              message: '修改成功!'
-            });
-          });
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '取消修改'
-          });
-          this.getList();
-        });
-      },
-      handleDelete(index, row) {
-        this.$confirm('是否要删除该活动?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          deleteFlash(row.id).then(response => {
-            this.$message({
-              type: 'success',
-              message: '删除成功!'
-            });
-            this.getList();
-          });
-        });
-      },
-      handleUpdate(index, row) {
-        this.dialogVisible = true;
-        this.isEdit = true;
-        this.flashPromotion = Object.assign({},row);
-      },
-      handleDialogConfirm() {
-        this.$confirm('是否要确认?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          if (this.isEdit) {
-            updateFlash(this.flashPromotion.id,this.flashPromotion).then(response => {
-              this.$message({
-                message: '修改成功！',
-                type: 'success'
-              });
-              this.dialogVisible =false;
-              this.getList();
-            })
-          } else {
-            createFlash(this.flashPromotion).then(response => {
-              this.$message({
-                message: '添加成功！',
-                type: 'success'
-              });
-              this.dialogVisible =false;
-              this.getList();
-            })
-          }
-        })
-      },
-      handleSelectSession(index,row){
-        this.$router.push({path:'/sms/selectSession',query:{flashPromotionId:row.id}})
-      },
-      getList() {
-        this.listLoading = true;
-        fetchList(this.listQuery).then(response => {
-          this.listLoading = false;
-          this.list = response.data.list;
-          this.total = response.data.total;
-        });
-      }
-    }
-  }
-</script>
 <style></style>
-
-

@@ -1,163 +1,156 @@
 <template>
-  <div class="tinymce-container editor-container">
-    <textarea class="tinymce-textarea" :id="tinymceId"></textarea>
-    <div class="editor-custom-btn-container">
-      <editorImage color="#1890ff" class="editor-upload-btn" @successCBK="imageSuccessCBK"></editorImage>
-    </div>
+  <div class="rich-editor">
+    <editor v-model="contentValue" :init="initOptions" :disabled="disabled" @onClick="onClick" @onBlur="onBlur"
+      @onFocus="onFocus" tinymceScriptSrc="./tinymce6.8.6/tinymce.min.js" />
   </div>
 </template>
 
-<script>
-  import editorImage from './components/editorImage'
-  import '../../../static/tinymce4.7.5/langs/zh_CN'
+<script setup lang="ts">
+import { ref, watch } from 'vue'
+import Editor from '@tinymce/tinymce-vue'
 
-  const plugins = [
- `advlist anchor autolink autosave code codesample colorpicker colorpicker
-  contextmenu directionality emoticons fullscreen hr image imagetools importcss insertdatetime
-  legacyoutput link lists media nonbreaking noneditable pagebreak paste preview print save searchreplace
-  spellchecker tabfocus table template textcolor textpattern visualblocks visualchars wordcount`
-  ];
-  const toolbar = [
-    `bold italic underline strikethrough alignleft aligncenter
-  alignright outdent indent  blockquote undo redo removeformat code`,
-    `hr bullist numlist link image charmap	 preview anchor pagebreak
-    fullscreen insertdatetime media table forecolor backcolor`
-  ];
-  export default {
-    name: 'tinymce',
-    components: {editorImage},
-    props: {
-      id: {
-        type: String
-      },
-      value: {
-        type: String,
-        default: ''
-      },
-      toolbar: {
-        type: Array,
-        required: false,
-        default() {
-          return []
-        }
-      },
-      menubar: {
-        default: 'file edit insert view format table'
-      },
-      height: {
-        type: Number,
-        required: false,
-        default: 360
-      },
-      width: {
-        type: Number,
-        required: false,
-        default: 720
-      }
-    },
-    data() {
-      return {
-        hasChange: false,
-        hasInit: false,
-        tinymceId: this.id || 'vue-tinymce-' + +new Date()
-      }
-    },
-    watch: {
-      value(val) {
-        if (!this.hasChange && this.hasInit) {
-          this.$nextTick(() => window.tinymce.get(this.tinymceId).setContent(val))
-        }
-      }
-    },
-    mounted() {
-      this.initTinymce()
-    },
-    activated() {
-      this.initTinymce()
-    },
-    deactivated() {
-      this.destroyTinymce()
-    },
-    methods: {
-      initTinymce() {
-        const _this = this
-        window.tinymce.init({
-          selector: `#${this.tinymceId}`,
-          width: this.width,
-          height: this.height,
-          language: 'zh_CN',
-          body_class: 'panel-body ',
-          object_resizing: false,
-          toolbar: this.toolbar.length > 0 ? this.toolbar : toolbar,
-          menubar: false,
-          plugins: plugins,
-          end_container_on_empty_block: true,
-          powerpaste_word_import: 'clean',
-          code_dialog_height: 450,
-          code_dialog_width: 1000,
-          advlist_bullet_styles: 'square',
-          advlist_number_styles: 'default',
-          imagetools_cors_hosts: ['www.tinymce.com', 'codepen.io'],
-          default_link_target: '_blank',
-          link_title: false,
-          init_instance_callback: editor => {
-            if (_this.value) {
-              editor.setContent(_this.value)
-            }
-            _this.hasInit = true
-            editor.on('NodeChange Change KeyUp SetContent', () => {
-              this.hasChange = true
-              this.$emit('input', editor.getContent())
-            })
-          }
-        })
-      },
-      destroyTinymce() {
-        if (window.tinymce.get(this.tinymceId)) {
-          window.tinymce.get(this.tinymceId).destroy()
-        }
-      },
-      setContent(value) {
-        window.tinymce.get(this.tinymceId).setContent(value)
-      },
-      getContent() {
-        window.tinymce.get(this.tinymceId).getContent()
-      },
-      imageSuccessCBK(arr) {
-        const _this = this
-        arr.forEach(v => {
-          window.tinymce.get(_this.tinymceId).insertContent(`<img class="wscnph" src="${v.url}" >`)
-        })
-      }
-    },
-    destroyed() {
-      this.destroyTinymce()
+// minio上传路径
+const minioUploadUrl = import.meta.env.VITE_BASE_SERVER_URL + import.meta.env.VITE_MINIO_UPLOAD_URL
+
+interface Props {
+  modelValue: string
+  disabled?: boolean
+  height?: number
+  toolbar?: string[]
+  plugins?: string[]
+  placeholder?: string
+}
+
+interface BlobInfo {
+  blob: () => Blob
+  filename: () => string
+  id: () => string
+  name: () => string
+  base64: () => string
+}
+
+type UploadProgressCallback = (percent: number) => void
+
+interface Emits {
+  (e: 'update:modelValue', value: string): void
+  (e: 'click'): void
+  (e: 'blur'): void
+  (e: 'focus'): void
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  disabled: false,
+  height: 400,
+  toolbar: () => [
+    'blocks | undo redo remove| bold italic underline strikethrough removeformat | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify',
+    'fontsize forecolor backcolor bullist numlist |link image table | code fullscreen'
+  ],
+  plugins: () => [
+    'link', 'image', 'table', 'lists', 'code', 'fullscreen'
+  ],
+  placeholder: ''
+})
+
+const emit = defineEmits<Emits>()
+
+const contentValue = ref(props.modelValue)
+
+// 监听外部值变化
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    if (newValue !== contentValue.value) {
+      contentValue.value = newValue
     }
   }
+)
+
+// 监听内部值变化
+watch(contentValue, (newValue) => {
+  emit('update:modelValue', newValue)
+})
+
+const initOptions = {
+  language: 'zh_CN',
+  language_url: './tinymce6.8.6/langs/zh_CN.js',
+  selector: '#mytextarea',
+  height: props.height,
+  menubar: false,
+  plugins: props.plugins,
+  toolbar: props.toolbar,
+  placeholder: props.placeholder,
+  branding: false, // 隐藏 tinyMCE 品牌标识
+  resize: true, // 允许调整大小
+  elementpath: false, // 隐藏底部元素路径
+  content_style: `
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      font-size: 14px;
+      margin: 10px;
+      line-height: 1.6;
+    }
+  `,
+  images_upload_handler: (blobInfo: BlobInfo, progress: UploadProgressCallback) => new Promise((resolve, reject) => {
+    // 发起请求上传图片（目前仅支持minio上传）
+    const xhr = new XMLHttpRequest()
+    xhr.open('POST', minioUploadUrl)
+    // 上传进度回调
+    xhr.upload.onprogress = (e) => {
+      progress(e.loaded / e.total * 100)
+    }
+    // 上传完成回调
+    xhr.onload = () => {
+      if (xhr.status === 403) {
+        reject('HTTP Error: ' + xhr.status)
+        return
+      }
+      if (xhr.status < 200 || xhr.status >= 300) {
+        reject('HTTP Error: ' + xhr.status)
+        return
+      }
+      const json = JSON.parse(xhr.responseText)
+      console.log('images_upload:', json)
+      if (!json || json.code !== 200) {
+        reject('上传失败！')
+        return
+      }
+      resolve(json.data.url)
+    }
+    // 上传失败回调
+    xhr.onerror = () => {
+      reject('Image upload failed due to a XHR Transport error. Code: ' + xhr.status)
+    }
+    const formData = new FormData()
+    formData.append('file', blobInfo.blob(), blobInfo.filename())
+    xhr.send(formData)
+  })
+}
+
+const onClick = () => {
+  emit('click')
+}
+
+const onBlur = () => {
+  emit('blur')
+}
+
+const onFocus = () => {
+  emit('focus')
+}
 </script>
 
 <style scoped>
-  .tinymce-container {
-    position: relative;
-  }
+.rich-editor {
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+}
 
-  .tinymce-container >>> .mce-fullscreen {
-    z-index: 10000;
-  }
+:deep(.tox-tinymce) {
+  border-radius: 4px;
+  border: none;
+}
 
-  .tinymce-textarea {
-    visibility: hidden;
-    z-index: -1;
-  }
-
-  .editor-custom-btn-container {
-    position: absolute;
-    right: 10px;
-    top: 2px;
-    /*z-index: 2005;*/
-  }
-
-  .editor-upload-btn {
-    display: inline-block;
-  }
+:deep(.tox-edit-area) {
+  min-height: 300px;
+}
 </style>

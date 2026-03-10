@@ -1,18 +1,22 @@
-#app {
+@use './variables.scss' as vars;
 
+#app {
   // 主体区域
   .main-container {
     min-height: 100%;
-    transition: margin-left .28s;
+    transition: margin-left 0.28s;
     margin-left: 180px;
   }
 
-   // 侧边栏
+  // 侧边栏
   .sidebar-container {
     .horizontal-collapse-transition {
-      transition: 0s width ease-in-out, 0s padding-left ease-in-out, 0s padding-right ease-in-out;
+      transition:
+        0s width ease-in-out,
+        0s padding-left ease-in-out,
+        0s padding-right ease-in-out;
     }
-    transition: width .28s;
+    transition: width 0.28s;
     width: 180px !important;
     height: 100%;
     position: fixed;
@@ -49,32 +53,34 @@
         padding: 0 10px !important;
       }
     }
-    .el-submenu {
-      &>.el-submenu__title {
+    .el-sub-menu {
+      & > .el-sub-menu__title {
         padding-left: 10px !important;
-        &>span {
+        // 解决div el-sub-menu__title中svg图标不显示
+        display: block;
+        & > span {
           height: 0;
           width: 0;
           overflow: hidden;
           visibility: hidden;
           display: inline-block;
         }
-        .el-submenu__icon-arrow {
+        .el-sub-menu__icon-arrow {
           display: none;
         }
       }
     }
   }
 
-  .sidebar-container .nest-menu .el-submenu>.el-submenu__title,
-  .sidebar-container .el-submenu .el-menu-item {
+  .sidebar-container .nest-menu .el-sub-menu > .el-sub-menu__title,
+  .sidebar-container .el-sub-menu .el-menu-item {
     min-width: 180px !important;
-    background-color: $subMenuBg !important;
+    background-color: vars.$subMenuBg !important;
     &:hover {
-      background-color: $menuHover !important;
+      background-color: vars.$menuHover !important;
     }
   }
-  .el-menu--collapse .el-menu .el-submenu {
+  .el-menu--collapse .el-menu .el-sub-menu {
     min-width: 180px !important;
   }
 
@@ -85,7 +91,7 @@
     }
     .sidebar-container {
       top: 50px;
-      transition: transform .28s;
+      transition: transform 0.28s;
       width: 180px !important;
     }
     &.hideSidebar {

@@ -1,14 +1,9 @@
-<template> 
+<script setup lang="ts">
+import BrandDetail from './components/BrandDetail.vue'
+</script>
+
+<template>
   <brand-detail :is-edit='false'></brand-detail>
 </template>
-<script>
-  import BrandDetail from './components/BrandDetail'
-  export default {
-    name: 'addBrand',
-    components: { BrandDetail }
-  }
-</script>
-<style>
-</style>
 
-
+<style scoped></style>

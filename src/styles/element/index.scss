@@ -1,0 +1,25 @@
+/* 覆盖element-plus默认的主题色 */
+@forward 'element-plus/theme-chalk/src/common/var.scss' with (
+  $colors: (
+    'primary': (
+      // 主色
+      'base': #409eff,
+    ),
+    'success': (
+      // 成功色
+      'base': #67c23a,
+    ),
+    'warning': (
+      // 警告色
+      'base': #e6a23c,
+    ),
+    'danger': (
+      // 危险色
+      'base': #f56c6c,
+    ),
+    'error': (
+      // 错误色
+      'base': #f56c6c,
+    ),
+  )
+);
